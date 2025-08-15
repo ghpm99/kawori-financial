@@ -1,0 +1,16 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none"
+     xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ícone de carteira">
+  <!-- Corpo da carteira -->
+  <rect x="4" y="12" width="40" height="26" rx="6" fill="#6B46C1"/>
+  
+  <!-- Aba superior da carteira -->
+  <path d="M4 16c0-3.3 2.7-6 6-6h32c1.1 0 2 .9 2 2v6H4v-2z" fill="#7F57D3"/>
+  
+  <!-- Botão de fechamento -->
+  <circle cx="36" cy="25" r="3" fill="white"/>
+  
+  <!-- Costura decorativa -->
+  <path d="M10 20h18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+</svg>
+
+
