@@ -1,12 +1,11 @@
-import router from '@/pages/router';
-import React, { StrictMode } from 'react';
-import { RouterProvider } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
+import { LayoutProvider } from '../layout';
 
 const AppProvider = () => {
     return (
-        <StrictMode>
-            <RouterProvider router={router} />
-        </StrictMode>
+        <LayoutProvider>
+            <Outlet />
+        </LayoutProvider>
     );
 };
 

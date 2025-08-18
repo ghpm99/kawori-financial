@@ -24,7 +24,7 @@ const errorInterceptor = async (error: AxiosError) => {
         return Promise.reject(error);
     }
 
-    if (response.status === HttpStatusCode.Unauthorized) {
+    if (originalRequest && response.status === HttpStatusCode.Unauthorized) {
         try {
             await refreshTokenAsync();
             return apiAuth(originalRequest);
@@ -54,7 +54,7 @@ export const refreshTokenAsync = async () => {
                 resolve(refreshResponse.data);
             }
         } catch (error) {
-            if (error?.status === HttpStatusCode.Forbidden) {
+            if ((error as AxiosError)?.status === HttpStatusCode.Forbidden) {
                 window.dispatchEvent(new CustomEvent('tokenRefreshFailed'));
             }
             reject(error);

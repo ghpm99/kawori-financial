@@ -1,0 +1,82 @@
+.sider {
+    background: #fff;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    height: 100%;
+
+    :global(.ant-layout-sider-children) {
+        display: flex;
+        flex-direction: column;
+    }
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 24px 24px 32px;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 16px;
+}
+
+.logoIcon {
+    font-size: 28px;
+    color: #1890ff;
+}
+
+.logoText {
+    font-size: 18px;
+    font-weight: 600;
+    color: #262626;
+}
+
+.settings {
+    display: flex;
+    margin-bottom: 24px;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+}
+
+.settingsIcon {
+    font-size: 20px;
+    color: #1890ff;
+}
+
+.menuText {
+    font-size: 16px;
+    color: #262626;
+}
+
+.menu {
+    border: none;
+    flex: 1;
+
+    :global(.ant-menu-item) {
+        margin: 4px 16px;
+        border-radius: 8px;
+        height: 48px;
+        line-height: 48px;
+
+        &:hover {
+            background: #f0f7ff;
+        }
+
+        &.ant-menu-item-selected {
+            background: #e6f7ff;
+            color: #1890ff;
+
+            &::after {
+                display: none;
+            }
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+    }
+
+    :global(.ant-menu-item-icon) {
+        font-size: 16px;
+    }
+}
