@@ -28,7 +28,7 @@ const SideBard = () => {
                 items={menuItems}
                 className={styles.menu}
             />
-            <Divider />
+            <Divider style={{ margin: 0 }} />
 
             <Link to={'/settings'}>
                 <div className={styles.settings}>

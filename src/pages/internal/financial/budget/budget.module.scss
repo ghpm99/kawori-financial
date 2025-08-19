@@ -1,0 +1,197 @@
+.budget {
+    .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+
+        .titleSection {
+            .title {
+                margin: 0;
+                color: #262626;
+                font-size: 28px;
+                font-weight: 600;
+            }
+
+            .subtitle {
+                color: #8c8c8c;
+                margin-top: 4px;
+            }
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+    }
+
+    .summaryRow {
+        margin-bottom: 24px;
+
+        .summaryCard {
+            :global(.ant-card-body) {
+                padding: 20px;
+            }
+
+            .summaryContent {
+                text-align: center;
+
+                .summaryValue {
+                    font-size: 32px;
+                    font-weight: 600;
+                    margin: 0;
+
+                    &.income {
+                        color: #52c41a;
+                    }
+
+                    &.expenses {
+                        color: #ff4d4f;
+                    }
+
+                    &.remaining {
+                        color: #1890ff;
+                    }
+                }
+
+                .summaryLabel {
+                    color: #8c8c8c;
+                    font-size: 14px;
+                    margin-top: 8px;
+                }
+
+                .summaryProgress {
+                    margin-top: 16px;
+                }
+            }
+        }
+    }
+
+    .contentRow {
+        .chartCard {
+            :global(.ant-card-body) {
+                padding: 20px;
+            }
+
+            .chartHeader {
+                display: flex;
+                align-items: center;
+                justify-content: between;
+                margin-bottom: 16px;
+
+                .chartTitle {
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: #262626;
+                    margin: 0;
+                }
+            }
+
+            .chartContainer {
+                height: 400px;
+                width: 100%;
+            }
+        }
+
+        .categoriesCard {
+            :global(.ant-card-body) {
+                padding: 20px;
+            }
+
+            .categoriesHeader {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 16px;
+
+                .categoriesTitle {
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: #262626;
+                    margin: 0;
+                }
+            }
+
+            .categoryItem {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 0;
+                border-bottom: 1px solid #f0f0f0;
+
+                &:last-child {
+                    border-bottom: none;
+                }
+
+                .categoryInfo {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+
+                    .categoryIcon {
+                        width: 32px;
+                        height: 32px;
+                        border-radius: 8px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: white;
+                        font-size: 14px;
+                    }
+
+                    .categoryDetails {
+                        .categoryName {
+                            font-weight: 500;
+                            color: #262626;
+                            margin: 0;
+                        }
+
+                        .categoryBudget {
+                            color: #8c8c8c;
+                            font-size: 12px;
+                            margin-top: 2px;
+                        }
+                    }
+                }
+
+                .categoryAmount {
+                    text-align: right;
+
+                    .spent {
+                        font-weight: 600;
+                        color: #262626;
+                    }
+
+                    .remaining {
+                        color: #8c8c8c;
+                        font-size: 12px;
+                        margin-top: 2px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .budget {
+        .header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .summaryRow {
+            :global(.ant-col) {
+                margin-bottom: 16px;
+            }
+        }
+
+        .contentRow {
+            :global(.ant-col) {
+                margin-bottom: 16px;
+            }
+        }
+    }
+}
