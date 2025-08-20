@@ -1,0 +1,39 @@
+.background-container {
+    margin: 16px;
+    width: 100%;
+    padding-inline: 34px;
+    padding-block: 24px;
+    border-radius: 20px;
+    &.dark {
+        background: var(--color-theme-color-grey0);
+
+    }
+    &.light {
+        background: var(--color-neutral-color-pure-white);
+        // .ant-upload-text{
+
+        //     color: var(--color-theme-color-grey0);
+        // }
+        // .ant-upload-hint{
+
+        // }
+    }
+}
+
+.background {
+    width: 920px;
+    height: 837px;
+}
+
+.text {
+
+    &.dark {
+        color: var(--color-neutral-color-pure-white) !important;
+    }
+}
+
+.hint {
+    &.dark {
+        color: var(--color-neutral-color-grey5) !important;
+    }
+}

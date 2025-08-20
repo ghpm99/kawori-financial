@@ -1,0 +1,32 @@
+.container {
+    min-height: 100vh;
+}
+
+.header {
+    padding: 0;
+}
+
+.characters {
+    display: flex;
+    margin: 16px;
+    padding: 8px;
+}
+
+.container-toolkit {
+    display: flex;
+    flex-wrap: wrap;
+}
+.character-info {
+    margin: 16px;
+    padding: 8px;
+}
+
+.background-container {
+    margin: 16px;
+    padding: 8px;
+}
+
+.preview-container {
+    margin: 16px;
+    padding: 8px;
+}
