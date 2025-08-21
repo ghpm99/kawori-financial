@@ -1,51 +1,24 @@
-import { Breadcrumb, Layout, message, Table, Typography } from 'antd';
-import { useEffect } from 'react';
+import type { INewContractForm } from '@/components/contracts/modalNew';
+import { ContractProvider, useContract } from '@/providers/contracts';
+import { formatMoney } from '@/util';
+import { Breadcrumb, Layout, Table, Typography } from 'antd';
 import { Link } from 'react-router-dom';
 import styles from './contracts.module.scss';
 
 const { Title } = Typography;
 
 const ContractsPage = () => {
-    const dispatch = useAppDispatch();
-    const router = useRouter();
-    const pathname = usePathname();
-    const financialStore = useSelector((state: RootState) => state.financial.contract);
+    const { filters, pagination, data, loading } = useContract();
 
-    useEffect(() => {
-        document.title = 'Kawori Contratos';
-        dispatch(setSelectedMenu(['financial', 'contracts']));
-        dispatch(setFiltersContract(searchParams));
-    }, []);
-
-    useEffect(() => {
-        updateSearchParams(router, pathname, financialStore.filters);
-        dispatch(fetchAllContract(financialStore.filters));
-    }, [financialStore.filters, router, dispatch, pathname]);
-
-    const closeModal = (modal: keyof IModalContracts) => {
-        dispatch(changeVisibleContractsModal({ modal: modal, visible: false }));
-    };
+    const closeModal = (modal) => {};
 
     const onFinish = (values: INewContractForm) => {
         const newContract = {
             name: values.name,
         };
-
-        saveNewContractService(newContract).then((e) => {
-            message.success('Contrato adicionado com sucesso');
-            closeModal('newPayment');
-            dispatch(includeContract(e.data));
-        });
     };
 
-    const onChangePagination = (page: number, pageSize: number) => {
-        dispatch(
-            changePagination({
-                page: page,
-                pageSize: pageSize,
-            }),
-        );
-    };
+    const onChangePagination = (page: number, pageSize: number) => {};
 
     const headerTableFinancial = [
         {
@@ -101,34 +74,26 @@ const ContractsPage = () => {
                     <Title level={3} className={styles.title}>
                         Valores em aberto
                     </Title>
-
-                    <OpenModalNewContract />
                 </div>
                 <Table
                     pagination={{
                         showSizeChanger: true,
-                        defaultPageSize: financialStore.filters.page_size,
-                        current: financialStore.pagination.currentPage,
-                        total:
-                            financialStore.pagination.totalPages * financialStore.filters.page_size,
+                        defaultPageSize: filters.page_size,
+                        current: pagination.currentPage,
+                        total: pagination.totalPages * filters.page_size,
                         onChange: onChangePagination,
                     }}
                     columns={headerTableFinancial}
-                    dataSource={financialStore.data}
-                    loading={financialStore.loading}
+                    dataSource={data}
+                    loading={loading}
                     summary={(contractData) => <TableSummary contractData={contractData} />}
-                />
-                <ModalNew
-                    visible={financialStore.modal.newPayment.visible}
-                    onCancel={() => closeModal('newPayment')}
-                    onFinish={onFinish}
                 />
             </Layout>
         </>
     );
 };
 
-function TableSummary({ contractData }: { contractData: readonly IContractPagination[] }) {
+function TableSummary({ contractData }: { contractData: readonly IContract[] }) {
     const { Text } = Typography;
 
     let total = 0;
@@ -157,4 +122,12 @@ function TableSummary({ contractData }: { contractData: readonly IContractPagina
     );
 }
 
-export default ContractsPage;
+const WrappedContractPage = () => {
+    return (
+        <ContractProvider>
+            <ContractsPage />
+        </ContractProvider>
+    );
+};
+
+export default WrappedContractPage;

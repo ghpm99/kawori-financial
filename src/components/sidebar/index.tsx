@@ -17,10 +17,10 @@ const SideBard = () => {
             width={280}
             collapsedWidth={80}
         >
-            <div className={styles.logo}>
+            <Link to={'/'} className={styles.logo}>
                 <WalletOutlined className={styles.logoIcon} />
                 {!collapsed && <span className={styles.logoText}>Kawori Financial</span>}
-            </div>
+            </Link>
             <Menu
                 theme="light"
                 mode="inline"

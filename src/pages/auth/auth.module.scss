@@ -1,0 +1,86 @@
+.container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.authBox {
+    width: 800px;
+    height: 500px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Imagem */
+.imageSide {
+    width: 50%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: all 0.8s ease-in-out;
+}
+
+/* Formulário */
+.formWrapper {
+    width: 50%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    right: 0;
+    transition: all 0.8s ease-in-out;
+    padding: 2rem;
+    box-sizing: border-box;
+
+    /* Fade + scale */
+    opacity: 1;
+    transform: scale(1);
+}
+
+.fade {
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+/* Swap estados */
+.loginState .imageSide {
+    left: 0;
+}
+
+.loginState .formWrapper {
+    right: 0;
+}
+
+.registerState .imageSide {
+    left: 50%;
+}
+
+.registerState .formWrapper {
+    right: 50%;
+}
+
+.toggleButton {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1890ff;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    cursor: pointer;
+    border-radius: 6px;
+    z-index: 2;
+    font-weight: 500;
+}

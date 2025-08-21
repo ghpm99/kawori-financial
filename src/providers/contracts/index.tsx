@@ -49,7 +49,7 @@ interface ContractContextProps {
     dispatchFilters: React.Dispatch<FiltersAction>;
 }
 
-interface IContractPagination {
+export interface IContractPagination {
     data: IContract[];
     current_page: number;
     has_next: boolean;

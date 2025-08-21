@@ -1,18 +1,6 @@
 import Cards from '@/components/overview/cards';
 import { Breadcrumb, Flex, Table, Tag } from 'antd';
 
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    PointElement,
-    LineElement,
-    ArcElement,
-    Title,
-    Tooltip,
-    Legend,
-);
-
 const headerTableFinancial = [
     {
         title: 'ID',

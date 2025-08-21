@@ -1,17 +1,21 @@
-import { createBrowserRouter, type RouteObject } from 'react-router-dom';
-import LandingPage from './landing';
-import DashboardPage from './internal/financial/dashboard';
 import InternalLayout from '@/components/internal/layout';
 import AppProvider from '@/providers/appProvider';
+import { createBrowserRouter, type RouteObject } from 'react-router-dom';
 import ErrorPage from './error';
+import BudgetPage from './internal/financial/budget';
+import WrappedContractPage from './internal/financial/contracts';
+import DashboardPage from './internal/financial/dashboard';
 import InvoicesPage from './internal/financial/invoices';
 import PaymentsPage from './internal/financial/payments';
 import ReportsPage from './internal/financial/reports';
-import BudgetPage from './internal/financial/budget';
+import LandingPage from './landing';
+import SigninPage from './signin';
+import AuthPage from './auth';
 
 const internalRouters: RouteObject[] = [
     { path: 'dashboard', element: <DashboardPage /> },
     { path: 'reports', element: <ReportsPage /> },
+    { path: 'contracts', element: <WrappedContractPage /> },
     { path: 'invoices', element: <InvoicesPage /> },
     { path: 'payments', element: <PaymentsPage /> },
     { path: 'budget', element: <BudgetPage /> },
@@ -20,6 +24,8 @@ const internalRouters: RouteObject[] = [
 
 const routers: RouteObject[] = [
     { index: true, element: <LandingPage /> },
+    { path: 'signin', element: <SigninPage /> },
+    { path: 'auth', element: <AuthPage /> },
     {
         path: 'financial',
         element: <InternalLayout />,
