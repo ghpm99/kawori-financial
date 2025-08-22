@@ -7,34 +7,37 @@ import SignupForm from './signupForm';
 
 const AuthPage = () => {
     const [isLogin, setIsLogin] = useState(true);
-    const [fade, setFade] = useState(false);
+    const [fading, setFading] = useState(false);
 
     const handleToggle = () => {
-        // Primeiro fade out
-        setFade(true);
+        setFading(true);
         setTimeout(() => {
-            setIsLogin(!isLogin);
-            setFade(false);
-        }, 300); // tempo do fade out
+            setIsLogin((prev) => !prev);
+            setFading(false);
+        }, 300);
     };
-
     return (
         <div className={styles.container}>
-            <div className={`${styles.authBox} ${isLogin ? 'loginState' : 'registerState'}`}>
+            <div
+                className={`${styles.authBox} ${isLogin ? styles['signinState'] : styles['signupState']}`}
+            >
                 {/* Imagem */}
                 <div
-                    className={styles.imageSide}
-                    style={{ backgroundImage: `url(${isLogin ? signinImg : signupImg})` }}
-                ></div>
+                    className={`${styles.imageSide} ${fading ? styles.imageFade : ''} ${styles['signinImage']}`}
+                    style={{ backgroundImage: `url(${signinImg})` }}
+                />
+                <div
+                    className={`${styles.imageSide} ${fading ? styles.imageFade : ''} ${styles['signupImage']}`}
+                    style={{ backgroundImage: `url(${signupImg})` }}
+                />
 
-                {/* Formulário com fade + scale */}
-                <div className={`${styles.formWrapper} ${fade ? styles.fade : ''}`}>
+                {/* Formulário com fade */}
+                <div className={`${styles.formWrapper} ${fading ? styles.formFade : ''}`}>
                     {isLogin ? <SigninForm /> : <SignupForm />}
                 </div>
 
-                {/* Toggle */}
-                <button className={styles.toggleButton} onClick={handleToggle}>
-                    {isLogin ? 'Criar Conta' : 'Entrar'}
+                <button className={styles.toggleBtn} onClick={handleToggle}>
+                    {isLogin ? 'Cadastrar' : 'Entrar'}
                 </button>
             </div>
         </div>

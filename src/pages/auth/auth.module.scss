@@ -4,20 +4,21 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #f1f6f7; /* suave e clean */
 }
 
 .authBox {
-    width: 800px;
-    height: 500px;
+    width: 900px;
+    height: 600px;
     background: #fff;
-    border-radius: 16px;
+    border-radius: 12px;
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
     position: relative;
     overflow: hidden;
+    display: flex;
 }
 
-/* Imagem */
+/* Lado da imagem */
 .imageSide {
     width: 50%;
     height: 100%;
@@ -26,61 +27,68 @@
     position: absolute;
     top: 0;
     left: 0;
-    transition: all 0.8s ease-in-out;
+    transition: 0.8s ease-in-out;
 }
 
-/* Formulário */
+.imageFade {
+    // opacity: 0.5;
+}
+
+/* Lado do formulário */
 .formWrapper {
     width: 50%;
     height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     position: absolute;
     top: 0;
     right: 0;
-    transition: all 0.8s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding: 2rem;
     box-sizing: border-box;
-
-    /* Fade + scale */
+    transition:
+        right 0.8s ease-in-out,
+        opacity 0.4s ease-in-out;
     opacity: 1;
-    transform: scale(1);
 }
 
-.fade {
+.formFade {
     opacity: 0;
-    transform: scale(0.95);
 }
 
-/* Swap estados */
-.loginState .imageSide {
+/* Estado login */
+.signinState .imageSide {
     left: 0;
 }
-
-.loginState .formWrapper {
+.signinState .signupImage {
+    opacity: 0;
+}
+.signinState .formWrapper {
     right: 0;
 }
 
-.registerState .imageSide {
+/* Estado cadastro */
+.signupState .imageSide {
     left: 50%;
 }
-
-.registerState .formWrapper {
+.signupState .signinImage {
+    opacity: 0;
+}
+.signupState .formWrapper {
     right: 50%;
 }
 
-.toggleButton {
+.toggleBtn {
     position: absolute;
     bottom: 1.5rem;
     left: 50%;
     transform: translateX(-50%);
-    background: #1890ff;
-    color: #fff;
+    padding: 0.6rem 1.4rem;
     border: none;
-    padding: 0.5rem 1.5rem;
-    cursor: pointer;
+    background: #29a6d7;
+    color: #fff;
     border-radius: 6px;
-    z-index: 2;
+    cursor: pointer;
+    font-size: 1rem;
     font-weight: 500;
 }

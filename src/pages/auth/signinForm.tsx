@@ -6,6 +6,15 @@ const SigninForm = () => {
 
     return (
         <Form layout="vertical" onFinish={onFinish}>
+            <Form.Item label="Usuario" name="username" rules={[{ required: true }]}>
+                <Input />
+            </Form.Item>
+            <Form.Item label="Nome" name="name" rules={[{ required: true }]}>
+                <Input />
+            </Form.Item>
+            <Form.Item label="Sobrenome" name="last_name" rules={[{ required: true }]}>
+                <Input />
+            </Form.Item>
             <Form.Item label="Email" name="email" rules={[{ required: true }]}>
                 <Input />
             </Form.Item>

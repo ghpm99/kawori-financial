@@ -19,10 +19,10 @@ const LandingPage = () => {
                         <span className={styles.logoText}>Kawori Financial</span>
                     </div>
                     <div className={styles.navLinks}>
-                        <NavLink to="/signin" className={styles.navLink}>
+                        <NavLink to="/auth" className={styles.navLink}>
                             Logar
                         </NavLink>
-                        <NavLink to="/signup" className={styles.navLink}>
+                        <NavLink to="/auth" className={styles.navLink}>
                             Cadastrar
                         </NavLink>
                     </div>
