@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import signinImg from '../../assets/signin.jpg';
 import signupImg from '../../assets/signup.jpg';
 import styles from './auth.module.scss';
 import SigninForm from './signinForm';
 import SignupForm from './signupForm';
+import { Anchor } from 'antd';
+import { useLocation } from 'react-router-dom';
 
 const AuthPage = () => {
+    const location = useLocation();
     const [isLogin, setIsLogin] = useState(true);
     const [fading, setFading] = useState(false);
 
@@ -16,6 +19,12 @@ const AuthPage = () => {
             setFading(false);
         }, 300);
     };
+
+    useEffect(() => {
+        const hash = (location.hash || '').replace('#', '');
+        if (hash === 'signup') setIsLogin(false);
+        else setIsLogin(true);
+    }, [location.hash]);
     return (
         <div className={styles.container}>
             <div
@@ -35,10 +44,27 @@ const AuthPage = () => {
                 <div className={`${styles.formWrapper} ${fading ? styles.formFade : ''}`}>
                     {isLogin ? <SigninForm /> : <SignupForm />}
                 </div>
-
-                <button className={styles.toggleBtn} onClick={handleToggle}>
+                <Anchor
+                    className={styles.toggleBtn}
+                    direction="horizontal"
+                    onChange={handleToggle}
+                    items={[
+                        {
+                            key: 'signin',
+                            href: '#signin',
+                            title: 'Logar',
+                            target: 'self',
+                        },
+                        {
+                            key: 'signup',
+                            href: '#signup',
+                            title: 'Cadastrar',
+                        },
+                    ]}
+                />
+                {/* <button className={styles.toggleBtn} onClick={handleToggle}>
                     {isLogin ? 'Cadastrar' : 'Entrar'}
-                </button>
+                </button> */}
             </div>
         </div>
     );

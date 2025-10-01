@@ -5,7 +5,7 @@
         'nav nav nav'
         '. main .'
         'footer footer footer';
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: 1fr 480px 1fr;
     grid-template-rows: 70px auto 80px;
     grid-gap: 0;
     background: linear-gradient(135deg, #667eea 0%, #081550 100%);
@@ -64,7 +64,7 @@
 .card {
     grid-area: main;
     width: 100%;
-    max-width: 380px;
+    // max-width: 380px;
     justify-self: center;
     align-self: center;
     padding: 24px;

@@ -11,6 +11,8 @@ import ReportsPage from './internal/financial/reports';
 import LandingPage from './landing';
 import SigninPage from './signin';
 import AuthPage from './auth';
+import SignupForm from './auth/signupForm';
+import SignupPage from './signup';
 
 const internalRouters: RouteObject[] = [
     { path: 'dashboard', element: <DashboardPage /> },
@@ -25,6 +27,7 @@ const internalRouters: RouteObject[] = [
 const routers: RouteObject[] = [
     { index: true, element: <LandingPage /> },
     { path: 'signin', element: <SigninPage /> },
+    { path: 'signup', element: <SignupPage /> },
     { path: 'auth', element: <AuthPage /> },
     {
         path: 'financial',

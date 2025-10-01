@@ -1,13 +1,13 @@
 import { Button, Card, Form, Input } from 'antd';
-import styles from './signin.module.scss';
+import styles from './signup.module.scss';
 import { LockOutlined, UserOutlined, WalletOutlined } from '@ant-design/icons';
 import { NavLink } from 'react-router-dom';
 
-const SigninPage = () => {
+const SignupPage = () => {
     const [form] = Form.useForm();
 
     const onFinish = (values: any) => {
-        console.log('Login values:', values);
+        console.log('Cadastro values:', values);
         // aqui você chamaria sua API de autenticação
     };
     return (
@@ -29,41 +29,33 @@ const SigninPage = () => {
                 </div>
             </nav>
             <Card className={styles.card} bordered={false}>
-                <h1 className={styles.title}>Login</h1>
+                <h1 className={styles.title}>Cadastrar</h1>
                 <Form
                     form={form}
                     name="login"
-                    layout="vertical"
+                    layout="horizontal"
                     onFinish={onFinish}
                     requiredMark={false}
                 >
-                    <Form.Item
-                        name="username"
-                        rules={[{ required: true, message: 'Digite seu usuário' }]}
-                    >
-                        <Input prefix={<UserOutlined />} placeholder="Usuário" size="large" />
+                    <Form.Item label="Usuario" name="username" rules={[{ required: true }]}>
+                        <Input />
                     </Form.Item>
-
-                    <Form.Item
-                        name="password"
-                        rules={[{ required: true, message: 'Digite sua senha' }]}
-                    >
-                        <Input.Password
-                            prefix={<LockOutlined />}
-                            placeholder="Senha"
-                            size="large"
-                        />
+                    <Form.Item label="Nome" name="name" rules={[{ required: true }]}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item label="Sobrenome" name="last_name" rules={[{ required: true }]}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item label="Email" name="email" rules={[{ required: true }]}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item label="Senha" name="password" rules={[{ required: true }]}>
+                        <Input.Password />
                     </Form.Item>
 
                     <Form.Item>
-                        <Button
-                            type="primary"
-                            htmlType="submit"
-                            size="large"
-                            block
-                            className={styles.loginButton}
-                        >
-                            Entrar
+                        <Button type="primary" htmlType="submit">
+                            Cadastrar
                         </Button>
                     </Form.Item>
                 </Form>
@@ -84,4 +76,4 @@ const SigninPage = () => {
     );
 };
 
-export default SigninPage;
+export default SignupPage;
