@@ -1,9 +1,33 @@
-import { Button, Card, Form, Input } from 'antd';
+import { Button, Card, ConfigProvider, Form, Input } from 'antd';
+import { createStyles } from 'antd-style';
 import styles from './signup.module.scss';
-import { LockOutlined, UserOutlined, WalletOutlined } from '@ant-design/icons';
-import { NavLink } from 'react-router-dom';
+
+const useStyle = createStyles(({ prefixCls, css }) => ({
+    linearGradientButton: css`
+        &.${prefixCls}-btn-primary:not([disabled]):not(.${prefixCls}-btn-dangerous) {
+            > span {
+                position: relative;
+            }
+
+            &::before {
+                content: '';
+                background: linear-gradient(135deg, #667eea 0%, #081550 100%);
+                position: absolute;
+                inset: -1px;
+                opacity: 1;
+                transition: all 0.3s;
+                border-radius: inherit;
+            }
+
+            &:hover::before {
+                opacity: 0;
+            }
+        }
+    `,
+}));
 
 const SignupPage = () => {
+    const { styles: antdStyle } = useStyle();
     const [form] = Form.useForm();
 
     const onFinish = (values: any) => {
@@ -11,26 +35,16 @@ const SignupPage = () => {
         // aqui você chamaria sua API de autenticação
     };
     return (
-        <div className={styles.container}>
-            <nav className={styles.nav}>
-                <div className={styles.navContent}>
-                    <div className={styles.logo}>
-                        <WalletOutlined className={styles.logoIcon} />
-                        <span className={styles.logoText}>Kawori Financial</span>
-                    </div>
-                    <div className={styles.navLinks}>
-                        <NavLink to="/signin" className={styles.navLink}>
-                            Logar
-                        </NavLink>
-                        <NavLink to="/signup" className={styles.navLink}>
-                            Cadastrar
-                        </NavLink>
-                    </div>
-                </div>
-            </nav>
+        <ConfigProvider
+            button={{
+                className: antdStyle.linearGradientButton,
+            }}
+        >
             <Card className={styles.card} bordered={false}>
                 <h1 className={styles.title}>Cadastrar</h1>
                 <Form
+                    labelCol={{ span: 8 }}
+                    // wrapperCol={{ span: 14 }}
                     form={form}
                     name="login"
                     layout="horizontal"
@@ -52,27 +66,22 @@ const SignupPage = () => {
                     <Form.Item label="Senha" name="password" rules={[{ required: true }]}>
                         <Input.Password />
                     </Form.Item>
+                    <Form.Item
+                        label="Confirmar Senha"
+                        name="password-confirmation"
+                        rules={[{ required: true }]}
+                    >
+                        <Input.Password />
+                    </Form.Item>
 
                     <Form.Item>
-                        <Button type="primary" htmlType="submit">
+                        <Button block type="primary" htmlType="submit">
                             Cadastrar
                         </Button>
                     </Form.Item>
                 </Form>
             </Card>
-            {/* Footer */}
-            <footer className={styles.footer}>
-                <div className={styles.footerContent}>
-                    <div className={styles.footerLogo}>
-                        <WalletOutlined />
-                        <span>Kawori Financial</span>
-                    </div>
-                    <p className={styles.footerText}>
-                        © 2024 Kawori Financial. Todos os direitos reservados.
-                    </p>
-                </div>
-            </footer>
-        </div>
+        </ConfigProvider>
     );
 };
 

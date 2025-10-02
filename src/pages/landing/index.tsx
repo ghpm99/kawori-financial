@@ -10,26 +10,7 @@ import styles from './landing.module.scss';
 
 const LandingPage = () => {
     return (
-        <div className={styles.container}>
-            {/* Navigation */}
-            <nav className={styles.nav}>
-                <div className={styles.navContent}>
-                    <div className={styles.logo}>
-                        <WalletOutlined className={styles.logoIcon} />
-                        <span className={styles.logoText}>Kawori Financial</span>
-                    </div>
-                    <div className={styles.navLinks}>
-                        <NavLink to="/signin" className={styles.navLink}>
-                            Logar
-                        </NavLink>
-                        <NavLink to="/signup" className={styles.navLink}>
-                            Cadastrar
-                        </NavLink>
-                    </div>
-                </div>
-            </nav>
-
-            {/* Hero Section */}
+        <>
             <section className={styles.hero}>
                 <div className={styles.heroContent}>
                     <h1 className={styles.heroTitle}>
@@ -41,7 +22,7 @@ const LandingPage = () => {
                         Monitore gastos, planeje orçamentos e alcance seus objetivos financeiros.
                     </p>
                     <div className={styles.heroActions}>
-                        <NavLink to="/dashboard">
+                        <NavLink to="/financial/dashboard">
                             <Button
                                 type="primary"
                                 size="large"
@@ -101,20 +82,7 @@ const LandingPage = () => {
                     </div>
                 </div>
             </section>
-
-            {/* Footer */}
-            <footer className={styles.footer}>
-                <div className={styles.footerContent}>
-                    <div className={styles.footerLogo}>
-                        <WalletOutlined />
-                        <span>Kawori Financial</span>
-                    </div>
-                    <p className={styles.footerText}>
-                        © 2024 Kawori Financial. Todos os direitos reservados.
-                    </p>
-                </div>
-            </footer>
-        </div>
+        </>
     );
 };
 
