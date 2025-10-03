@@ -2,9 +2,16 @@
     min-height: 100vh;
     background: linear-gradient(135deg, #667eea 0%, #081550 100%);
     color: white;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+        'nav'
+        'content'
+        'footer';
 }
 
 .nav {
+    grid-area: nav;
     padding: 1rem 0;
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
@@ -53,7 +60,17 @@
     }
 }
 
+.content {
+    min-height: 100%;
+    grid-area: content;
+    // display: flex;
+    // justify-content: center;
+    // align-items: center;
+    // padding: 2rem;
+}
+
 .footer {
+    grid-area: footer;
     background: rgba(0, 0, 0, 0.2);
     padding: 2rem 0;
     border-top: 1px solid rgba(255, 255, 255, 0.1);

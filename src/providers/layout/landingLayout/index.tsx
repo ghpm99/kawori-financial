@@ -23,7 +23,9 @@ const LandingLayout = () => {
                 </div>
             </nav>
 
-            <Outlet />
+            <div className={styles.content}>
+                <Outlet />
+            </div>
 
             {/* Footer */}
             <footer className={styles.footer}>

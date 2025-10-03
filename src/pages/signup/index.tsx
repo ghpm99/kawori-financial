@@ -40,47 +40,49 @@ const SignupPage = () => {
                 className: antdStyle.linearGradientButton,
             }}
         >
-            <Card className={styles.card} bordered={false}>
-                <h1 className={styles.title}>Cadastrar</h1>
-                <Form
-                    labelCol={{ span: 8 }}
-                    // wrapperCol={{ span: 14 }}
-                    form={form}
-                    name="login"
-                    layout="horizontal"
-                    onFinish={onFinish}
-                    requiredMark={false}
-                >
-                    <Form.Item label="Usuario" name="username" rules={[{ required: true }]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="Nome" name="name" rules={[{ required: true }]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="Sobrenome" name="last_name" rules={[{ required: true }]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="Email" name="email" rules={[{ required: true }]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="Senha" name="password" rules={[{ required: true }]}>
-                        <Input.Password />
-                    </Form.Item>
-                    <Form.Item
-                        label="Confirmar Senha"
-                        name="password-confirmation"
-                        rules={[{ required: true }]}
+            <div className={styles.container}>
+                <Card className={styles.card} bordered={false}>
+                    <h1 className={styles.title}>Cadastrar</h1>
+                    <Form
+                        labelCol={{ span: 8 }}
+                        // wrapperCol={{ span: 14 }}
+                        form={form}
+                        name="login"
+                        layout="horizontal"
+                        onFinish={onFinish}
+                        requiredMark={false}
                     >
-                        <Input.Password />
-                    </Form.Item>
+                        <Form.Item label="Usuario" name="username" rules={[{ required: true }]}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item label="Nome" name="name" rules={[{ required: true }]}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item label="Sobrenome" name="last_name" rules={[{ required: true }]}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item label="Email" name="email" rules={[{ required: true }]}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item label="Senha" name="password" rules={[{ required: true }]}>
+                            <Input.Password />
+                        </Form.Item>
+                        <Form.Item
+                            label="Confirmar Senha"
+                            name="password-confirmation"
+                            rules={[{ required: true }]}
+                        >
+                            <Input.Password />
+                        </Form.Item>
 
-                    <Form.Item>
-                        <Button block type="primary" htmlType="submit">
-                            Cadastrar
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </Card>
+                        <Form.Item>
+                            <Button block type="primary" htmlType="submit">
+                                Cadastrar
+                            </Button>
+                        </Form.Item>
+                    </Form>
+                </Card>
+            </div>
         </ConfigProvider>
     );
 };
