@@ -1,10 +1,7 @@
+import { useAuth } from '@/providers/authProvider';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Card, Form, Input } from 'antd';
 import styles from './signin.module.scss';
-import { useMutation } from '@tanstack/react-query';
-import { signinService, type ISigninArgs, type ISigninResponse } from '@/services/auth';
-import { LOCAL_STORE_ITEM_NAME } from '@/components/constants';
-import type { AxiosResponse } from 'axios';
 
 interface SigninFormValues {
     username: string;
@@ -13,19 +10,10 @@ interface SigninFormValues {
 }
 const SigninPage = () => {
     const [form] = Form.useForm();
-
-    const { mutate } = useMutation<AxiosResponse<ISigninResponse, any>, Error, ISigninArgs>({
-        mutationFn: signinService,
-        onSuccess: ({ data }) => {
-            localStorage.setItem(LOCAL_STORE_ITEM_NAME, data.refresh_token_expiration);
-        },
-        onError: (error) => {
-            console.error('Login error:', error);
-        },
-    });
+    const { signinMutate } = useAuth();
 
     const onFinish = (values: SigninFormValues) => {
-        mutate(values);
+        signinMutate(values);
     };
     return (
         <div className={styles.container}>
