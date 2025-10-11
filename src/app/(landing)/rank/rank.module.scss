@@ -1,0 +1,621 @@
+.votes-pie {
+    width: 400px;
+    height: 400px;
+}
+
+.bdo-class-title {
+    margin-block: 36px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.subtitle {
+    font-weight: normal;
+    margin: 0;
+    font-family: "Chillax", sans-serif;
+}
+
+.bdo-class-list {
+    padding: 0;
+    width: 1278px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    list-style: none;
+
+    &.on {
+        & .bdo-class {
+            opacity: 1;
+            transform: translate3d(0, 0, 1px) scale3d(1, 1, 1);
+        }
+    }
+    @media screen and (max-width: 1278px) {
+        width: 100%;
+    }
+}
+
+.bdo-class-name {
+    position: absolute;
+    z-index: 2;
+    width: calc(100% - 18px);
+    text-align: center;
+    bottom: 26px;
+    color: white;
+    font-size: 18px;
+    font-family: "Chillax", sans-serif;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.bdo-class {
+    position: relative;
+    width: calc(100% / 5);
+    min-width: 255px;
+    height: 346px;
+    padding: 0 9px 18px;
+    transform: translate3d(0, 20%, 0) scale3d(1.05, 1.05, 1.05);
+    transition:
+        opacity 0.8s ease-in,
+        transform 0.8s;
+    opacity: 0;
+    &:hover {
+        z-index: 2;
+        & .bdo-class-name {
+            color: #e7bc5c;
+        }
+        & .bdo-class-symbol{
+            filter: none;
+        }
+        & .class-wrap {
+            transform: scale3d(1.08, 1.08, 1.08);
+            box-shadow: 0 5px 20px 5px #00000044;
+        }
+    }
+    @media screen and (max-width: 1279px) {
+        width: auto;
+    }
+}
+
+.class-wrap {
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 0;
+    padding-bottom: 138.55%;
+    box-shadow: 0 1px 5px #00000099;
+    border-radius: 8px;
+    overflow: hidden;
+    box-sizing: border-box;
+    transform: rotate3d(0, 10px, 10px);
+    transition:
+        filter 0.2s ease,
+        transform 0.3s ease-out,
+        box-shadow 0.3s ease-out;
+    outline: none;
+    will-change: transform;
+}
+
+.bdo-class-symbol {
+    width: 50px;
+    height: 50px;
+    background-size: 1000% auto;
+    transform: translate3d(0, 0, 1px);
+    filter:grayscale(1);
+}
+
+.bdo-class-image {
+    position: absolute;
+    top: 0;
+    left: -1px;
+    width: 240px;
+    height: 100%;
+    // background: url(../../../../public/assets/classes_spr.jpg) no-repeat;
+    background-size: 1000% auto;
+    transform: translate3d(0, 0, 1px);
+
+    &.archer {
+        background-position: calc((100% / 9) * 6) calc((100% / 2) * 1);
+    }
+
+    &.berserker {
+        background-position: calc((100% / 9) * 3) 0;
+    }
+
+    &.corsair {
+        background-position: calc((100% / 9) * 2) calc((100% / 2) * 2);
+    }
+
+    &.dark-knight {
+        background-position: calc((100% / 9) * 2) calc((100% / 2) * 1);
+    }
+
+    &.drakania {
+        background-position: calc((100% / 9) * 3) calc((100% / 2) * 2);
+    }
+
+    &.guardian {
+        background-position: calc((100% / 9) * 8) calc((100% / 2) * 1);
+    }
+
+    &.hashashin {
+        background-position: calc((100% / 9) * 9) calc((100% / 2) * 1);
+    }
+
+    &.kunoichi {
+        background-position: calc((100% / 9) * 8) 0;
+    }
+
+    &.lahn {
+        background-position: calc((100% / 9) * 5) calc((100% / 2) * 1);
+    }
+
+    &.maehwa {
+        background-position: calc((100% / 9) * 6) 0;
+    }
+
+    &.musa {
+        background-position: calc((100% / 9) * 5) 0;
+    }
+
+    &.mystic {
+        background-position: calc((100% / 9) * 4) calc((100% / 2) * 1);
+    }
+
+    &.ninja {
+        background-position: calc((100% / 9) * 9) 0;
+    }
+
+    &.nova {
+        background-position: calc((100% / 9) * 0) calc((100% / 2) * 2);
+    }
+
+    &.ranger {
+        background-position: calc((100% / 9) * 1) 0;
+    }
+
+    &.sage {
+        background-position: calc((100% / 9) * 1) calc((100% / 2) * 2);
+    }
+
+    &.shai {
+        background-position: calc((100% / 9) * 7) calc((100% / 2) * 1);
+    }
+
+    &.sorceress {
+        background-position: calc((100% / 9) * 2) 0;
+    }
+
+    &.striker {
+        background-position: calc((100% / 9) * 3) calc((100% / 2) * 1);
+    }
+
+    &.tamer {
+        background-position: calc((100% / 9) * 4) 0;
+    }
+
+    &.valkyrie {
+        background-position: calc((100% / 9) * 7) 0;
+    }
+
+    &.warrior {
+        background-position: 0 0;
+    }
+
+    &.witch {
+        background-position: calc((100% / 9) * 1) calc((100% / 2) * 1);
+    }
+
+    &.wizard {
+        background-position: calc((100% / 9) * 0) calc((100% / 2) * 1);
+    }
+
+    &.woosa {
+        background-position: calc((100% / 9) * 4) calc((100% / 2) * 2);
+    }
+
+    &.maegu {
+        background-position: calc((100% / 9) * 5) calc((100% / 2) * 2);
+    }
+
+    &.scholar {
+        background-position: calc((100% / 9) * 6) calc((100% / 2) * 2);
+    }
+
+    &.dosa {
+        background-position: calc((100% / 9) * 7) calc((100% / 2) * 2);
+    }
+}
+
+.selected-class {
+    &.on-class {
+        & .awakening {
+            opacity: 1;
+            transform: translate3d(0, 0, 1px);
+        }
+        & .succession {
+            opacity: 1;
+            transform: translate3d(0, 0, 1px);
+        }
+    }
+}
+
+.awakening {
+    width: 100%;
+    margin-bottom: 8px;
+    transform: translate3d(20%, 0, 0);
+    transition:
+        opacity 0.8s ease-in,
+        transform 0.8s;
+    opacity: 0;
+
+    @media screen and (max-width: 1300px) {
+        .grid-container {
+            .left-container {
+                display: none;
+            }
+            .right-container {
+                grid-column-start: 1;
+            }
+        }
+    }
+
+    &.archer {
+        background: url(../../../../public/assets/awakening_archer.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.berserker {
+        background: url(../../../../public/assets/awakening_berserker.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.corsair {
+        background: url(../../../../public/assets/awakening_corsair.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.dark-knight {
+        background: url(../../../../public/assets/awakening_dark_knight.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.drakania {
+        background: url(../../../../public/assets/awakening_drakania.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.guardian {
+        background: url(../../../../public/assets/awakening_guardian.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.hashashin {
+        background: url(../../../../public/assets/awakening_hashashin.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.kunoichi {
+        background: url(../../../../public/assets/awakening_kunoichi.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.lahn {
+        background: url(../../../../public/assets/awakening_lahn.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.maehwa {
+        background: url(../../../../public/assets/awakening_maehwa.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.musa {
+        background: url(../../../../public/assets/awakening_musa.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.mystic {
+        background: url(../../../../public/assets/awakening_mystic.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.ninja {
+        background: url(../../../../public/assets/awakening_ninja.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.nova {
+        background: url(../../../../public/assets/awakening_nova.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.ranger {
+        background: url(../../../../public/assets/awakening_ranger.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.sage {
+        background: url(../../../../public/assets/awakening_sage.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.shai {
+        background: url(../../../../public/assets/awakening_shai.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.sorceress {
+        background: url(../../../../public/assets/awakening_sorceress.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.striker {
+        background: url(../../../../public/assets/awakening_striker.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.tamer {
+        background: url(../../../../public/assets/awakening_tamer.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.valkyrie {
+        background: url(../../../../public/assets/awakening_valkyrie.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.warrior {
+        background: url(../../../../public/assets/awakening_warrior.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.witch {
+        background: url(../../../../public/assets/awakening_witch.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.wizard {
+        background: url(../../../../public/assets/awakening_wizard.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.woosa {
+        background: url(../../../../public/assets/awakening_woosa.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.maegu {
+        background: url(../../../../public/assets/awakening_maegu.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.scholar {
+        background: url(../../../../public/assets/awakening_scholar.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.dosa {
+        display: none;
+    }
+}
+
+.succession {
+    width: 100%;
+    transform: translate3d(-20%, 0, 0);
+    transition:
+        opacity 0.8s ease-in,
+        transform 0.8s;
+    opacity: 0;
+    background-position: right !important;
+
+    @media screen and (max-width: 1300px) {
+        .grid-container .right-container {
+            display: none;
+        }
+    }
+
+    &.archer {
+        display: none;
+    }
+
+    &.berserker {
+        background: url(../../../../public/assets/succession_berserker.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.corsair {
+        background: url(../../../../public/assets/succession_corsair.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.dark-knight {
+        background: url(../../../../public/assets/succession_dark_knight.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.drakania {
+        background: url(../../../../public/assets/succession_drakania.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.guardian {
+        background: url(../../../../public/assets/succession_guardian.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.hashashin {
+        background: url(../../../../public/assets/succession_hashashin.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.kunoichi {
+        background: url(../../../../public/assets/succession_kunoichi.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.lahn {
+        background: url(../../../../public/assets/succession_lahn.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.maehwa {
+        background: url(../../../../public/assets/succession_maehwa.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.musa {
+        background: url(../../../../public/assets/succession_musa.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.mystic {
+        background: url(../../../../public/assets/succession_mystic.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.ninja {
+        background: url(../../../../public/assets/succession_ninja.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.nova {
+        background: url(../../../../public/assets/succession_nova.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.ranger {
+        background: url(../../../../public/assets/succession_ranger.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.sage {
+        background: url(../../../../public/assets/succession_sage.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.shai {
+        display: none;
+    }
+
+    &.sorceress {
+        background: url(../../../../public/assets/succession_sorceress.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.striker {
+        background: url(../../../../public/assets/succession_striker.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.tamer {
+        background: url(../../../../public/assets/succession_tamer.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.valkyrie {
+        background: url(../../../../public/assets/succession_valkyrie.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.warrior {
+        background: url(../../../../public/assets/succession_warrior.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.witch {
+        background: url(../../../../public/assets/succession_witch.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.wizard {
+        background: url(../../../../public/assets/succession_wizard.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.woosa {
+        background: url(../../../../public/assets/succession_woosa.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.maegu {
+        background: url(../../../../public/assets/succession_maegu.jpg) no-repeat;
+        background-size: cover;
+    }
+
+    &.scholar {
+        display: none;
+    }
+
+    &.dosa {
+        background: url(../../../../public/assets/succession_dosa.jpg) no-repeat;
+        background-size: cover;
+    }
+}
+
+.grid-container {
+    width: 100%;
+    min-height: 588px;
+    padding: 16px;
+    display: inline-grid;
+    gap: 250px;
+    color: white;
+}
+
+.left-container {
+    grid-column-start: 1;
+}
+
+.right-container {
+    grid-column-start: 2;
+}
+
+.title {
+    width: 100%;
+    text-align: center;
+    font-weight: normal;
+
+    font-family: "Satoshi", sans-serif;
+}
+
+.answer-container {
+    display: flex;
+    gap: 8px;
+
+    &.awakening-container {
+        justify-content: flex-start;
+    }
+
+    &.succession-container {
+        justify-content: flex-end;
+    }
+}
+
+.summary-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.awakening-summary {
+    height: 80%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+.succession-summary {
+    display: flex;
+    height: 80%;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+.no-data {
+    text-align: center;
+}

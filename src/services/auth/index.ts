@@ -1,17 +1,16 @@
-import axios, { AxiosError, type AxiosResponse, HttpStatusCode } from 'axios';
+import axios, { AxiosError, AxiosResponse, HttpStatusCode } from "axios";
 
-import * as Sentry from '@sentry/react';
+import * as Sentry from "@sentry/nextjs";
 
-const apiUrl = import.meta.env.VITE_API_URL;
 let isRefreshingToken = false;
 let refreshPromise: Promise<any> | null = null;
 
 export const apiAuth = axios.create({
-    baseURL: apiUrl + '/auth/',
+    baseURL: process.env.NEXT_PUBLIC_API_URL + "/auth/",
     withCredentials: true,
     headers: {
-        'Access-Control-Allow-Origin': apiUrl,
-        'Content-Type': 'application/json',
+        "Access-Control-Allow-Origin": process.env.NEXT_PUBLIC_API_URL,
+        "Content-Type": "application/json",
     },
 });
 
@@ -44,7 +43,7 @@ const errorInterceptor = async (error: AxiosError) => {
 
 apiAuth.interceptors.response.use(responseInterceptor, errorInterceptor);
 
-apiAuth.get('/csrf/');
+apiAuth.get("/csrf/");
 
 export const refreshTokenAsync = async () => {
     if (isRefreshingToken) {
@@ -57,13 +56,13 @@ export const refreshTokenAsync = async () => {
             const refreshResponse = await refreshTokenService();
 
             if (refreshResponse.status !== 200) {
-                reject(new Error('Falha ao atualizar o token'));
+                reject(new Error("Falha ao atualizar o token"));
             } else {
                 resolve(refreshResponse.data);
             }
         } catch (error) {
             if (error?.status === HttpStatusCode.Forbidden) {
-                window.dispatchEvent(new CustomEvent('tokenRefreshFailed'));
+                window.dispatchEvent(new CustomEvent("tokenRefreshFailed"));
             }
             reject(error);
         } finally {
@@ -76,7 +75,7 @@ export const refreshTokenAsync = async () => {
 };
 
 export const refreshTokenService = async () => {
-    const response = await apiAuth.post<{ msg: string }>('token/refresh/');
+    const response = await apiAuth.post<{ msg: string }>("token/refresh/");
     return response;
 };
 
@@ -89,26 +88,6 @@ export interface INewUser {
 }
 
 export const signupService = (user: INewUser) => {
-    const response = apiAuth.post<{ msg: string }>('signup', user);
-    return response;
-};
-
-export interface ISigninArgs {
-    username: string;
-    password: string;
-    remember: boolean;
-}
-
-export interface ISigninResponse {
-    refresh_token_expiration: string;
-}
-
-export const signinService = (args: ISigninArgs) => {
-    const response = apiAuth.post<ISigninResponse>('token/', args);
-    return response;
-};
-
-export const verifyTokenService = () => {
-    const response = apiAuth.post('token/verify/');
+    const response = apiAuth.post<{ msg: string }>("signup", user);
     return response;
 };

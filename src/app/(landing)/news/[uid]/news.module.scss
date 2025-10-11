@@ -1,0 +1,33 @@
+.content-box{
+    padding:16px;
+    width: calc(100% - 320px);
+    @media screen and (max-width: 700px) {
+        width: 100%;
+    }
+}
+
+.box-floating{
+    top: 0px;
+    width: 320px;
+    @media screen and (max-width: 700px) {
+        display: none;
+    }
+}
+
+.header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.section {
+    width: 100%;
+    height: fit-content;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: stretch;
+}

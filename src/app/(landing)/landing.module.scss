@@ -1,0 +1,31 @@
+.container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+    &.light {
+        background: url("../../../public/assets/bg.png");
+    }
+    &.dark {
+        background: var(--color-theme-background);
+    }
+}
+
+.body {
+    box-shadow: 0 0 7px 1px rgba(0,0,0,.1);
+    position: relative;
+    padding: 8px;
+
+    &.dark {
+        background: var(--color-theme-color-grey0);
+        color:var(--color-theme-color-white);
+    }
+    &.light {
+        background: var(--color-neutral-color-pure-white);
+    }
+}
+
+.internal-page{
+    max-width: 1300px;
+    margin: 0 auto;
+}

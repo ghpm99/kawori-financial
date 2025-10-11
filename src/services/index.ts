@@ -1,15 +1,13 @@
-import * as Sentry from '@sentry/react';
-import axios, { AxiosError, HttpStatusCode, type AxiosResponse } from 'axios';
-import { refreshTokenAsync } from './auth';
-
-const apiUrl = import.meta.env.VITE_API_URL;
+import * as Sentry from "@sentry/nextjs";
+import axios, { AxiosError, AxiosResponse, HttpStatusCode } from "axios";
+import { refreshTokenAsync } from "./auth";
 
 export const apiDjango = axios.create({
-    baseURL: apiUrl + '/',
+    baseURL: process.env.NEXT_PUBLIC_API_URL + "/",
     withCredentials: true,
     headers: {
-        'Access-Control-Allow-Origin': apiUrl,
-        'Content-Type': 'application/json',
+        "Access-Control-Allow-Origin": process.env.NEXT_PUBLIC_API_URL,
+        "Content-Type": "application/json",
     },
 });
 
@@ -32,11 +30,8 @@ export const errorInterceptor = async (error: AxiosError) => {
     const { config, response } = error;
     const originalRequest = config;
 
-    if (
-        (!response || statusCodeRetry.includes(response?.status as number)) &&
-        tried <= retryMaxCount
-    ) {
-        if (response?.status === HttpStatusCode.Unauthorized) {
+    if ((!response || statusCodeRetry.includes(response?.status as number)) && tried <= retryMaxCount) {
+        if (response.status === HttpStatusCode.Unauthorized) {
             try {
                 await refreshTokenAsync();
             } catch (refreshError) {

@@ -1,0 +1,10 @@
+{
+  "repositoryName": "kawori-frontend",
+  "adapter": "@slicemachine/adapter-next",
+  "libraries": ["./src/slices"],
+  "localSliceSimulatorURL": "http://localhost:3500/slice-simulator",
+  "adapterConfig": {
+    "prismicRepo": "kawori-frontend",
+    "typescript": true
+  }
+}
