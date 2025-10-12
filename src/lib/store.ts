@@ -1,7 +1,5 @@
 import { Action, combineReducers, configureStore, ThunkAction } from "@reduxjs/toolkit";
 import authReducer from "./features/auth";
-import classificationReducer from "./features/classification";
-import facetextureReducer from "./features/facetexture";
 import contractReducer from "./features/financial/contract";
 import contractDetailsReducer from "./features/financial/contract/detail";
 import invoiceReducer from "./features/financial/invoice";
@@ -11,8 +9,6 @@ import paymentReducer from "./features/financial/payment";
 import paymentDetailsReducer from "./features/financial/payment/detail";
 import tagReducer from "./features/financial/tag";
 import loadingReducer, { LoadingMiddleware } from "./features/loading";
-import configurationReducer from "./features/configuration";
-import statusReducer from "./features/status/Index";
 import newsFeedReducer from "./features/news";
 
 const financialStore = combineReducers({
@@ -30,12 +26,8 @@ export const store = () =>
     configureStore({
         reducer: {
             loading: loadingReducer,
-            configuration: configurationReducer,
-            status: statusReducer,
             auth: authReducer,
             financial: financialStore,
-            facetexture: facetextureReducer,
-            classification: classificationReducer,
             news: newsFeedReducer,
         },
         devTools: process.env.NODE_ENV === "development",
