@@ -3,29 +3,16 @@
     justify-content: flex-start;
     align-items: center;
     flex-direction: column;
-    &.light {
-        background: url("../../../public/assets/bg.png");
-    }
-    &.dark {
-        background: var(--color-theme-background);
-    }
+    background: linear-gradient(135deg, #667eea 0%, #081550 100%);
+    color: white;
 }
 
 .body {
-    box-shadow: 0 0 7px 1px rgba(0,0,0,.1);
     position: relative;
     padding: 8px;
-
-    &.dark {
-        background: var(--color-theme-color-grey0);
-        color:var(--color-theme-color-white);
-    }
-    &.light {
-        background: var(--color-neutral-color-pure-white);
-    }
+    width: 100%;
 }
 
-.internal-page{
-    max-width: 1300px;
+.internal-page {
     margin: 0 auto;
 }

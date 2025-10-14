@@ -28,7 +28,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 4rem;
     align-items: center;
-    min-height: 80vh;
+    min-height: 95vh;
 }
 
 .heroContent {
@@ -140,6 +140,8 @@
 .features {
     background: rgba(255, 255, 255, 0.05);
     padding: 4rem 0;
+    min-height: 95vh;
+    margin: auto auto;
 }
 
 .featuresContent {

@@ -8,25 +8,11 @@ import { Theme } from "@/styles/theme";
 import ThemeControl from "../themeControl";
 import styles from "./MenuHeader.module.scss";
 
-export default function MenuHeader({ status, user, theme }: { status: authStatus; user: IUser; theme: Theme }) {
+export default function MenuHeader({ status, user }: { status: authStatus; user: IUser }) {
     const menuItens = [
         {
             label: <Link href={"/"}>Inicio</Link>,
             key: "home",
-        },
-        {
-            label: "Black Desert",
-            key: "blackdesert",
-            children: [
-                {
-                    label: <Link href={"/facetexture"}>Facetexture</Link>,
-                    key: "facetexture",
-                },
-                {
-                    label: <Link href={"/rank"}>Rank de Classes</Link>,
-                    key: "rank",
-                },
-            ],
         },
         status === "authenticated"
             ? {
@@ -59,15 +45,22 @@ export default function MenuHeader({ status, user, theme }: { status: authStatus
     ];
 
     return (
-        <div className={`${styles["menu-header"]} ${styles[theme]}`}>
+        <div className={styles["menu-header"]}>
             <div className={styles["logo-container"]}>
-                <Link href="/" className={`${styles["logo"]} ${styles[theme]}`}>
+                <Link href="/" className={styles["logo"]}>
                     Kawori
                 </Link>
             </div>
             <div className={styles["user-container"]}>
-                <ThemeControl />
-                <Menu disabledOverflow mode="horizontal" items={menuItens} />
+                <Link href={"/"} className={styles["button"]}>
+                    Inicio
+                </Link>
+                <Link href={"/signin"} className={styles["button"]}>
+                    Logar
+                </Link>
+                <Link href={"/signout"} className={styles["button"]}>
+                    Cadastrar
+                </Link>
             </div>
         </div>
     );
