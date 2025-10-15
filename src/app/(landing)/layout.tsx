@@ -19,11 +19,7 @@ const LandingLayout = ({ children }: { children: React.ReactNode }) => {
                 <div className={styles["internal-page"]}>{children}</div>
             </div>
             <Footer style={{ textAlign: "center", backgroundColor: "transparent", color: "white" }}>
-                Sinta-se a vontade para entrar para
-                <a target="_blank" href="https://discord.gg/fykNkXyn2r">
-                    &nbsp;nossa comunidade&nbsp;
-                </a>
-                caso tenha alguma duvida ou sugestão!
+                &copy; 2025 Kawori Financial. All rights reserved.
             </Footer>
         </div>
     );

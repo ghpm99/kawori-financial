@@ -58,7 +58,7 @@ export default function MenuHeader({ status, user }: { status: authStatus; user:
                 <Link href={"/signin"} className={styles["button"]}>
                     Logar
                 </Link>
-                <Link href={"/signout"} className={styles["button"]}>
+                <Link href={"/signup"} className={styles["button"]}>
                     Cadastrar
                 </Link>
             </div>

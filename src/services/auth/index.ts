@@ -91,3 +91,23 @@ export const signupService = (user: INewUser) => {
     const response = apiAuth.post<{ msg: string }>("signup", user);
     return response;
 };
+
+export interface ISigninArgs {
+    username: string;
+    password: string;
+    remember: boolean;
+}
+
+export interface ISigninResponse {
+    refresh_token_expiration: string;
+}
+
+export const signinService = (args: ISigninArgs) => {
+    const response = apiAuth.post<ISigninResponse>("token/", args);
+    return response;
+};
+
+export const verifyTokenService = () => {
+    const response = apiAuth.post("token/verify/");
+    return response;
+};
