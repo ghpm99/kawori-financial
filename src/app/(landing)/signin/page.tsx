@@ -3,6 +3,7 @@
 import { useAuth } from "@/components/providers/auth";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Card, Form, Input } from "antd";
+import { useRouter } from "next/navigation";
 import styles from "./signin.module.scss";
 
 interface SigninFormValues {
@@ -12,8 +13,12 @@ interface SigninFormValues {
 }
 const SigninPage = () => {
     const [form] = Form.useForm();
-    const { signIn } = useAuth();
+    const { signIn, isAuthenticated } = useAuth();
+    const navigate = useRouter();
 
+    if (isAuthenticated) {
+        navigate.push("/internal/financial/overview");
+    }
     const onFinish = (values: SigninFormValues) => {
         signIn(values);
     };

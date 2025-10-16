@@ -29,7 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => verifyLocalStore());
 
-    const { mutateAsync, isPending: isLoading } = useMutation<AxiosResponse<any>, Error, any>({
+    const { mutateAsync, isPending: isLoging } = useMutation<AxiosResponse<any>, Error, any>({
         mutationFn: signinService,
         onSuccess: (res) => {
             // ajusta conforme o shape do retorno do seu serviço
@@ -92,9 +92,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return () => window.removeEventListener("tokenRefreshFailed", onFail);
     }, [signOut]);
 
+    useEffect(() => {
+        if (verifyTokenData && verifyTokenData.data?.msg === "Token válido") {
+            console.log("Token is valid");
+        }
+    }, [verifyTokenData]);
+
     const value: AuthContextType = {
         isAuthenticated,
-        loading: isLoading,
+        loading: isLoging,
         signIn,
         signOut,
         verify,
