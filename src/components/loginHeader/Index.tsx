@@ -9,10 +9,10 @@ import S from "./Login.module.scss";
 
 interface ILoginHeaderProps {
     user: IUser;
-    status: authStatus;
+    isAuthenticated: boolean;
     handleSignout: () => void;
 }
-const LoginHeader = ({ user, status, handleSignout }: ILoginHeaderProps) => {
+const LoginHeader = ({ user, isAuthenticated, handleSignout }: ILoginHeaderProps) => {
     const content = (
         <div>
             <div>{user?.name}</div>
@@ -23,7 +23,7 @@ const LoginHeader = ({ user, status, handleSignout }: ILoginHeaderProps) => {
     return (
         <div className={S.layout}>
             <ThemeControl />
-            {status === "authenticated" ? (
+            {isAuthenticated ? (
                 <Popover content={content} title="Conta">
                     <Avatar size="small" icon={<UserOutlined />} />
                     {user?.name}
@@ -31,10 +31,10 @@ const LoginHeader = ({ user, status, handleSignout }: ILoginHeaderProps) => {
             ) : (
                 <div className={S.buttons}>
                     <Button type="primary" className={S.button}>
-                        <Link href="/signin">Sign in</Link>
+                        <Link href="/signin">Logar</Link>
                     </Button>
                     <Button type="default" className={S.button}>
-                        Sign up
+                        <Link href="/signup">Cadastrar</Link>
                     </Button>
                 </div>
             )}

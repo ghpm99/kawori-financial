@@ -164,7 +164,7 @@ function FinancialPage({ searchParams }) {
             title: "ID",
             dataIndex: "id",
             key: "id",
-            render: (value: any) => <Link href={`/admin/financial/payments/details/${value}`}>{value}</Link>,
+            render: (value: any) => <Link href={`/internal/financial/payments/details/${value}`}>{value}</Link>,
         },
         {
             title: "Nome",
@@ -186,7 +186,7 @@ function FinancialPage({ searchParams }) {
             dataIndex: "contract",
             key: "contract",
             render: (value: string, record: any) => (
-                <Link href={`/admin/financial/contracts/details/${record.contract_id}`}>
+                <Link href={`/internal/financial/contracts/details/${record.contract_id}`}>
                     {`${record.contract_id} ${record.contract_name}`}
                 </Link>
             ),
@@ -335,7 +335,7 @@ function FinancialPage({ searchParams }) {
             key: "id",
             render: (value: any, record: any) => (
                 <div>
-                    <Link href={`/admin/financial/payments/details/${value}`}>Detalhes</Link>
+                    <Link href={`/internal/financial/payments/details/${value}`}>Detalhes</Link>
                     {record.status === 0 && (
                         <Popconfirm
                             title="Baixar pagamento?"

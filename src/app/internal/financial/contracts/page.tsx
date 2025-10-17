@@ -9,14 +9,19 @@ import ModalNew, { INewContractForm } from "@/components/contracts/modalNew";
 import OpenModalNewContract from "@/components/financial/contracts/openModalNewContract";
 import LoadingPage from "@/components/loadingPage/Index";
 import { setSelectedMenu } from "@/lib/features/auth";
-import { changePagination, changeVisibleContractsModal, fetchAllContract, includeContract, setFiltersContract } from "@/lib/features/financial/contract";
+import {
+    changePagination,
+    changeVisibleContractsModal,
+    fetchAllContract,
+    includeContract,
+    setFiltersContract,
+} from "@/lib/features/financial/contract";
 import { useAppDispatch } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
 import { saveNewContractService, updateAllContractsValue } from "@/services/financial";
 import { formatMoney, updateSearchParams } from "@/util/index";
 import styles from "./Contracts.module.scss";
 import { usePathname, useRouter } from "next/navigation";
-
 
 const { Title } = Typography;
 
@@ -29,16 +34,13 @@ function FinancialPage({ searchParams }) {
     useEffect(() => {
         document.title = "Kawori Contratos";
         dispatch(setSelectedMenu(["financial", "contracts"]));
-        dispatch(setFiltersContract(searchParams))
+        dispatch(setFiltersContract(searchParams));
     }, []);
 
     useEffect(() => {
-
         updateSearchParams(router, pathname, financialStore.filters);
         dispatch(fetchAllContract(financialStore.filters));
-
-    }, [financialStore.filters, router, dispatch, pathname])
-
+    }, [financialStore.filters, router, dispatch, pathname]);
 
     const closeModal = (modal: keyof IModalContracts) => {
         dispatch(changeVisibleContractsModal({ modal: modal, visible: false }));
@@ -52,15 +54,17 @@ function FinancialPage({ searchParams }) {
         saveNewContractService(newContract).then((e) => {
             message.success("Contrato adicionado com sucesso");
             closeModal("newPayment");
-            dispatch(includeContract(e.data))
+            dispatch(includeContract(e.data));
         });
     };
 
     const onChangePagination = (page: number, pageSize: number) => {
-        dispatch(changePagination({
-            page: page,
-            pageSize: pageSize
-        }))
+        dispatch(
+            changePagination({
+                page: page,
+                pageSize: pageSize,
+            }),
+        );
     };
 
     const headerTableFinancial = [
@@ -68,7 +72,7 @@ function FinancialPage({ searchParams }) {
             title: "Id",
             dataIndex: "id",
             key: "id",
-            render: (value: any) => <Link href={`/admin/financial/contracts/details/${value}`}>{value}</Link>,
+            render: (value: any) => <Link href={`/internal/financial/contracts/details/${value}`}>{value}</Link>,
         },
         {
             title: "Nome",
@@ -97,7 +101,7 @@ function FinancialPage({ searchParams }) {
             title: "Ações",
             dataIndex: "id",
             key: "id",
-            render: (value: any) => <Link href={`/admin/financial/contracts/details/${value}`}>Detalhes</Link>,
+            render: (value: any) => <Link href={`/internal/financial/contracts/details/${value}`}>Detalhes</Link>,
         },
     ];
 

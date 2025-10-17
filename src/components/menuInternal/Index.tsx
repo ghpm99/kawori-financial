@@ -28,7 +28,7 @@ export type MenuItemKey =
 
 const { Sider } = Layout;
 
-const menuItens = (status: authStatus, groups: string[]): MenuItem[] => {
+const menuItens = (groups: string[]): MenuItem[] => {
     const baseItens: MenuItem[] = [
         {
             label: <Link href={"/"}>Inicio</Link>,
@@ -37,7 +37,7 @@ const menuItens = (status: authStatus, groups: string[]): MenuItem[] => {
         },
     ];
 
-    if (status === "unauthenticated" || !groups || groups.length <= 0) {
+    if (!groups || groups.length <= 0) {
         return baseItens;
     }
 
@@ -49,21 +49,6 @@ const menuItens = (status: authStatus, groups: string[]): MenuItem[] => {
         });
     }
 
-    if (groups.includes("blackdesert")) {
-        baseItens.push(
-            {
-                label: <Link href={"/internal/facetexture"}>Facetexture</Link>,
-                key: "facetexture",
-                icon: <AppstoreOutlined />,
-            },
-            {
-                label: <Link href={"/internal/rank"}>Rank de classes</Link>,
-                key: "rank",
-                icon: <AppstoreOutlined />,
-            },
-        );
-    }
-
     if (groups.includes("financial")) {
         baseItens.push({
             label: "Financeiro",
@@ -71,27 +56,27 @@ const menuItens = (status: authStatus, groups: string[]): MenuItem[] => {
             icon: <SnippetsOutlined />,
             children: [
                 {
-                    label: <Link href={"/admin/financial/overview"}>Overview</Link>,
+                    label: <Link href={"/internal/financial/overview"}>Overview</Link>,
                     key: "overview",
                     icon: <SnippetsOutlined />,
                 },
                 {
-                    label: <Link href={"/admin/financial/contracts"}>Contratos</Link>,
+                    label: <Link href={"/internal/financial/contracts"}>Contratos</Link>,
                     key: "contracts",
                     icon: <SnippetsOutlined />,
                 },
                 {
-                    label: <Link href={"/admin/financial/invoices"}>Notas</Link>,
+                    label: <Link href={"/internal/financial/invoices"}>Notas</Link>,
                     key: "invoices",
                     icon: <SnippetsOutlined />,
                 },
                 {
-                    label: <Link href={"/admin/financial/payments"}>Pagamentos</Link>,
+                    label: <Link href={"/internal/financial/payments"}>Pagamentos</Link>,
                     key: "payments",
                     icon: <SnippetsOutlined />,
                 },
                 {
-                    label: <Link href={"/admin/financial/tags"}>Tags</Link>,
+                    label: <Link href={"/internal/financial/tags"}>Tags</Link>,
                     key: "tags",
                     icon: <SnippetsOutlined />,
                 },
@@ -111,12 +96,11 @@ const menuItens = (status: authStatus, groups: string[]): MenuItem[] => {
 };
 
 interface IMenuInternal {
-    status: authStatus;
     theme: Theme;
     selectedMenu: MenuItemKey[];
     groups: string[];
 }
-const MenuInternal = ({ status, theme, selectedMenu, groups }: IMenuInternal) => {
+const MenuInternal = ({ theme, selectedMenu, groups }: IMenuInternal) => {
     const [collapsed, setCollapsed] = useState<boolean>(false);
 
     const toggleCollapsed = () => {
@@ -130,7 +114,7 @@ const MenuInternal = ({ status, theme, selectedMenu, groups }: IMenuInternal) =>
                     Kawori
                 </Link>
             </div>
-            <Menu theme={theme} selectedKeys={selectedMenu} mode="vertical" items={menuItens(status, groups)} />
+            <Menu theme={theme} selectedKeys={selectedMenu} mode="vertical" items={menuItens(groups)} />
         </Sider>
     );
 };

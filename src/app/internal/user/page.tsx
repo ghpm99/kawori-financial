@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import styles from "./User.module.scss";
+import { useUser } from "@/components/providers/user";
 
 const { Title, Paragraph } = Typography;
 
@@ -22,7 +23,7 @@ const User = () => {
         state: { theme },
     } = useTheme();
 
-    const { user, groups } = useSelector((state: RootState) => state.auth);
+    const { user, groups } = useUser();
 
     useEffect(() => {
         document.title = "Kawori Profile";

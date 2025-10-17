@@ -318,7 +318,7 @@ export default function ContractDetails({ params }: { params: { id: number } }) 
                             dataIndex: "id",
                             key: "id",
                             render: (value) => (
-                                <Link href={`/admin/financial/invoices/details/${value}`}>Detalhes</Link>
+                                <Link href={`/internal/financial/invoices/details/${value}`}>Detalhes</Link>
                             ),
                         },
                     ]}

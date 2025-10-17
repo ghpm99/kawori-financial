@@ -7,8 +7,9 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import React from "react";
 import "../../styles/globals.scss";
 import StoreProvider from "./storeProvider";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import AuthProvider from "@/components/providers/auth";
+import AppProviders from "@/components/providers";
 
 const setInitialTheme = `
     (function() {
@@ -17,15 +18,6 @@ const setInitialTheme = `
     })();
 `;
 
-const queryClient = new QueryClient({
-    defaultOptions: {
-        queries: {
-            refetchOnWindowFocus: false,
-            retry: false,
-        },
-    },
-});
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="pt-br">
@@ -33,19 +25,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <script dangerouslySetInnerHTML={{ __html: setInitialTheme }} />
             </head>
             <body>
-                <QueryClientProvider client={queryClient}>
-                    <ThemeProvider>
-                        <StoreProvider>
-                            <AntdRegistry>
-                                <AuthProvider>
-                                    {children}
-                                    <Analytics />
-                                    <SpeedInsights />
-                                </AuthProvider>
-                            </AntdRegistry>
-                        </StoreProvider>
-                    </ThemeProvider>
-                </QueryClientProvider>
+                <AppProviders>
+                    {children}
+                    <Analytics />
+                    <SpeedInsights />
+                </AppProviders>
             </body>
         </html>
     );

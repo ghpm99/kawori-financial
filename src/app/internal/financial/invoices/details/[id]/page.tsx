@@ -126,7 +126,7 @@ export default function InvoiceDetails({ params }: { params: { id: number } }) {
                         <div className={styles.label}>ID: {financialStore.data?.id}</div>
                     </div>
                     <div className={styles["label-detail"]}>
-                        <Link href={`/admin/financial/contracts/details/${financialStore.data?.contract}`}>
+                        <Link href={`/internal/financial/contracts/details/${financialStore.data?.contract}`}>
                             <div className={styles.label} style={{ cursor: "pointer" }}>
                                 Contrato: {`${financialStore.data?.contract} - ${financialStore.data?.contract_name}`}
                             </div>
@@ -256,7 +256,7 @@ export default function InvoiceDetails({ params }: { params: { id: number } }) {
                             dataIndex: "id",
                             key: "id",
                             render: (value) => (
-                                <Link href={`/admin/financial/payments/details/${value}`}>Detalhes</Link>
+                                <Link href={`/internal/financial/payments/details/${value}`}>Detalhes</Link>
                             ),
                         },
                     ]}

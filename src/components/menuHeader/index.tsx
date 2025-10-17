@@ -8,13 +8,13 @@ import { Theme } from "@/styles/theme";
 import ThemeControl from "../themeControl";
 import styles from "./MenuHeader.module.scss";
 
-export default function MenuHeader({ status, user }: { status: authStatus; user: IUser }) {
+export default function MenuHeader({ isAuthenticated, user }: { isAuthenticated: boolean; user: IUser }) {
     const menuItens = [
         {
             label: <Link href={"/"}>Inicio</Link>,
             key: "home",
         },
-        status === "authenticated"
+        isAuthenticated
             ? {
                   label: user.name,
                   key: "user",
@@ -44,6 +44,32 @@ export default function MenuHeader({ status, user }: { status: authStatus; user:
               },
     ];
 
+    const renderMenu = () => {
+        if (!isAuthenticated) {
+            return (
+                <>
+                    <Link href={"/signin"} className={styles["button"]}>
+                        Logar
+                    </Link>
+                    <Link href={"/signup"} className={styles["button"]}>
+                        Cadastrar
+                    </Link>
+                </>
+            );
+        }
+        return (
+            <>
+                <Link href={"/internal/overview"} className={styles["button"]}>
+                    Dashboard
+                </Link>
+
+                <Link href={"/signout"} className={styles["button"]}>
+                    Sair
+                </Link>
+            </>
+        );
+    };
+
     return (
         <div className={styles["menu-header"]}>
             <div className={styles["logo-container"]}>
@@ -55,12 +81,7 @@ export default function MenuHeader({ status, user }: { status: authStatus; user:
                 <Link href={"/"} className={styles["button"]}>
                     Inicio
                 </Link>
-                <Link href={"/signin"} className={styles["button"]}>
-                    Logar
-                </Link>
-                <Link href={"/signup"} className={styles["button"]}>
-                    Cadastrar
-                </Link>
+                {renderMenu()}
             </div>
         </div>
     );

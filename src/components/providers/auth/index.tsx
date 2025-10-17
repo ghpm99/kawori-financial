@@ -94,7 +94,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     useEffect(() => {
         if (verifyTokenData && verifyTokenData.data?.msg === "Token válido") {
-            console.log("Token is valid");
+            setIsAuthenticated(true);
+        } else {
+            setIsAuthenticated(false);
         }
     }, [verifyTokenData]);
 

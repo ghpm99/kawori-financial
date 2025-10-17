@@ -113,14 +113,14 @@ export default function PaymentDetails({ params }: { params: { id: number } }) {
                         <div className={styles["label"]}>ID: {financialStore.data?.id}</div>
                     </div>
                     <div className={styles["label-detail"]}>
-                        <Link href={`/admin/financial/contracts/details/${financialStore.data?.contract}`}>
+                        <Link href={`/internal/financial/contracts/details/${financialStore.data?.contract}`}>
                             <div className={styles["label"]} style={{ cursor: "pointer" }}>
                                 Contrato: {`${financialStore.data?.contract} - ${financialStore.data?.contract_name}`}
                             </div>
                         </Link>
                     </div>
                     <div className={styles["label-detail"]}>
-                        <Link href={`/admin/financial/invoices/details/${financialStore.data?.invoice}`}>
+                        <Link href={`/internal/financial/invoices/details/${financialStore.data?.invoice}`}>
                             <div className={styles["label"]} style={{ cursor: "pointer" }}>
                                 Nota: {`${financialStore.data?.invoice} - ${financialStore.data?.invoice_name}`}
                             </div>

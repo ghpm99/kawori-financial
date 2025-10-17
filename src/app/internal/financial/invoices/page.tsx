@@ -53,7 +53,7 @@ function FinancialPage({ searchParams }) {
             title: "Id",
             dataIndex: "id",
             key: "id",
-            render: (value: any) => <Link href={`/admin/financial/invoices/details/${value}`}>{value}</Link>,
+            render: (value: any) => <Link href={`/internal/financial/invoices/details/${value}`}>{value}</Link>,
         },
         {
             title: "Nome",
@@ -107,7 +107,7 @@ function FinancialPage({ searchParams }) {
             title: "Ações",
             dataIndex: "id",
             key: "id",
-            render: (value: any) => <Link href={`/admin/financial/invoices/details/${value}`}>Detalhes</Link>,
+            render: (value: any) => <Link href={`/internal/financial/invoices/details/${value}`}>Detalhes</Link>,
         },
     ];
 
