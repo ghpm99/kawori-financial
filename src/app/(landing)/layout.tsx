@@ -10,12 +10,12 @@ import styles from "./landing.module.scss";
 const { Footer } = Layout;
 
 const LandingLayout = ({ children }: { children: React.ReactNode }) => {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, signOut } = useAuth();
     const { status, user } = useAppSelector((state) => state.auth);
 
     return (
         <div className={styles["container"]}>
-            <MenuHeader isAuthenticated={isAuthenticated} user={user} />
+            <MenuHeader isAuthenticated={isAuthenticated} user={user} signOut={signOut} />
             <div className={styles["body"]}>
                 <div className={styles["internal-page"]}>{children}</div>
             </div>

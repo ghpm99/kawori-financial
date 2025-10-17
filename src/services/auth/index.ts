@@ -111,3 +111,8 @@ export const verifyTokenService = () => {
     const response = apiAuth.post("token/verify/");
     return response;
 };
+
+export const signoutService = () => {
+    const response = apiAuth.get("signout");
+    return response;
+};

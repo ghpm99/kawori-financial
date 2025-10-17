@@ -1,14 +1,22 @@
 "use client";
 import Link from "next/link";
 
-import { Menu } from "antd";
+import { Button, Menu } from "antd";
 
 import { authStatus, IUser } from "@/lib/features/auth";
 import { Theme } from "@/styles/theme";
 import ThemeControl from "../themeControl";
 import styles from "./MenuHeader.module.scss";
 
-export default function MenuHeader({ isAuthenticated, user }: { isAuthenticated: boolean; user: IUser }) {
+export default function MenuHeader({
+    isAuthenticated,
+    user,
+    signOut,
+}: {
+    isAuthenticated: boolean;
+    user: IUser;
+    signOut: () => void;
+}) {
     const menuItens = [
         {
             label: <Link href={"/"}>Inicio</Link>,
@@ -62,10 +70,9 @@ export default function MenuHeader({ isAuthenticated, user }: { isAuthenticated:
                 <Link href={"/internal/overview"} className={styles["button"]}>
                     Dashboard
                 </Link>
-
-                <Link href={"/signout"} className={styles["button"]}>
+                <Button onClick={signOut} className={styles["button"]}>
                     Sair
-                </Link>
+                </Button>
             </>
         );
     };

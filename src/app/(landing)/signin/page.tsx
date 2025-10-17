@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/components/providers/auth";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
-import { Button, Card, Form, Input } from "antd";
+import { Alert, Button, Card, Form, Input } from "antd";
 import { useRouter } from "next/navigation";
 import styles from "./signin.module.scss";
 
@@ -13,7 +13,7 @@ interface SigninFormValues {
 }
 const SigninPage = () => {
     const [form] = Form.useForm();
-    const { signIn, isAuthenticated } = useAuth();
+    const { signIn, isAuthenticated, loading, errorMessage } = useAuth();
     const navigate = useRouter();
 
     if (isAuthenticated) {
@@ -27,6 +27,7 @@ const SigninPage = () => {
             <Card className={styles.card} bordered={false}>
                 <h1 className={styles.title}>Entrar</h1>
                 <Form form={form} name="login" layout="vertical" onFinish={onFinish} requiredMark={false}>
+                    {errorMessage && <Alert message={errorMessage} type="error" />}
                     <Form.Item name="username" rules={[{ required: true, message: "Digite seu usuário" }]}>
                         <Input prefix={<UserOutlined />} placeholder="Usuário" size="large" />
                     </Form.Item>
@@ -36,7 +37,14 @@ const SigninPage = () => {
                     </Form.Item>
 
                     <Form.Item>
-                        <Button type="primary" htmlType="submit" size="large" block className={styles.loginButton}>
+                        <Button
+                            type="primary"
+                            htmlType="submit"
+                            size="large"
+                            block
+                            className={styles.loginButton}
+                            loading={loading}
+                        >
                             Entrar
                         </Button>
                     </Form.Item>

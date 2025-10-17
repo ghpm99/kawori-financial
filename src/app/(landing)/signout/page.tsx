@@ -9,15 +9,20 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import styles from "./signout.module.scss";
+import { useAuth } from "@/components/providers/auth";
 
 export default function Signout() {
     const dispatch = useAppDispatch();
     const navigate = useRouter();
+    const { signOut } = useAuth();
     const loadingStore = useAppSelector((state) => state.loading);
     const {
         state: { theme },
     } = useTheme();
 
+    useEffect(() => {
+        signOut();
+    }, [signOut]);
     const loading = loadingStore.effects["auth/signout"] !== "idle";
 
     useEffect(() => {

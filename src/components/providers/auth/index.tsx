@@ -1,13 +1,14 @@
 import { LOCAL_STORE_ITEM_NAME } from "@/components/constants";
-import { signinService, verifyTokenService } from "@/services/auth";
+import { signinService, signoutService, verifyTokenService } from "@/services/auth";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 
 type AuthContextType = {
     isAuthenticated: boolean;
     loading: boolean;
+    errorMessage?: string;
     signIn: (args: any) => Promise<void>;
     signOut: () => void;
     verify: () => Promise<boolean>;
@@ -28,6 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const queryClient = useQueryClient();
 
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => verifyLocalStore());
+    const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
 
     const { mutateAsync, isPending: isLoging } = useMutation<AxiosResponse<any>, Error, any>({
         mutationFn: signinService,
@@ -40,6 +42,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.log("Token expiry set to:", expiry);
             queryClient.invalidateQueries({ queryKey: ["verifyToken"] });
         },
+        onError: (error: AxiosError) => {
+            const errorMessage = (error?.response?.data as { msg: string })?.msg;
+            if (errorMessage) {
+                setErrorMessage(errorMessage);
+                console.error("Login failed:", errorMessage);
+            } else {
+                setErrorMessage("Falhou ao fazer login.");
+            }
+            console.error("Login failed:", error);
+        },
     });
 
     const { data: verifyTokenData, refetch: refetchVerifyToken } = useQuery({
@@ -48,18 +60,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         enabled: isAuthenticated,
     });
 
+    const { mutate: signoutMutate } = useMutation({
+        mutationKey: ["signout"],
+        mutationFn: signoutService,
+
+        onSuccess: () => {
+            localStorage.removeItem(LOCAL_STORE_ITEM_NAME);
+            setIsAuthenticated(false);
+            navigate.push("/signout");
+        },
+    });
+
     const signIn = useCallback(
         async (args: any) => {
+            setErrorMessage(undefined);
             await mutateAsync(args);
         },
         [mutateAsync],
     );
 
     const signOut = useCallback(() => {
-        localStorage.removeItem(LOCAL_STORE_ITEM_NAME);
-        setIsAuthenticated(false);
-        // navegar para rota de logout / signout
-        navigate.push("/signout");
+        signoutMutate();
     }, [navigate]);
 
     const verify = useCallback(async (): Promise<boolean> => {
@@ -103,6 +124,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const value: AuthContextType = {
         isAuthenticated,
         loading: isLoging,
+        errorMessage: errorMessage,
         signIn,
         signOut,
         verify,
