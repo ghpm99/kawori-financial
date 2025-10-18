@@ -11,7 +11,7 @@ const { Footer } = Layout;
 
 const LandingLayout = ({ children }: { children: React.ReactNode }) => {
     const { isAuthenticated, signOut } = useAuth();
-    const { status, user } = useAppSelector((state) => state.auth);
+    const { user } = useAppSelector((state) => state.auth);
 
     return (
         <div className={styles["container"]}>

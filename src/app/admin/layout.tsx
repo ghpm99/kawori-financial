@@ -10,12 +10,14 @@ import { Layout } from "antd";
 import { useRouter } from "next/navigation";
 import styles from "./layout.module.scss";
 import { useEffect } from "react";
+import { useAuth } from "@/components/providers/auth";
 
 const { Header, Content } = Layout;
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const dispatch = useAppDispatch();
     const navigate = useRouter();
+    const { isAuthenticated } = useAuth();
 
     const {
         state: { theme },
@@ -48,10 +50,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     return (
         <Layout className={styles["container"]}>
-            <MenuInternal selectedMenu={selectedMenu} status={status} theme={theme} groups={groups} />
+            <MenuInternal selectedMenu={selectedMenu} theme={theme} groups={groups} />
             <Layout>
                 <Header className={styles["header"]}>
-                    <LoginHeader user={user} status={status} handleSignout={handleSignout} />
+                    <LoginHeader user={user} isAuthenticated={isAuthenticated} handleSignout={handleSignout} />
                 </Header>
                 <Content className={styles["content"]}>{children}</Content>
             </Layout>
