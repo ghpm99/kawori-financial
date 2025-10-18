@@ -3,7 +3,7 @@ import axios, { AxiosError, AxiosResponse, HttpStatusCode } from "axios";
 import * as Sentry from "@sentry/nextjs";
 
 let isRefreshingToken = false;
-let refreshPromise: Promise<any> | null = null;
+let refreshPromise: Promise<unknown> | null = null;
 
 export const apiAuth = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL + "/auth/",

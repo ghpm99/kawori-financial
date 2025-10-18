@@ -15,7 +15,7 @@ type PagePusher = {
     name: string;
 };
 
-type NextPageCustom<P = {}, IP = P> = NextPage<P, IP> & {
+type NextPageCustom<P = object, IP = P> = NextPage<P, IP> & {
     auth?: PageAuth;
     pusher?: PagePusher;
 };

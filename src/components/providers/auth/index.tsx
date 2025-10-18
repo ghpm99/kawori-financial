@@ -1,5 +1,5 @@
 import { LOCAL_STORE_ITEM_NAME } from "@/components/constants";
-import { signinService, signoutService, verifyTokenService } from "@/services/auth";
+import { ISigninArgs, ISigninResponse, signinService, signoutService, verifyTokenService } from "@/services/auth";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError, AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
@@ -9,7 +9,7 @@ type AuthContextType = {
     isAuthenticated: boolean;
     loading: boolean;
     errorMessage?: string;
-    signIn: (args: any) => Promise<void>;
+    signIn: (args: ISigninArgs) => Promise<void>;
     signOut: () => void;
     verify: () => Promise<boolean>;
 };
@@ -31,7 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => verifyLocalStore());
     const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
 
-    const { mutateAsync, isPending: isLoging } = useMutation<AxiosResponse<any>, Error, any>({
+    const { mutateAsync, isPending: isLoging } = useMutation<AxiosResponse<ISigninResponse>, Error, ISigninArgs>({
         mutationFn: signinService,
         onSuccess: (res) => {
             // ajusta conforme o shape do retorno do seu serviço
@@ -72,7 +72,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     const signIn = useCallback(
-        async (args: any) => {
+        async (args: ISigninArgs) => {
             setErrorMessage(undefined);
             await mutateAsync(args);
         },

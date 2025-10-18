@@ -71,5 +71,8 @@ module.exports = withSentryConfig(
     // https://docs.sentry.io/product/crons/
     // https://vercel.com/docs/cron-jobs
     automaticVercelMonitors: true,
+    eslint: {
+    dirs: ['app', 'components', 'util'], // Only run ESLint on the 'pages' and 'utils' directories during production builds (next build)
+  },
   }
 )

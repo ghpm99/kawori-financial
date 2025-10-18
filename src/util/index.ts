@@ -81,7 +81,7 @@ export const getSavedTheme = (): Theme => {
     return localTheme === "dark" ? "dark" : "light";
 };
 
-export const updateSearchParams = (router: AppRouterInstance, pathname: string, filters: Object) => {
+export const updateSearchParams = (router: AppRouterInstance, pathname: string, filters: object) => {
     const current = new URLSearchParams();
 
     for (const filter in filters) {
