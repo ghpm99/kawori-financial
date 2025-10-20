@@ -11,19 +11,21 @@ import { useRouter } from "next/navigation";
 import styles from "./layout.module.scss";
 import { useEffect } from "react";
 import { useAuth } from "@/components/providers/auth";
+import { useUser } from "@/components/providers/user";
 
 const { Header, Content } = Layout;
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const dispatch = useAppDispatch();
     const navigate = useRouter();
+    const { groups } = useUser();
     const { isAuthenticated } = useAuth();
 
     const {
         state: { theme },
     } = useTheme();
 
-    const { status, user, selectedMenu, groups } = useAppSelector((state) => state.auth);
+    const { status, user, selectedMenu } = useAppSelector((state) => state.auth);
     const loadingStore = useAppSelector((state) => state.loading);
 
     const loading = ((): boolean => {

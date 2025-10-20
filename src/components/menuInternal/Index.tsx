@@ -24,7 +24,8 @@ export type MenuItemKey =
     | "invoices"
     | "payments"
     | "tags"
-    | "server";
+    | "server"
+    | "analytics";
 
 const { Sider } = Layout;
 
@@ -50,44 +51,39 @@ const menuItens = (groups: string[]): MenuItem[] => {
     }
 
     if (groups.includes("financial")) {
-        baseItens.push({
-            label: "Financeiro",
-            key: "financial",
-            icon: <SnippetsOutlined />,
-            children: [
-                {
-                    label: <Link href={"/internal/financial/overview"}>Overview</Link>,
-                    key: "overview",
-                    icon: <SnippetsOutlined />,
-                },
-                {
-                    label: <Link href={"/internal/financial/contracts"}>Contratos</Link>,
-                    key: "contracts",
-                    icon: <SnippetsOutlined />,
-                },
-                {
-                    label: <Link href={"/internal/financial/invoices"}>Notas</Link>,
-                    key: "invoices",
-                    icon: <SnippetsOutlined />,
-                },
-                {
-                    label: <Link href={"/internal/financial/payments"}>Pagamentos</Link>,
-                    key: "payments",
-                    icon: <SnippetsOutlined />,
-                },
-                {
-                    label: <Link href={"/internal/financial/tags"}>Tags</Link>,
-                    key: "tags",
-                    icon: <SnippetsOutlined />,
-                },
-            ],
-        });
+        baseItens.push(
+            {
+                label: <Link href={"/internal/financial/overview"}>Overview</Link>,
+                key: "overview",
+                icon: <SnippetsOutlined />,
+            },
+            {
+                label: <Link href={"/internal/financial/contracts"}>Contratos</Link>,
+                key: "contracts",
+                icon: <SnippetsOutlined />,
+            },
+            {
+                label: <Link href={"/internal/financial/invoices"}>Notas</Link>,
+                key: "invoices",
+                icon: <SnippetsOutlined />,
+            },
+            {
+                label: <Link href={"/internal/financial/payments"}>Pagamentos</Link>,
+                key: "payments",
+                icon: <SnippetsOutlined />,
+            },
+            {
+                label: <Link href={"/internal/financial/tags"}>Tags</Link>,
+                key: "tags",
+                icon: <SnippetsOutlined />,
+            },
+        );
     }
 
     if (groups.includes("admin")) {
         baseItens.push({
-            label: <Link href={"/admin/server"}>Servidor</Link>,
-            key: "server",
+            label: <Link href={"/admin/analytics"}>Analytics</Link>,
+            key: "analytics",
             icon: <SettingOutlined />,
         });
     }

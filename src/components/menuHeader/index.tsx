@@ -67,7 +67,7 @@ export default function MenuHeader({
         }
         return (
             <>
-                <Link href={"/internal/overview"} className={styles["button"]}>
+                <Link href={"/internal/financial/overview"} className={styles["button"]}>
                     Dashboard
                 </Link>
                 <Button onClick={signOut} className={styles["button"]}>
