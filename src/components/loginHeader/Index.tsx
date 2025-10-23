@@ -1,10 +1,12 @@
 import { UserOutlined } from "@ant-design/icons";
-import { Avatar, Button, Popover } from "antd";
+import { Avatar, Button } from "antd";
 
 import Link from "next/link";
 
-import { authStatus, IUser } from "@/lib/features/auth";
+import { IUser } from "@/lib/features/auth";
+import { useState } from "react";
 import ThemeControl from "../themeControl";
+import UserDrawer from "../user";
 import S from "./Login.module.scss";
 
 interface ILoginHeaderProps {
@@ -13,6 +15,16 @@ interface ILoginHeaderProps {
     handleSignout: () => void;
 }
 const LoginHeader = ({ user, isAuthenticated, handleSignout }: ILoginHeaderProps) => {
+    const [open, setOpen] = useState(false);
+
+    const onClose = () => {
+        setOpen(false);
+    };
+
+    const onOpen = () => {
+        setOpen(true);
+    };
+
     const content = (
         <div>
             <div>{user?.name}</div>
@@ -24,10 +36,13 @@ const LoginHeader = ({ user, isAuthenticated, handleSignout }: ILoginHeaderProps
         <div className={S.layout}>
             <ThemeControl />
             {isAuthenticated ? (
-                <Popover content={content} title="Conta">
-                    <Avatar size="small" icon={<UserOutlined />} />
-                    {user?.name}
-                </Popover>
+                <>
+                    <div onClick={onOpen} className={S.button}>
+                        <Avatar size="small" icon={<UserOutlined />} />
+                        {user?.name}
+                    </div>
+                    <UserDrawer user={user} onClose={onClose} open={open} onSignout={handleSignout} />
+                </>
             ) : (
                 <div className={S.buttons}>
                     <Button type="primary" className={S.button}>
