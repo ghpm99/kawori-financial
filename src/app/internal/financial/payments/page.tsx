@@ -29,6 +29,7 @@ import { formatMoney, formatterDate, updateSearchParams } from "@/util/index";
 import { usePathname, useRouter } from "next/navigation";
 
 import styles from "./Payments.module.scss";
+import { usePayments } from "@/components/providers/payments";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -37,6 +38,7 @@ const customFormat = ["DD/MM/YYYY", "DD/MM/YYYY"];
 const messageKey = "payment_pagination_message";
 
 function FinancialPage({ searchParams }) {
+    const { paymentFilters } = usePayments();
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const financialStore = useSelector((state: RootState) => state.financial.payment);
     const dispatch = useAppDispatch();

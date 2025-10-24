@@ -1,4 +1,11 @@
-import { AppstoreOutlined, HomeOutlined, SettingOutlined, SnippetsOutlined, UserOutlined } from "@ant-design/icons";
+import {
+    AppstoreOutlined,
+    HomeOutlined,
+    LineChartOutlined,
+    SettingOutlined,
+    SnippetsOutlined,
+    UserOutlined,
+} from "@ant-design/icons";
 import { Layout, Menu, MenuProps } from "antd";
 import Link from "next/link";
 
@@ -7,6 +14,8 @@ import styles from "./Menu.module.scss";
 import { authStatus, IUser } from "@/lib/features/auth";
 import { Theme } from "@/styles/theme";
 import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChartPie, faFileInvoice, faMoneyBills, faTags } from "@fortawesome/free-solid-svg-icons";
 
 type MenuItem = Required<MenuProps>["items"][number];
 export type MenuItemKey =
@@ -55,7 +64,7 @@ const menuItens = (groups: string[]): MenuItem[] => {
             {
                 label: <Link href={"/internal/financial/overview"}>Overview</Link>,
                 key: "overview",
-                icon: <SnippetsOutlined />,
+                icon: <LineChartOutlined />,
             },
             {
                 label: <Link href={"/internal/financial/contracts"}>Contratos</Link>,
@@ -65,17 +74,17 @@ const menuItens = (groups: string[]): MenuItem[] => {
             {
                 label: <Link href={"/internal/financial/invoices"}>Notas</Link>,
                 key: "invoices",
-                icon: <SnippetsOutlined />,
+                icon: <FontAwesomeIcon icon={faFileInvoice} />,
             },
             {
                 label: <Link href={"/internal/financial/payments"}>Pagamentos</Link>,
                 key: "payments",
-                icon: <SnippetsOutlined />,
+                icon: <FontAwesomeIcon icon={faMoneyBills} />,
             },
             {
                 label: <Link href={"/internal/financial/tags"}>Tags</Link>,
                 key: "tags",
-                icon: <SnippetsOutlined />,
+                icon: <FontAwesomeIcon icon={faTags} />,
             },
         );
     }
@@ -84,7 +93,7 @@ const menuItens = (groups: string[]): MenuItem[] => {
         baseItens.push({
             label: <Link href={"/admin/analytics"}>Analytics</Link>,
             key: "analytics",
-            icon: <SettingOutlined />,
+            icon: <FontAwesomeIcon icon={faChartPie} />,
         });
     }
 
