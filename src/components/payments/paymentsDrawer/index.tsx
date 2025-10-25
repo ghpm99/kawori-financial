@@ -1,4 +1,5 @@
 import { Button, Col, Drawer, Form, Input, InputNumber, Row, Select, Space, Switch, Typography } from "antd";
+import { useEffect } from "react";
 
 interface PaymentsDrawerProps {
     open: boolean;
@@ -13,6 +14,14 @@ const { Option } = Select;
 const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading }: PaymentsDrawerProps) => {
     console.log("Payment Detail in Drawer:", paymentDetail);
     const [form] = Form.useForm();
+    useEffect(() => {
+        if (open && paymentDetail) {
+            form.setFieldsValue(paymentDetail);
+        } else {
+            form.resetFields();
+        }
+    }, [form, open, paymentDetail]);
+
     const formatter = (value) => {
         const onlyNumbers = value.replace(/\D+/g, "");
         const intNumber = new Intl.NumberFormat("pt-BR", {
@@ -67,14 +76,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading }: PaymentsDra
                 </Space>
             }
         >
-            <Form
-                form={form}
-                layout="vertical"
-                hideRequiredMark
-                variant="underlined"
-                initialValues={paymentDetail}
-                onFinish={onFinish}
-            >
+            <Form form={form} layout="vertical" hideRequiredMark variant="underlined" onFinish={onFinish}>
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item name="id" label="ID">
