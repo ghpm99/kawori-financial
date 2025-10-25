@@ -40,11 +40,37 @@ type PayloadChangeStatusPaymentPaginationAction = {
 };
 
 type PayloadChangePaginationAction = {
-    page: number
-    pageSize: number
-}
+    page: number;
+    pageSize: number;
+};
 
 type PayloadSetFilterPaymentsAction = {
-    name: string
-    value: any
+    name: string;
+    value: any;
+};
+
+interface PaymentsApiResponse {
+    data: PaymentsPage;
+}
+
+interface PaymentsPage {
+    current_page: number;
+    total_pages: number;
+    has_previous: boolean;
+    has_next: boolean;
+    data: PaymentItem[];
+}
+
+interface PaymentItem {
+    id: number;
+    status: number;
+    type: number;
+    name: string;
+    date: string;
+    installments: number;
+    payment_date: string;
+    fixed: boolean;
+    value: number;
+    contract_id: number;
+    contract_name: string;
 }

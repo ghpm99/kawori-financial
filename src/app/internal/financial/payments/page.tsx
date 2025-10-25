@@ -4,23 +4,34 @@ import LoadingPage from "@/components/loadingPage/Index";
 import ModalPayoff, { ITableDataSource } from "@/components/payments/modalPayoff";
 import {
     changeDataSourcePayoffPayments,
-    changePagination,
     changeSingleDataSourcePayoffPayments,
     changeStatusPaymentPagination,
     changeVisibleModalPayoffPayments,
-    cleanFilterPayments,
     fetchAllPayment,
     setFilterPayments,
     setFiltersPayments,
 } from "@/lib/features/financial/payment";
-import { ClearOutlined, ToTopOutlined } from "@ant-design/icons";
-import { Breadcrumb, Button, DatePicker, Input, Layout, Popconfirm, Select, Table, Typography, message } from "antd";
+import { ClearOutlined, SearchOutlined, ToTopOutlined } from "@ant-design/icons";
+import {
+    Breadcrumb,
+    Button,
+    DatePicker,
+    Dropdown,
+    Input,
+    Layout,
+    MenuProps,
+    Select,
+    Space,
+    Table,
+    Typography,
+    message,
+} from "antd";
 import dayjs from "dayjs";
 
 import { RootState } from "@/lib/store";
 import { payoffPaymentService } from "@/services/financial";
 import Link from "next/link";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 
 import { setSelectedMenu } from "@/lib/features/auth";
@@ -28,8 +39,11 @@ import { useAppDispatch } from "@/lib/hooks";
 import { formatMoney, formatterDate, updateSearchParams } from "@/util/index";
 import { usePathname, useRouter } from "next/navigation";
 
-import styles from "./Payments.module.scss";
+import PaymentsDrawer from "@/components/payments/paymentsDrawer";
 import { usePayments } from "@/components/providers/payments";
+import { faEllipsis, faFileCircleCheck, faFilePen } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import styles from "./Payments.module.scss";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -38,8 +52,24 @@ const customFormat = ["DD/MM/YYYY", "DD/MM/YYYY"];
 const messageKey = "payment_pagination_message";
 
 function FinancialPage({ searchParams }) {
-    const { paymentFilters } = usePayments();
-    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+    const {
+        paymentFilters,
+        paymentsData,
+        isLoading,
+        onChangePagination,
+        handleChangeFilter,
+        handleDateRangedFilter,
+        handleSelectFilter,
+        cleanFilter,
+        selectedRowKeys,
+        setSelectedRowKeys,
+        paymentDetailVisible,
+        onClosePaymentDetail,
+        onOpenPaymentDetail,
+        isLoadingPaymentDetail,
+        paymentDetail,
+    } = usePayments();
+
     const financialStore = useSelector((state: RootState) => state.financial.payment);
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -56,44 +86,13 @@ function FinancialPage({ searchParams }) {
     }, []);
 
     useEffect(() => {
-        updateSearchParams(router, pathname, financialStore.filters);
-        dispatch(fetchAllPayment(financialStore.filters));
-    }, [financialStore.filters, dispatch, router, pathname]);
-
-    const cleanFilter = () => {
-        dispatch(cleanFilterPayments());
-    };
+        updateSearchParams(router, pathname, paymentFilters);
+        dispatch(fetchAllPayment(paymentFilters));
+    }, [paymentFilters, dispatch, router, pathname]);
 
     const applyFilter = (event: any) => {
         event.preventDefault();
         dispatch(setFilterPayments({ name: "active", value: true }));
-    };
-
-    const handleChangeFilter = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-
-        dispatch(setFilterPayments({ name, value }));
-    };
-
-    const handleSelectFilter = (name: string, value: string | number) => {
-        dispatch(setFilterPayments({ name, value }));
-    };
-
-    const handleDateRangedFilter = (name: string, dates: string[]) => {
-        const dateGte = dates[0] ? dayjs(dates[0], "DD/MM/YYYY").format("YYYY-MM-DD") : null;
-        const dateLte = dates[1] ? dayjs(dates[1], "DD/MM/YYYY").format("YYYY-MM-DD") : null;
-
-        dispatch(setFilterPayments({ name: `${name}__gte`, value: dateGte }));
-        dispatch(setFilterPayments({ name: `${name}__lte`, value: dateLte }));
-    };
-
-    const onChangePagination = (page: number, pageSize: number) => {
-        dispatch(
-            changePagination({
-                page: page,
-                pageSize: pageSize,
-            }),
-        );
     };
 
     const payOffPayment = (id: number) => {
@@ -161,13 +160,35 @@ function FinancialPage({ searchParams }) {
         });
     };
 
+    const createDropdownMenu = (record: PaymentItem): MenuProps => {
+        const items: MenuProps["items"] = [
+            {
+                key: "1",
+                label: "Ações",
+                disabled: true,
+            },
+            {
+                type: "divider",
+            },
+            {
+                key: "2",
+                icon: <FontAwesomeIcon icon={faFilePen} />,
+                label: "Editar",
+                onClick: () => onOpenPaymentDetail(record.id),
+            },
+            {
+                key: "3",
+                icon: <FontAwesomeIcon icon={faFileCircleCheck} />,
+                label: "Pagar",
+                disabled: record.status === 1,
+                onClick: () => payOffPayment(record.id),
+            },
+        ];
+
+        return { items };
+    };
+
     const headerTableFinancial = [
-        {
-            title: "ID",
-            dataIndex: "id",
-            key: "id",
-            render: (value: any) => <Link href={`/internal/financial/payments/details/${value}`}>{value}</Link>,
-        },
         {
             title: "Nome",
             dataIndex: "name",
@@ -178,19 +199,18 @@ function FinancialPage({ searchParams }) {
                         name="name__icontains"
                         style={{ width: 220 }}
                         onChange={(event) => handleChangeFilter(event)}
-                        value={financialStore.filters?.name__icontains ?? ""}
+                        value={paymentFilters?.name__icontains ?? ""}
                     />
                 </FilterDropdown>
             ),
+            filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
         },
         {
             title: "Contrato",
             dataIndex: "contract",
             key: "contract",
             render: (value: string, record: any) => (
-                <Link href={`/internal/financial/contracts/details/${record.contract_id}`}>
-                    {`${record.contract_id} ${record.contract_name}`}
-                </Link>
+                <Link href={`/internal/financial/contracts/details/${record.contract_id}`}>{record.contract_name}</Link>
             ),
             filterDropdown: () => (
                 <FilterDropdown applyFilter={applyFilter}>
@@ -198,10 +218,11 @@ function FinancialPage({ searchParams }) {
                         name="contract"
                         style={{ width: 220 }}
                         onChange={(event) => handleChangeFilter(event)}
-                        value={financialStore.filters?.contract ?? ""}
+                        value={paymentFilters?.contract ?? ""}
                     />
                 </FilterDropdown>
             ),
+            filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
         },
         {
             title: "Valor",
@@ -222,10 +243,7 @@ function FinancialPage({ searchParams }) {
                             handleDateRangedFilter("payment_date", formatString);
                         }}
                         format={customFormat}
-                        value={[
-                            dayjs(financialStore.filters?.payment_date__gte),
-                            dayjs(financialStore.filters?.payment_date__lte),
-                        ]}
+                        value={[dayjs(paymentFilters?.payment_date__gte), dayjs(paymentFilters?.payment_date__lte)]}
                         ranges={{
                             Hoje: [dayjs(), dayjs()],
                             Ontem: [dayjs().subtract(1, "days"), dayjs().subtract(1, "days")],
@@ -244,6 +262,7 @@ function FinancialPage({ searchParams }) {
                     />
                 </FilterDropdown>
             ),
+            filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
         },
         {
             title: "Status",
@@ -260,10 +279,11 @@ function FinancialPage({ searchParams }) {
                             { label: "Baixado", value: 1 },
                         ]}
                         onChange={(value) => handleSelectFilter("status", value)}
-                        value={financialStore.filters?.status ?? ""}
+                        value={paymentFilters?.status ?? ""}
                     />
                 </FilterDropdown>
             ),
+            filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
         },
         {
             title: "Tipo",
@@ -280,10 +300,11 @@ function FinancialPage({ searchParams }) {
                             { label: "Debito", value: 1 },
                         ]}
                         onChange={(value) => handleSelectFilter("type", value)}
-                        value={financialStore.filters?.type ?? ""}
+                        value={paymentFilters?.type ?? ""}
                     />
                 </FilterDropdown>
             ),
+            filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
         },
         {
             title: "Data",
@@ -298,7 +319,7 @@ function FinancialPage({ searchParams }) {
                             handleDateRangedFilter("date", formatString);
                         }}
                         format={customFormat}
-                        value={[dayjs(financialStore.filters?.date__gte), dayjs(financialStore.filters?.date__lte)]}
+                        value={[dayjs(paymentFilters?.date__gte), dayjs(paymentFilters?.date__lte)]}
                         ranges={{
                             Hoje: [dayjs(), dayjs()],
                             Ontem: [dayjs().subtract(1, "days"), dayjs().subtract(1, "days")],
@@ -317,6 +338,7 @@ function FinancialPage({ searchParams }) {
                     />
                 </FilterDropdown>
             ),
+            filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
         },
 
         {
@@ -336,20 +358,13 @@ function FinancialPage({ searchParams }) {
             dataIndex: "id",
             key: "id",
             render: (value: any, record: any) => (
-                <div>
-                    <Link href={`/internal/financial/payments/details/${value}`}>Detalhes</Link>
-                    {record.status === 0 && (
-                        <Popconfirm
-                            title="Baixar pagamento?"
-                            placement="left"
-                            onConfirm={(event) => payOffPayment(record.id)}
-                            okText="Sim"
-                            cancelText="Não"
-                        >
-                            <div className={styles["popconfirm-text"]}>Baixar</div>
-                        </Popconfirm>
-                    )}
-                </div>
+                <Dropdown menu={createDropdownMenu(record)}>
+                    <a onClick={(e) => e.preventDefault()}>
+                        <Space>
+                            <FontAwesomeIcon icon={faEllipsis} />
+                        </Space>
+                    </a>
+                </Dropdown>
             ),
         },
     ];
@@ -359,12 +374,12 @@ function FinancialPage({ searchParams }) {
             <Breadcrumb className={styles.breadcrumb}>
                 <Breadcrumb.Item>Kawori</Breadcrumb.Item>
                 <Breadcrumb.Item>Financeiro</Breadcrumb.Item>
-                <Breadcrumb.Item>Em aberto</Breadcrumb.Item>
+                <Breadcrumb.Item>Pagamentos</Breadcrumb.Item>
             </Breadcrumb>
             <Layout>
                 <div className={styles.header_command}>
                     <Title level={3} className={styles.title}>
-                        Valores em aberto
+                        Pagamentos
                     </Title>
                     <div>
                         <Button
@@ -382,9 +397,9 @@ function FinancialPage({ searchParams }) {
                 <Table
                     pagination={{
                         showSizeChanger: true,
-                        pageSize: financialStore.filters.page_size,
-                        current: financialStore.pagination.currentPage,
-                        total: financialStore.pagination.totalPages * financialStore.filters.page_size,
+                        pageSize: paymentFilters.page_size,
+                        current: paymentFilters.page,
+                        total: paymentsData.total_pages * paymentFilters.page_size,
                         onChange: onChangePagination,
                     }}
                     columns={headerTableFinancial}
@@ -399,8 +414,8 @@ function FinancialPage({ searchParams }) {
                             disabled: record.status === 1,
                         }),
                     }}
-                    dataSource={financialStore.data}
-                    loading={financialStore.loading}
+                    dataSource={paymentsData.data}
+                    loading={isLoading}
                     summary={(paymentData) => <TableSummary paymentData={paymentData} />}
                 />
                 <ModalPayoff
@@ -408,6 +423,12 @@ function FinancialPage({ searchParams }) {
                     onCancel={togglePayoffModalVisible}
                     onPayoff={processPayOff}
                     data={financialStore.modal.payoff.data}
+                />
+                <PaymentsDrawer
+                    onClose={onClosePaymentDetail}
+                    open={paymentDetailVisible}
+                    paymentDetail={paymentDetail}
+                    isLoading={isLoadingPaymentDetail}
                 />
             </Layout>
         </>

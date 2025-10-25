@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { apiDjango } from "..";
 
 export async function fetchAllPaymentService(filters: IPaymentFilters) {
-    const response = await apiDjango.get("/financial/payment/", {
+    const response = await apiDjango.get<PaymentsApiResponse>("/financial/payment/", {
         params: filters,
     });
     return response.data;
@@ -73,7 +73,7 @@ export async function fetchAllInvoiceService(filters: IInvoiceFilters) {
 }
 
 export async function saveNewContractService(data: INewContractRequest) {
-    const response = await apiDjango.post<{data: IContractPagination}>("/financial/contract/new", data);
+    const response = await apiDjango.post<{ data: IContractPagination }>("/financial/contract/new", data);
     return response.data;
 }
 

@@ -1,7 +1,8 @@
 "use client";
 
-import { fetchAllPaymentService } from "@/services/financial";
+import { fetchAllPaymentService, fetchDetailPaymentService } from "@/services/financial";
 import { useQuery } from "@tanstack/react-query";
+import dayjs from "dayjs";
 import React, { createContext, useCallback, useContext, useState } from "react";
 
 interface IPaymentFilters {
@@ -22,11 +23,20 @@ interface IPaymentFilters {
 
 type PaymentsContextValue = {
     paymentFilters: IPaymentFilters;
+    paymentsData: PaymentsPage;
+    isLoading: boolean;
     selectedRowKeys: React.Key[];
     setSelectedRowKeys: (keys: React.Key[]) => void;
     cleanFilter: () => void;
     handleChangeFilter: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    handleDateRangedFilter: (name: string, dates: string[]) => void;
+    handleSelectFilter: (name: keyof IPaymentFilters, value: string | number) => void;
     onChangePagination: (page: number, pageSize: number) => void;
+    paymentDetailVisible: boolean;
+    onClosePaymentDetail: () => void;
+    onOpenPaymentDetail: (paymentId?: number) => void;
+    isLoadingPaymentDetail: boolean;
+    paymentDetail: IPaymentDetail | null;
 };
 
 const PaymentsContext = createContext<PaymentsContextValue | undefined>(undefined);
@@ -73,10 +83,13 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode; searchParam
             ...(searchParams ?? {}),
         };
     };
+
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [localFilters, dispatchFilters] = React.useReducer(paymentFiltersReducer, undefined, initFilters);
+    const [paymentDetailVisible, setPaymentDetailVisible] = useState<boolean>(false);
+    const [paymentDetailId, setPaymentDetailId] = useState<number>(undefined);
 
-    const { data, refetch } = useQuery({
+    const { data, refetch, isLoading } = useQuery({
         queryKey: ["payments", localFilters],
         queryFn: async () => {
             const response = await fetchAllPaymentService(localFilters);
@@ -84,7 +97,15 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode; searchParam
         },
     });
 
-    console.log("Payments fetched data:", data);
+    const { data: paymentDetail, isLoading: isLoadingPaymentDetail } = useQuery({
+        queryKey: ["paymentDetail", paymentDetailId],
+        queryFn: async () => {
+            if (!paymentDetailId) return undefined;
+            const response = await fetchDetailPaymentService(paymentDetailId);
+            return response.data;
+        },
+    });
+
     const cleanFilter = useCallback(() => {
         dispatchFilters({ type: "RESET" });
     }, []);
@@ -94,19 +115,61 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode; searchParam
         dispatchFilters({ type: "SET_FIELD", payload: { name: name as keyof IPaymentFilters, value } });
     }, []);
 
+    const handleDateRangedFilter = (name: string, dates: string[]) => {
+        const dateGte = dates[0] ? dayjs(dates[0], "DD/MM/YYYY").format("YYYY-MM-DD") : null;
+        const dateLte = dates[1] ? dayjs(dates[1], "DD/MM/YYYY").format("YYYY-MM-DD") : null;
+
+        dispatchFilters({
+            type: "SET_FIELD",
+            payload: { name: `${name}__gte` as keyof IPaymentFilters, value: dateGte },
+        });
+        dispatchFilters({
+            type: "SET_FIELD",
+            payload: { name: `${name}__lte` as keyof IPaymentFilters, value: dateLte },
+        });
+    };
+
+    const handleSelectFilter = (name: keyof IPaymentFilters, value: string | number) => {
+        dispatchFilters({ type: "SET_FIELD", payload: { name: name, value } });
+    };
+
     const onChangePagination = useCallback((page: number, pageSize: number) => {
         dispatchFilters({ type: "SET_PAGINATION", payload: { page, page_size: pageSize } });
     }, []);
+
+    const onClosePaymentDetail = () => {
+        setPaymentDetailVisible(false);
+    };
+
+    const onOpenPaymentDetail = (paymentId?: number) => {
+        setPaymentDetailVisible(true);
+        setPaymentDetailId(paymentId);
+    };
 
     return (
         <PaymentsContext.Provider
             value={{
                 paymentFilters: localFilters,
                 selectedRowKeys,
+                isLoading: isLoading,
                 setSelectedRowKeys,
                 cleanFilter,
                 handleChangeFilter,
+                handleDateRangedFilter,
+                handleSelectFilter,
                 onChangePagination,
+                paymentsData: data ?? {
+                    current_page: 1,
+                    total_pages: 1,
+                    has_previous: false,
+                    has_next: false,
+                    data: [],
+                },
+                paymentDetailVisible,
+                onClosePaymentDetail,
+                onOpenPaymentDetail,
+                isLoadingPaymentDetail,
+                paymentDetail,
             }}
         >
             {children}
