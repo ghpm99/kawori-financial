@@ -61,13 +61,14 @@ function FinancialPage({ searchParams }) {
         handleDateRangedFilter,
         handleSelectFilter,
         cleanFilter,
-        selectedRowKeys,
-        setSelectedRowKeys,
+        selectedRow,
+        setSelectedRow,
         paymentDetailVisible,
         onClosePaymentDetail,
         onOpenPaymentDetail,
         isLoadingPaymentDetail,
         paymentDetail,
+        onUpdatePaymentDetail,
     } = usePayments();
 
     const financialStore = useSelector((state: RootState) => state.financial.payment);
@@ -119,7 +120,7 @@ function FinancialPage({ searchParams }) {
     };
 
     const openPayoffModal = () => {
-        const dataSource: ITableDataSource[] = selectedRowKeys.map((id) => ({
+        const dataSource: ITableDataSource[] = selectedRow.map((id) => ({
             id: parseInt(id.toString()),
             description: "Aguardando",
             status: 0,
@@ -382,11 +383,7 @@ function FinancialPage({ searchParams }) {
                         Pagamentos
                     </Title>
                     <div>
-                        <Button
-                            icon={<ToTopOutlined />}
-                            onClick={openPayoffModal}
-                            disabled={selectedRowKeys.length === 0}
-                        >
+                        <Button icon={<ToTopOutlined />} onClick={openPayoffModal} disabled={selectedRow.length === 0}>
                             Baixar pagamentos
                         </Button>
                         <Button icon={<ClearOutlined />} onClick={cleanFilter}>
@@ -405,9 +402,9 @@ function FinancialPage({ searchParams }) {
                     columns={headerTableFinancial}
                     rowSelection={{
                         type: "checkbox",
-                        selectedRowKeys,
+                        selectedRowKeys: selectedRow,
                         onChange: (selectedRowKeys, selectedRows) => {
-                            setSelectedRowKeys(selectedRowKeys);
+                            setSelectedRow(selectedRowKeys);
                         },
                         selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT, Table.SELECTION_NONE],
                         getCheckboxProps: (record) => ({
@@ -429,6 +426,7 @@ function FinancialPage({ searchParams }) {
                     open={paymentDetailVisible}
                     paymentDetail={paymentDetail}
                     isLoading={isLoadingPaymentDetail}
+                    onUpdatePaymentDetail={onUpdatePaymentDetail}
                 />
             </Layout>
         </>

@@ -4,7 +4,8 @@ import {
     ExclamationCircleOutlined,
     LoadingOutlined,
 } from "@ant-design/icons";
-import { Button, Modal, Table } from "antd";
+import { Button, Modal, Progress, Spin, Table } from "antd";
+import { useState } from "react";
 
 export interface ITableDataSource {
     status: number;
@@ -20,6 +21,29 @@ interface IModalPayoffProps {
 }
 
 const ModalPayoff = (props: IModalPayoffProps) => {
+    const [percent, setPercent] = useState(0);
+
+    const progressText = () => {
+        const totalItems = props.data.length;
+        if (totalItems === 0) return "Sem itens para processar";
+        const inProgressItems = props.data.filter((item) => item.status === 0).length;
+        const completedItems = props.data.filter((item) => item.status === 1).length;
+        const failedItems = props.data.filter((item) => item.status === 3).length;
+        if (completedItems === totalItems) {
+            return "100%";
+        }
+        if (failedItems === totalItems) {
+            return "Falhou";
+        }
+        if (failedItems > 0) {
+            return `${completedItems}/${totalItems}, ${failedItems}`;
+        }
+        if (completedItems > 0) {
+            return `${completedItems}/${totalItems}`;
+        }
+        return `0% ${totalItems}`;
+    };
+
     const statusIcon = (status: number) => {
         if (status === 0) {
             return <LoadingOutlined />;
@@ -46,6 +70,8 @@ const ModalPayoff = (props: IModalPayoffProps) => {
                 </Button>,
             ]}
         >
+            <Spin percent={percent} />
+            <Progress type="circle" percent={percent} format={progressText} />
             <Table
                 columns={[
                     {

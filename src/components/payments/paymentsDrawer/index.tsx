@@ -1,55 +1,74 @@
-import { Button, Col, Drawer, Form, Input, InputNumber, Row, Select, Space, Switch, Typography } from "antd";
+import {
+    Button,
+    Col,
+    DatePicker,
+    Drawer,
+    Form,
+    Input,
+    InputNumber,
+    Row,
+    Select,
+    Space,
+    Switch,
+    Typography,
+} from "antd";
 import { useEffect } from "react";
+import dayjs from "dayjs";
 
 interface PaymentsDrawerProps {
     open: boolean;
     onClose: () => void;
     paymentDetail?: IPaymentDetail;
     isLoading?: boolean;
+    onUpdatePaymentDetail: (values: IPaymentDetail) => void;
 }
 
 const { Paragraph } = Typography;
 const { Option } = Select;
 
-const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading }: PaymentsDrawerProps) => {
-    console.log("Payment Detail in Drawer:", paymentDetail);
+const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading, onUpdatePaymentDetail }: PaymentsDrawerProps) => {
     const [form] = Form.useForm();
     useEffect(() => {
         if (open && paymentDetail) {
-            form.setFieldsValue(paymentDetail);
+            const init = {
+                ...paymentDetail,
+                value: typeof paymentDetail.value === "number" ? Math.round(paymentDetail.value * 100) : 0,
+                date: paymentDetail.date ? dayjs(paymentDetail.date) : undefined,
+                payment_date: paymentDetail.payment_date ? dayjs(paymentDetail.payment_date) : undefined,
+            };
+            form.setFieldsValue(init);
         } else {
             form.resetFields();
         }
     }, [form, open, paymentDetail]);
 
-    const formatter = (value) => {
-        const onlyNumbers = value.replace(/\D+/g, "");
-        const intNumber = new Intl.NumberFormat("pt-BR", {
+    const formatter = (value: number | string | undefined) => {
+        const cents = typeof value === "number" ? value : Number(String(value || "").replace(/\D+/g, "")) || 0;
+        const floatValue = cents / 100;
+        return new Intl.NumberFormat("pt-BR", {
             style: "currency",
             currency: "BRL",
             minimumFractionDigits: 2,
-        }).format(Number(onlyNumbers) / 100);
-        return intNumber;
+            maximumFractionDigits: 2,
+        }).format(floatValue);
     };
 
     const parser = (value: string): number => {
         if (!value) return 0;
-        const onlyNumCommaDot = value.replace(/[^\d.,-]/g, "");
-        const withoutThousands = onlyNumCommaDot.replace(/\.(?=\d{3}(?:[.,]|$))/g, "");
-        const normalized = withoutThousands.replace(/,/g, ".");
-        let cleaned = normalized.replace(/(?!^)-|[^0-9.-]/g, "");
-        const dots = (cleaned.match(/\./g) || []).length;
-        if (dots > 1) {
-            const parts = cleaned.split(".");
-            const first = parts.shift() ?? "";
-            cleaned = first + "." + parts.join("");
-        }
-        const num = Number(cleaned);
-        return Number.isFinite(num) ? num : 0;
+        const digits = String(value).replace(/\D+/g, "");
+        if (!digits) return 0;
+        return Number(digits);
     };
 
-    const onFinish = (values) => {
-        console.log("Form values:", values);
+    const onFinish = (values: any) => {
+        const payload = {
+            ...values,
+            value: typeof values.value === "number" ? Number((values.value / 100).toFixed(2)) : 0,
+            date: values.date ? dayjs(values.date).format("YYYY-MM-DD") : null,
+            payment_date: values.payment_date ? dayjs(values.payment_date).format("YYYY-MM-DD") : null,
+        };
+        onClose();
+        onUpdatePaymentDetail(payload);
     };
 
     const handleSubmitForm = () => {
@@ -92,7 +111,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading }: PaymentsDra
                             label="Contrato"
                             rules={[{ required: true, message: "Please enter url" }]}
                         >
-                            <Input placeholder="Please enter user name" />
+                            <Input placeholder="Please enter user name" disabled />
                         </Form.Item>
                     </Col>
                 </Row>
@@ -106,7 +125,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading }: PaymentsDra
                             label="Nota"
                             rules={[{ required: true, message: "Please select an owner" }]}
                         >
-                            <Select placeholder="Please select an owner">
+                            <Select placeholder="Please select an owner" disabled>
                                 <Option value="xiao">Xiaoxiao Fu</Option>
                                 <Option value="mao">Maomao Zhou</Option>
                             </Select>
@@ -118,7 +137,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading }: PaymentsDra
                             label="Nome"
                             rules={[{ required: true, message: "Please choose the type" }]}
                         >
-                            <Select placeholder="Please choose the type">
+                            <Select placeholder="Please choose the type" disabled>
                                 <Option value="private">Private</Option>
                                 <Option value="public">Public</Option>
                             </Select>
@@ -132,7 +151,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading }: PaymentsDra
                             label="Dia de lançamento"
                             rules={[{ required: true, message: "Please choose the approver" }]}
                         >
-                            <Input placeholder="Please enter user name" />
+                            <DatePicker style={{ width: "100%" }} format={"DD/MM/YYYY"} disabled />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -141,7 +160,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading }: PaymentsDra
                             label="Dia de pagamento"
                             rules={[{ required: true, message: "Please choose the dateTime" }]}
                         >
-                            <Input placeholder="Please enter user name" />
+                            <DatePicker style={{ width: "100%" }} format={"DD/MM/YYYY"} disabled />
                         </Form.Item>
                     </Col>
                 </Row>
@@ -152,7 +171,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading }: PaymentsDra
                             label="Status"
                             rules={[{ required: true, message: "Please select an owner" }]}
                         >
-                            <Select placeholder="Please select an owner">
+                            <Select placeholder="Please select an owner" disabled>
                                 <Option value={0}>Em aberto</Option>
                                 <Option value={1}>Baixado</Option>
                             </Select>
@@ -164,7 +183,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading }: PaymentsDra
                             label="Tipo"
                             rules={[{ required: true, message: "Please choose the type" }]}
                         >
-                            <Select placeholder="Please choose the type">
+                            <Select placeholder="Please choose the type" disabled>
                                 <Option value={0}>Credito</Option>
                                 <Option value={1}>Debito</Option>
                             </Select>
@@ -178,7 +197,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading }: PaymentsDra
                             label="Parcelas"
                             rules={[{ required: true, message: "Please select an owner" }]}
                         >
-                            <Select placeholder="Please select an owner">
+                            <Select placeholder="Please select an owner" disabled>
                                 <Option value="xiao">Xiaoxiao Fu</Option>
                                 <Option value="mao">Maomao Zhou</Option>
                             </Select>
@@ -190,7 +209,14 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading }: PaymentsDra
                             label="Valor"
                             rules={[{ required: true, message: "Please choose the type" }]}
                         >
-                            <InputNumber stringMode formatter={formatter} parser={parser} style={{ width: "100%" }} />
+                            <InputNumber
+                                step={1}
+                                precision={0}
+                                formatter={formatter}
+                                parser={parser}
+                                style={{ width: "100%" }}
+                                disabled
+                            />
                         </Form.Item>
                     </Col>
                 </Row>
@@ -201,7 +227,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading }: PaymentsDra
                             label="Fixo"
                             rules={[{ required: true, message: "Please select an owner" }]}
                         >
-                            <Switch />
+                            <Switch disabled />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -210,23 +236,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading }: PaymentsDra
                             label="Ativo"
                             rules={[{ required: true, message: "Please choose the type" }]}
                         >
-                            <Switch />
-                        </Form.Item>
-                    </Col>
-                </Row>
-                <Row gutter={16}>
-                    <Col span={24}>
-                        <Form.Item
-                            name="description"
-                            label="Description"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "please enter url description",
-                                },
-                            ]}
-                        >
-                            <Input.TextArea rows={4} placeholder="please enter url description" />
+                            <Switch disabled />
                         </Form.Item>
                     </Col>
                 </Row>

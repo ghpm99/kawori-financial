@@ -19,12 +19,12 @@ export async function fetchDetailPaymentService(id: number) {
 }
 
 export async function savePaymentDetailService(id: number, payment: ISavePaymentRequest) {
-    const response = await apiDjango.post(`/financial/payment/${id}/save`, payment);
+    const response = await apiDjango.post<{ msg: string }>(`/financial/payment/${id}/save`, payment);
     return response.data;
 }
 
 export async function payoffPaymentService(id: number) {
-    const response = await apiDjango.post(`/financial/payment/${id}/payoff`);
+    const response = await apiDjango.post<{ msg: string }>(`/financial/payment/${id}/payoff`);
     return response.data;
 }
 
