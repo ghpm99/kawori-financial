@@ -44,7 +44,6 @@ type PaymentsContextValue = {
     isLoadingPaymentDetail: boolean;
     paymentDetail: IPaymentDetail | null;
     onUpdatePaymentDetail: (values: IPaymentDetail) => void;
-    payOffPayment: (id: number) => void;
 };
 
 const PaymentsContext = createContext<PaymentsContextValue | undefined>(undefined);
@@ -124,6 +123,8 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode; searchParam
     const [paymentDetailVisible, setPaymentDetailVisible] = useState<boolean>(false);
     const [paymentDetailId, setPaymentDetailId] = useState<number>(undefined);
 
+    const [paymentPayoffBatchProgress, setPaymentPayoffBatchProgress] = useState<number>(0);
+
     const {
         data,
         refetch: refetchPayments,
@@ -189,21 +190,6 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode; searchParam
         },
     });
 
-    const { mutate: mutatePayoffPayment } = useMutation({
-        mutationKey: ["payoffPayment"],
-        mutationFn: async (id: number) => {
-            const response = await payoffPaymentService(id);
-            return response;
-        },
-        onSuccess: ({ msg }, id: number) => {
-            message.success({
-                content: msg,
-                key: messageKey,
-            });
-            refetchPayments();
-        },
-    });
-
     const cleanFilter = useCallback(() => {
         dispatchFilters({ type: "RESET" });
     }, []);
@@ -252,16 +238,6 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode; searchParam
         mutateUpdatePaymentDetail(values);
     };
 
-    const payOffPayment = (id: number) => {
-        message.loading({
-            key: messageKey,
-            content: "Processando",
-        });
-        mutatePayoffPayment(id);
-    };
-
-    const processPayOffMassive = () => {};
-
     return (
         <PaymentsContext.Provider
             value={{
@@ -281,7 +257,6 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode; searchParam
                 isLoadingPaymentDetail,
                 paymentDetail,
                 onUpdatePaymentDetail,
-                payOffPayment,
             }}
         >
             {children}

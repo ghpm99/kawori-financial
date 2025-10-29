@@ -4,8 +4,9 @@ import {
     ExclamationCircleOutlined,
     LoadingOutlined,
 } from "@ant-design/icons";
-import { Button, Modal, Progress, Spin, Table } from "antd";
+import { Button, Layout, Modal, Progress, Spin, Table } from "antd";
 import { useState } from "react";
+import styles from "./modalPayoff.module.scss";
 
 export interface ITableDataSource {
     status: number;
@@ -17,32 +18,47 @@ interface IModalPayoffProps {
     visible: boolean;
     onCancel: () => void;
     onPayoff: () => void;
+    percent: number;
+    progressText: string;
     data: ITableDataSource[];
 }
 
 const ModalPayoff = (props: IModalPayoffProps) => {
     const [percent, setPercent] = useState(0);
+    const inProgressItems = props.data.filter((item) => item.status === 0).length;
+    const completedItems = props.data.filter((item) => item.status === 1).length;
+    const failedItems = props.data.filter((item) => item.status === 3).length;
 
     const progressText = () => {
         const totalItems = props.data.length;
         if (totalItems === 0) return "Sem itens para processar";
-        const inProgressItems = props.data.filter((item) => item.status === 0).length;
-        const completedItems = props.data.filter((item) => item.status === 1).length;
-        const failedItems = props.data.filter((item) => item.status === 3).length;
         if (completedItems === totalItems) {
-            return "100%";
+            return "Todos concluídos com sucesso";
         }
         if (failedItems === totalItems) {
-            return "Falhou";
+            return "Todos falharam no processamento";
         }
         if (failedItems > 0) {
-            return `${completedItems}/${totalItems}, ${failedItems}`;
+            return `${completedItems}/${totalItems} concluídos, ${failedItems} falharam`;
         }
         if (completedItems > 0) {
-            return `${completedItems}/${totalItems}`;
+            return `${completedItems}/${totalItems} concluídos com sucesso`;
         }
-        return `0% ${totalItems}`;
+        return `Aguardando processamento, total de ${totalItems} itens`;
     };
+
+    const percentProgress = (() => {
+        const totalItems = props.data.length;
+        const inProgressItems = props.data.filter((item) => item.status === 0).length;
+        const completedItems = props.data.filter((item) => item.status === 1).length;
+        const totalProcessed = completedItems / totalItems;
+        const percentInProgress = inProgressItems / totalItems;
+
+        return {
+            percent: totalProcessed,
+            success: percentInProgress,
+        };
+    })();
 
     const statusIcon = (status: number) => {
         if (status === 0) {
@@ -70,29 +86,14 @@ const ModalPayoff = (props: IModalPayoffProps) => {
                 </Button>,
             ]}
         >
-            <Spin percent={percent} />
-            <Progress type="circle" percent={percent} format={progressText} />
-            <Table
-                columns={[
-                    {
-                        title: "Status",
-                        key: "status",
-                        dataIndex: "status",
-                        render: (value) => <div>{statusIcon(value)}</div>,
-                    },
-                    {
-                        title: "Id",
-                        key: "id",
-                        dataIndex: "id",
-                    },
-                    {
-                        title: "Descrição",
-                        key: "description",
-                        dataIndex: "description",
-                    },
-                ]}
-                dataSource={props.data}
-            />
+            <div className={styles["progress"]}>
+                <Progress
+                    type="circle"
+                    percent={percentProgress.percent}
+                    success={{ percent: percentProgress.success }}
+                />
+                {progressText()}
+            </div>
         </Modal>
     );
 };

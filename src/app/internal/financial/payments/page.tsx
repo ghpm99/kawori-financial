@@ -44,6 +44,7 @@ import { usePayments } from "@/components/providers/payments";
 import { faEllipsis, faFileCircleCheck, faFilePen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styles from "./Payments.module.scss";
+import { usePayoff } from "@/components/providers/payments/payoff";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -70,6 +71,14 @@ function FinancialPage({ searchParams }) {
         paymentDetail,
         onUpdatePaymentDetail,
     } = usePayments();
+
+    const {
+        paymentsToProcess,
+        paymentPayoffBatchProgress,
+        paymentPayoffBatchProgressText,
+        setPaymentsToProcess,
+        clearPaymentsToProcess,
+    } = usePayoff();
 
     const financialStore = useSelector((state: RootState) => state.financial.payment);
     const dispatch = useAppDispatch();
@@ -420,6 +429,8 @@ function FinancialPage({ searchParams }) {
                     onCancel={togglePayoffModalVisible}
                     onPayoff={processPayOff}
                     data={financialStore.modal.payoff.data}
+                    percent={paymentPayoffBatchProgress}
+                    progressText={paymentPayoffBatchProgressText()}
                 />
                 <PaymentsDrawer
                     onClose={onClosePaymentDetail}
