@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { message } from "antd";
 import { createContext, useContext, useMemo, useState } from "react";
 
-type PayoffPayment = {
+export type PayoffPayment = {
     id: number;
     description: string;
     status: "pending" | "completed" | "failed";
@@ -15,6 +15,11 @@ type PayoffContextValue = {
     clearPaymentsToProcess: () => void;
     paymentPayoffBatchProgress: number;
     paymentPayoffBatchProgressText: () => string;
+    openPayoffBatchModal: () => void;
+    closePayoffBatchModal: () => void;
+    modalBatchVisible: boolean;
+    processPayOffBatch: () => void;
+    payOffPayment: (id: number) => void;
 };
 
 const PayoffContext = createContext<PayoffContextValue | undefined>(undefined);
@@ -23,6 +28,7 @@ const messageKey = "payment_payoff_message";
 
 export const PayoffProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const queryClient = useQueryClient();
+    const [modalBatchVisible, setModalBatchVisible] = useState<boolean>(false);
     const [paymentsToProcess, setPaymentsToProcess] = useState<PayoffPayment[]>([]);
     const clearPaymentsToProcess = () => setPaymentsToProcess([]);
 
@@ -85,7 +91,14 @@ export const PayoffProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         mutatePayoffPayment(id);
     };
 
-    const processPayOffMassive = () => {};
+    const processPayOffBatch = () => {};
+
+    const openPayoffBatchModal = () => {
+        setModalBatchVisible(true);
+    };
+    const closePayoffBatchModal = () => {
+        setModalBatchVisible(false);
+    };
 
     return (
         <PayoffContext.Provider
@@ -95,6 +108,11 @@ export const PayoffProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 clearPaymentsToProcess,
                 paymentPayoffBatchProgress,
                 paymentPayoffBatchProgressText,
+                openPayoffBatchModal,
+                closePayoffBatchModal,
+                modalBatchVisible,
+                processPayOffBatch,
+                payOffPayment,
             }}
         >
             {children}

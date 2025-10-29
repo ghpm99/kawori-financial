@@ -1,7 +1,7 @@
 "use client";
 import FilterDropdown from "@/components/common/filterDropdown/Index";
 import LoadingPage from "@/components/loadingPage/Index";
-import ModalPayoff, { ITableDataSource } from "@/components/payments/modalPayoff";
+import ModalPayoff from "@/components/payments/modalPayoff";
 import {
     changeDataSourcePayoffPayments,
     changeSingleDataSourcePayoffPayments,
@@ -41,10 +41,10 @@ import { usePathname, useRouter } from "next/navigation";
 
 import PaymentsDrawer from "@/components/payments/paymentsDrawer";
 import { usePayments } from "@/components/providers/payments";
+import { PayoffPayment, usePayoff } from "@/components/providers/payments/payoff";
 import { faEllipsis, faFileCircleCheck, faFilePen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styles from "./Payments.module.scss";
-import { usePayoff } from "@/components/providers/payments/payoff";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -73,11 +73,16 @@ function FinancialPage({ searchParams }) {
     } = usePayments();
 
     const {
+        modalBatchVisible,
+        openPayoffBatchModal,
+        closePayoffBatchModal,
         paymentsToProcess,
         paymentPayoffBatchProgress,
         paymentPayoffBatchProgressText,
         setPaymentsToProcess,
         clearPaymentsToProcess,
+        processPayOffBatch,
+        payOffPayment,
     } = usePayoff();
 
     const financialStore = useSelector((state: RootState) => state.financial.payment);
@@ -105,39 +110,14 @@ function FinancialPage({ searchParams }) {
         dispatch(setFilterPayments({ name: "active", value: true }));
     };
 
-    const payOffPayment = (id: number) => {
-        message.loading({
-            key: messageKey,
-            content: "Processando",
-        });
-        payoffPaymentService(id).then((data) => {
-            message.success({
-                content: data.msg,
-                key: messageKey,
-            });
-            dispatch(
-                changeStatusPaymentPagination({
-                    id: id,
-                    status: 1,
-                }),
-            );
-        });
-    };
-
-    const togglePayoffModalVisible = () => {
-        dispatch(changeVisibleModalPayoffPayments(!financialStore.modal.payoff.visible));
-    };
-
     const openPayoffModal = () => {
-        const dataSource: ITableDataSource[] = selectedRow.map((id) => ({
+        openPayoffBatchModal();
+        const dataSource: PayoffPayment[] = selectedRow.map((id) => ({
             id: parseInt(id.toString()),
             description: "Aguardando",
-            status: 0,
+            status: "pending",
         }));
-
-        dispatch(changeDataSourcePayoffPayments(dataSource));
-
-        dispatch(changeVisibleModalPayoffPayments(true));
+        setPaymentsToProcess(dataSource);
     };
 
     const processPayOff = () => {
@@ -425,10 +405,10 @@ function FinancialPage({ searchParams }) {
                     summary={(paymentData) => <TableSummary paymentData={paymentData} />}
                 />
                 <ModalPayoff
-                    visible={financialStore.modal.payoff.visible}
-                    onCancel={togglePayoffModalVisible}
-                    onPayoff={processPayOff}
-                    data={financialStore.modal.payoff.data}
+                    visible={modalBatchVisible}
+                    onCancel={closePayoffBatchModal}
+                    onPayoff={processPayOffBatch}
+                    data={paymentsToProcess}
                     percent={paymentPayoffBatchProgress}
                     progressText={paymentPayoffBatchProgressText()}
                 />

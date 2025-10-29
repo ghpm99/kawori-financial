@@ -137,7 +137,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading, onUpdatePayme
                             label="Nome"
                             rules={[{ required: true, message: "Please choose the type" }]}
                         >
-                            <Select placeholder="Please choose the type" disabled>
+                            <Select placeholder="Please choose the type">
                                 <Option value="private">Private</Option>
                                 <Option value="public">Public</Option>
                             </Select>
@@ -160,7 +160,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading, onUpdatePayme
                             label="Dia de pagamento"
                             rules={[{ required: true, message: "Please choose the dateTime" }]}
                         >
-                            <DatePicker style={{ width: "100%" }} format={"DD/MM/YYYY"} disabled />
+                            <DatePicker style={{ width: "100%" }} format={"DD/MM/YYYY"} />
                         </Form.Item>
                     </Col>
                 </Row>
@@ -183,7 +183,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading, onUpdatePayme
                             label="Tipo"
                             rules={[{ required: true, message: "Please choose the type" }]}
                         >
-                            <Select placeholder="Please choose the type" disabled>
+                            <Select placeholder="Please choose the type">
                                 <Option value={0}>Credito</Option>
                                 <Option value={1}>Debito</Option>
                             </Select>
@@ -215,7 +215,6 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading, onUpdatePayme
                                 formatter={formatter}
                                 parser={parser}
                                 style={{ width: "100%" }}
-                                disabled
                             />
                         </Form.Item>
                     </Col>
@@ -227,7 +226,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading, onUpdatePayme
                             label="Fixo"
                             rules={[{ required: true, message: "Please select an owner" }]}
                         >
-                            <Switch disabled />
+                            <Switch />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -236,7 +235,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading, onUpdatePayme
                             label="Ativo"
                             rules={[{ required: true, message: "Please choose the type" }]}
                         >
-                            <Switch disabled />
+                            <Switch />
                         </Form.Item>
                     </Col>
                 </Row>

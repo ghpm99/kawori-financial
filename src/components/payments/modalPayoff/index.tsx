@@ -7,12 +7,7 @@ import {
 import { Button, Layout, Modal, Progress, Spin, Table } from "antd";
 import { useState } from "react";
 import styles from "./modalPayoff.module.scss";
-
-export interface ITableDataSource {
-    status: number;
-    id: number;
-    description: string;
-}
+import { PayoffPayment } from "@/components/providers/payments/payoff";
 
 interface IModalPayoffProps {
     visible: boolean;
@@ -20,14 +15,14 @@ interface IModalPayoffProps {
     onPayoff: () => void;
     percent: number;
     progressText: string;
-    data: ITableDataSource[];
+    data: PayoffPayment[];
 }
 
 const ModalPayoff = (props: IModalPayoffProps) => {
     const [percent, setPercent] = useState(0);
-    const inProgressItems = props.data.filter((item) => item.status === 0).length;
-    const completedItems = props.data.filter((item) => item.status === 1).length;
-    const failedItems = props.data.filter((item) => item.status === 3).length;
+    const inProgressItems = props.data.filter((item) => item.status === "pending").length;
+    const completedItems = props.data.filter((item) => item.status === "completed").length;
+    const failedItems = props.data.filter((item) => item.status === "failed").length;
 
     const progressText = () => {
         const totalItems = props.data.length;
@@ -49,8 +44,8 @@ const ModalPayoff = (props: IModalPayoffProps) => {
 
     const percentProgress = (() => {
         const totalItems = props.data.length;
-        const inProgressItems = props.data.filter((item) => item.status === 0).length;
-        const completedItems = props.data.filter((item) => item.status === 1).length;
+        const inProgressItems = props.data.filter((item) => item.status === "pending").length;
+        const completedItems = props.data.filter((item) => item.status === "completed").length;
         const totalProcessed = completedItems / totalItems;
         const percentInProgress = inProgressItems / totalItems;
 
