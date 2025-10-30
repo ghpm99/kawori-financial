@@ -2,6 +2,7 @@ import { payoffPaymentService } from "@/services/financial";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { message } from "antd";
 import { createContext, useContext, useMemo, useState } from "react";
+import sleep from "timers";
 
 export type PayoffPayment = {
     id: number;
@@ -20,6 +21,8 @@ type PayoffContextValue = {
     modalBatchVisible: boolean;
     processPayOffBatch: () => void;
     payOffPayment: (id: number) => void;
+    processPayOffBatchCompleted: boolean;
+    processingBatch: boolean;
 };
 
 const PayoffContext = createContext<PayoffContextValue | undefined>(undefined);
@@ -29,13 +32,11 @@ const messageKey = "payment_payoff_message";
 export const PayoffProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const queryClient = useQueryClient();
     const [modalBatchVisible, setModalBatchVisible] = useState<boolean>(false);
+    const [processingBatch, setProcessingBatch] = useState<boolean>(false);
     const [paymentsToProcess, setPaymentsToProcess] = useState<PayoffPayment[]>([]);
+
     const clearPaymentsToProcess = () => setPaymentsToProcess([]);
 
-    const pendingItems = useMemo(
-        () => paymentsToProcess.filter((p) => p.status === "pending").length,
-        [paymentsToProcess],
-    );
     const completedItems = useMemo(
         () => paymentsToProcess.filter((p) => p.status === "completed").length,
         [paymentsToProcess],
@@ -48,20 +49,22 @@ export const PayoffProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const paymentPayoffBatchProgress = useMemo(() => {
         const totalItems = paymentsToProcess.length;
         if (totalItems === 0) return 0;
-        return ((completedItems + failedItems) / totalItems) * 100;
+        return Math.round(((completedItems + failedItems) / totalItems) * 100);
     }, [paymentsToProcess, completedItems, failedItems]);
 
-    const { mutate: mutatePayoffPayment } = useMutation({
+    const processPayOffBatchCompleted = useMemo(() => {
+        return paymentsToProcess.length > 0 && completedItems + failedItems === paymentsToProcess.length;
+    }, [paymentsToProcess.length, completedItems, failedItems]);
+
+    console.log("paymentPayoffBatchProgress:", paymentPayoffBatchProgress);
+
+    const { mutateAsync: mutatePayoffPaymentAsync } = useMutation({
         mutationKey: ["payoffPayment"],
         mutationFn: async (id: number) => {
             const response = await payoffPaymentService(id);
             return response;
         },
-        onSuccess: ({ msg }, id: number) => {
-            message.success({
-                content: msg,
-                key: messageKey,
-            });
+        onSuccess: ({ msg }, id) => {
             queryClient.invalidateQueries({ queryKey: ["payments"] });
         },
     });
@@ -83,15 +86,36 @@ export const PayoffProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         return `Aguardando processamento, total de ${paymentsToProcess.length} itens`;
     };
 
-    const payOffPayment = (id: number) => {
+    const payOffPayment = async (id: number) => {
         message.loading({
             key: messageKey,
             content: "Processando",
         });
-        mutatePayoffPayment(id);
+        const { msg } = await mutatePayoffPaymentAsync(id);
+        message.success({
+            content: msg,
+            key: messageKey,
+        });
     };
 
-    const processPayOffBatch = () => {};
+    const updatePaymentStatus = async (id: number, status: "completed" | "failed") => {
+        setPaymentsToProcess((prevPayments) =>
+            prevPayments.map((payment) => (payment.id === id ? { ...payment, status: status } : payment)),
+        );
+    };
+
+    const processPayOffBatch = async () => {
+        setProcessingBatch(true);
+        for (const payment of paymentsToProcess) {
+            try {
+                await mutatePayoffPaymentAsync(payment.id);
+                updatePaymentStatus(payment.id, "completed");
+            } catch (err) {
+                updatePaymentStatus(payment.id, "failed");
+            }
+        }
+        setProcessingBatch(false);
+    };
 
     const openPayoffBatchModal = () => {
         setModalBatchVisible(true);
@@ -113,6 +137,8 @@ export const PayoffProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 modalBatchVisible,
                 processPayOffBatch,
                 payOffPayment,
+                processPayOffBatchCompleted,
+                processingBatch,
             }}
         >
             {children}

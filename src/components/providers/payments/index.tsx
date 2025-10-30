@@ -11,22 +11,6 @@ import { message } from "antd";
 import dayjs from "dayjs";
 import React, { createContext, useCallback, useContext, useState } from "react";
 
-interface IPaymentFilters {
-    page: number;
-    page_size: number;
-    status?: number;
-    type?: number;
-    name__icontains?: string;
-    date__gte?: string;
-    date__lte?: string;
-    installments?: number;
-    payment_date__gte?: string;
-    payment_date__lte?: string;
-    fixed?: boolean;
-    active?: boolean;
-    contract?: string;
-}
-
 type PaymentsContextValue = {
     paymentFilters: IPaymentFilters;
     paymentsData: PaymentsPage;
@@ -37,6 +21,8 @@ type PaymentsContextValue = {
     handleChangeFilter: (e: React.ChangeEvent<HTMLInputElement>) => void;
     handleDateRangedFilter: (name: string, dates: string[]) => void;
     handleSelectFilter: (name: keyof IPaymentFilters, value: string | number) => void;
+    handleChangeAllFilters: (filters: IPaymentFilters) => void;
+    updateFiltersBySearchParams: (searchParams: any) => void;
     onChangePagination: (page: number, pageSize: number) => void;
     paymentDetailVisible: boolean;
     onClosePaymentDetail: () => void;
@@ -58,7 +44,7 @@ const defaultFilters: IPaymentFilters = {
     page: 1,
     page_size: 10,
     active: true,
-    status: 0,
+    status: "open",
 };
 
 const paymentFiltersReducer = (state: IPaymentFilters, action: FilterAction): IPaymentFilters => {
@@ -107,14 +93,10 @@ const defaultPaymentsPage: PaymentsPage = {
     data: [],
 };
 
-export const PaymentsProvider: React.FC<{ children: React.ReactNode; searchParams?: Record<string, any> }> = ({
-    children,
-    searchParams,
-}) => {
+export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const initFilters = (): IPaymentFilters => {
         return {
             ...defaultFilters,
-            ...(searchParams ?? {}),
         };
     };
 
@@ -221,6 +203,29 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode; searchParam
         dispatchFilters({ type: "SET_PAGINATION", payload: { page, page_size: pageSize } });
     }, []);
 
+    const handleChangeAllFilters = (filters: IPaymentFilters) => {
+        dispatchFilters({ type: "SET_ALL", payload: filters });
+    };
+
+    const updateFiltersBySearchParams = (searchParams: any) => {
+        const filters: IPaymentFilters = {
+            page: searchParams.page,
+            page_size: searchParams.page_size,
+            active: searchParams.active,
+            contract: searchParams.contract,
+            date__gte: searchParams.date__gte,
+            date__lte: searchParams.date__lte,
+            fixed: searchParams.fixed,
+            installments: searchParams.installments,
+            name__icontains: searchParams.name__icontains,
+            payment_date__gte: searchParams.payment_date__gte,
+            payment_date__lte: searchParams.payment_date__lte,
+            status: searchParams.status,
+            type: searchParams.type,
+        };
+        handleChangeAllFilters(filters);
+    };
+
     const onClosePaymentDetail = () => {
         setPaymentDetailVisible(false);
     };
@@ -249,6 +254,7 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode; searchParam
                 handleChangeFilter,
                 handleDateRangedFilter,
                 handleSelectFilter,
+                updateFiltersBySearchParams,
                 onChangePagination,
                 paymentsData: data ?? defaultPaymentsPage,
                 paymentDetailVisible,
@@ -257,6 +263,7 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode; searchParam
                 isLoadingPaymentDetail,
                 paymentDetail,
                 onUpdatePaymentDetail,
+                handleChangeAllFilters,
             }}
         >
             {children}

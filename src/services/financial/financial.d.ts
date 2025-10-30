@@ -7,7 +7,7 @@ interface IContractFilters {
 interface IPaymentFilters {
     page: number;
     page_size: number;
-    status?: number;
+    status?: "all" | "open" | "done";
     type?: number;
     name__icontains?: string;
     date__gte?: string;

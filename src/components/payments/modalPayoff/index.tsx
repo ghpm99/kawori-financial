@@ -16,45 +16,20 @@ interface IModalPayoffProps {
     percent: number;
     progressText: string;
     data: PayoffPayment[];
+    completed: boolean;
+    processing: boolean;
 }
 
-const ModalPayoff = (props: IModalPayoffProps) => {
-    const [percent, setPercent] = useState(0);
-    const inProgressItems = props.data.filter((item) => item.status === "pending").length;
-    const completedItems = props.data.filter((item) => item.status === "completed").length;
-    const failedItems = props.data.filter((item) => item.status === "failed").length;
-
-    const progressText = () => {
-        const totalItems = props.data.length;
-        if (totalItems === 0) return "Sem itens para processar";
-        if (completedItems === totalItems) {
-            return "Todos concluídos com sucesso";
-        }
-        if (failedItems === totalItems) {
-            return "Todos falharam no processamento";
-        }
-        if (failedItems > 0) {
-            return `${completedItems}/${totalItems} concluídos, ${failedItems} falharam`;
-        }
-        if (completedItems > 0) {
-            return `${completedItems}/${totalItems} concluídos com sucesso`;
-        }
-        return `Aguardando processamento, total de ${totalItems} itens`;
-    };
-
-    const percentProgress = (() => {
-        const totalItems = props.data.length;
-        const inProgressItems = props.data.filter((item) => item.status === "pending").length;
-        const completedItems = props.data.filter((item) => item.status === "completed").length;
-        const totalProcessed = completedItems / totalItems;
-        const percentInProgress = inProgressItems / totalItems;
-
-        return {
-            percent: totalProcessed,
-            success: percentInProgress,
-        };
-    })();
-
+const ModalPayoff = ({
+    visible,
+    onCancel,
+    onPayoff,
+    percent,
+    progressText,
+    data,
+    completed,
+    processing,
+}: IModalPayoffProps) => {
     const statusIcon = (status: number) => {
         if (status === 0) {
             return <LoadingOutlined />;
@@ -67,27 +42,32 @@ const ModalPayoff = (props: IModalPayoffProps) => {
         }
     };
 
+    const footerButtons = () => {
+        if (completed) {
+            return [
+                <Button key="back" onClick={onCancel} loading={processing}>
+                    Fechar
+                </Button>,
+            ];
+        }
+        return [
+            <Button key="back" onClick={onCancel} disabled={processing}>
+                Voltar
+            </Button>,
+            <Button key="payoff" onClick={onPayoff} type="primary" loading={processing}>
+                Processar
+            </Button>,
+        ];
+    };
     return (
-        <Modal
-            title="Baixar pagamentos"
-            open={props.visible}
-            onCancel={props.onCancel}
-            footer={[
-                <Button key="back" onClick={props.onCancel}>
-                    Voltar
-                </Button>,
-                <Button key="payoff" onClick={props.onPayoff} type="primary">
-                    Processar
-                </Button>,
-            ]}
-        >
+        <Modal title="Baixar pagamentos" open={visible} onCancel={onCancel} footer={footerButtons()}>
             <div className={styles["progress"]}>
                 <Progress
                     type="circle"
-                    percent={percentProgress.percent}
-                    success={{ percent: percentProgress.success }}
+                    percent={percent}
+                    // success={{ percent: percentProgress.success }}
                 />
-                {progressText()}
+                {progressText}
             </div>
         </Modal>
     );

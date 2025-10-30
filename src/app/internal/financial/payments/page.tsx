@@ -50,7 +50,6 @@ const { Title } = Typography;
 const { RangePicker } = DatePicker;
 
 const customFormat = ["DD/MM/YYYY", "DD/MM/YYYY"];
-const messageKey = "payment_pagination_message";
 
 function FinancialPage({ searchParams }) {
     const {
@@ -61,6 +60,8 @@ function FinancialPage({ searchParams }) {
         handleChangeFilter,
         handleDateRangedFilter,
         handleSelectFilter,
+        handleChangeAllFilters,
+        updateFiltersBySearchParams,
         cleanFilter,
         selectedRow,
         setSelectedRow,
@@ -83,32 +84,22 @@ function FinancialPage({ searchParams }) {
         clearPaymentsToProcess,
         processPayOffBatch,
         payOffPayment,
+        processPayOffBatchCompleted,
+        processingBatch,
     } = usePayoff();
 
-    const financialStore = useSelector((state: RootState) => state.financial.payment);
-    const dispatch = useAppDispatch();
     const router = useRouter();
     const pathname = usePathname();
 
     useEffect(() => {
         document.title = "Kawori Pagamentos";
-        dispatch(setSelectedMenu(["financial", "payments"]));
-        dispatch(
-            setFiltersPayments({
-                ...searchParams,
-            }),
-        );
+        // dispatch(setSelectedMenu(["financial", "payments"]));
+        updateFiltersBySearchParams(searchParams);
     }, []);
 
     useEffect(() => {
         updateSearchParams(router, pathname, paymentFilters);
-        dispatch(fetchAllPayment(paymentFilters));
-    }, [paymentFilters, dispatch, router, pathname]);
-
-    const applyFilter = (event: any) => {
-        event.preventDefault();
-        dispatch(setFilterPayments({ name: "active", value: true }));
-    };
+    }, [paymentFilters, router, pathname]);
 
     const openPayoffModal = () => {
         openPayoffBatchModal();
@@ -118,36 +109,6 @@ function FinancialPage({ searchParams }) {
             status: "pending",
         }));
         setPaymentsToProcess(dataSource);
-    };
-
-    const processPayOff = () => {
-        financialStore.modal.payoff.data.forEach(async (data, index) => {
-            dispatch(
-                changeSingleDataSourcePayoffPayments({
-                    ...data,
-                    description: "Em progresso",
-                }),
-            );
-            payoffPaymentService(data.id)
-                .then((response) => {
-                    dispatch(
-                        changeSingleDataSourcePayoffPayments({
-                            ...data,
-                            description: response.msg,
-                            status: 1,
-                        }),
-                    );
-                })
-                .catch((error) => {
-                    dispatch(
-                        changeSingleDataSourcePayoffPayments({
-                            ...data,
-                            description: error.response.data.msg ?? "Falhou em processar",
-                            status: 1,
-                        }),
-                    );
-                });
-        });
     };
 
     const createDropdownMenu = (record: PaymentItem): MenuProps => {
@@ -184,7 +145,7 @@ function FinancialPage({ searchParams }) {
             dataIndex: "name",
             key: "name",
             filterDropdown: () => (
-                <FilterDropdown applyFilter={applyFilter}>
+                <FilterDropdown applyFilter={() => {}}>
                     <Input
                         name="name__icontains"
                         style={{ width: 220 }}
@@ -203,7 +164,7 @@ function FinancialPage({ searchParams }) {
                 <Link href={`/internal/financial/contracts/details/${record.contract_id}`}>{record.contract_name}</Link>
             ),
             filterDropdown: () => (
-                <FilterDropdown applyFilter={applyFilter}>
+                <FilterDropdown applyFilter={() => {}}>
                     <Input
                         name="contract"
                         style={{ width: 220 }}
@@ -226,7 +187,7 @@ function FinancialPage({ searchParams }) {
             key: "payment_date",
             render: (value: any) => formatterDate(value),
             filterDropdown: () => (
-                <FilterDropdown applyFilter={applyFilter}>
+                <FilterDropdown applyFilter={() => {}}>
                     <RangePicker
                         name={"payment_date"}
                         onChange={(_, formatString) => {
@@ -260,13 +221,13 @@ function FinancialPage({ searchParams }) {
             key: "status",
             render: (value: any) => (value === 0 ? "Em aberto" : "Baixado"),
             filterDropdown: () => (
-                <FilterDropdown applyFilter={applyFilter}>
+                <FilterDropdown applyFilter={() => {}}>
                     <Select
                         style={{ width: 220 }}
                         options={[
-                            { label: "Todos", value: "" },
-                            { label: "Em aberto", value: 0 },
-                            { label: "Baixado", value: 1 },
+                            { label: "Todos", value: "all" },
+                            { label: "Em aberto", value: "open" },
+                            { label: "Baixado", value: "done" },
                         ]}
                         onChange={(value) => handleSelectFilter("status", value)}
                         value={paymentFilters?.status ?? ""}
@@ -281,7 +242,7 @@ function FinancialPage({ searchParams }) {
             key: "type",
             render: (text: any) => (text === 0 ? "Credito" : "Debito"),
             filterDropdown: () => (
-                <FilterDropdown applyFilter={applyFilter}>
+                <FilterDropdown applyFilter={() => {}}>
                     <Select
                         style={{ width: 220 }}
                         options={[
@@ -302,7 +263,7 @@ function FinancialPage({ searchParams }) {
             key: "dataIndex",
             render: (value: any) => formatterDate(value),
             filterDropdown: () => (
-                <FilterDropdown applyFilter={applyFilter}>
+                <FilterDropdown applyFilter={() => {}}>
                     <RangePicker
                         name={"date"}
                         onChange={(_, formatString) => {
@@ -411,6 +372,8 @@ function FinancialPage({ searchParams }) {
                     data={paymentsToProcess}
                     percent={paymentPayoffBatchProgress}
                     progressText={paymentPayoffBatchProgressText()}
+                    completed={processPayOffBatchCompleted}
+                    processing={processingBatch}
                 />
                 <PaymentsDrawer
                     onClose={onClosePaymentDetail}
