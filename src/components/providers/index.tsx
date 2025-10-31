@@ -4,6 +4,7 @@ import UserProvider from "./user";
 import StoreProvider from "@/app/storeProvider";
 import ThemeProvider from "@/components/themeProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { LayoutProvider } from "./layout";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -20,7 +21,9 @@ const AppProviders = ({ children }) => (
             <StoreProvider>
                 <AntdRegistry>
                     <AuthProvider>
-                        <UserProvider>{children}</UserProvider>
+                        <UserProvider>
+                            <LayoutProvider>{children}</LayoutProvider>
+                        </UserProvider>
                     </AuthProvider>
                 </AntdRegistry>
             </StoreProvider>

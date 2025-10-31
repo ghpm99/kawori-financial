@@ -1,6 +1,7 @@
 "use client";
 
 import {
+    fetchAllEarningsService,
     fetchAllPaymentService,
     fetchDetailPaymentService,
     payoffPaymentService,
@@ -11,7 +12,7 @@ import { message } from "antd";
 import dayjs from "dayjs";
 import React, { createContext, useCallback, useContext, useState } from "react";
 
-type PaymentsContextValue = {
+type EarningsContextValue = {
     paymentFilters: IPaymentFilters;
     paymentsData: PaymentsPage;
     isLoading: boolean;
@@ -32,7 +33,7 @@ type PaymentsContextValue = {
     onUpdatePaymentDetail: (values: IPaymentDetail) => void;
 };
 
-const PaymentsContext = createContext<PaymentsContextValue | undefined>(undefined);
+const EarningsContext = createContext<EarningsContextValue | undefined>(undefined);
 
 type FilterAction =
     | { type: "SET_ALL"; payload: IPaymentFilters }
@@ -94,7 +95,7 @@ const defaultPaymentsPage: PaymentsPage = {
     data: [],
 };
 
-export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const EarningsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const initFilters = (): IPaymentFilters => {
         return {
             ...defaultFilters,
@@ -113,9 +114,9 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         refetch: refetchPayments,
         isLoading,
     } = useQuery({
-        queryKey: ["payments", localFilters],
+        queryKey: ["earnings", localFilters],
         queryFn: async () => {
-            const response = await fetchAllPaymentService(localFilters);
+            const response = await fetchAllEarningsService(localFilters);
             const data = response.data;
             if (!data) return defaultPaymentsPage;
 
@@ -134,7 +135,7 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         refetch: refetchPaymentDetail,
         isLoading: isLoadingPaymentDetail,
     } = useQuery({
-        queryKey: ["paymentDetail", paymentDetailId],
+        queryKey: ["earningsDetail", paymentDetailId],
         queryFn: async () => {
             if (!paymentDetailId) return defaultPaymentDetail;
             const response = await fetchDetailPaymentService(paymentDetailId);
@@ -248,7 +249,7 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
 
     return (
-        <PaymentsContext.Provider
+        <EarningsContext.Provider
             value={{
                 paymentFilters: localFilters,
                 selectedRow,
@@ -271,12 +272,12 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             }}
         >
             {children}
-        </PaymentsContext.Provider>
+        </EarningsContext.Provider>
     );
 };
 
-export const usePayments = (): PaymentsContextValue => {
-    const ctx = useContext(PaymentsContext);
-    if (!ctx) throw new Error("usePayments must be used within PaymentsProvider");
+export const useEarnings = (): EarningsContextValue => {
+    const ctx = useContext(EarningsContext);
+    if (!ctx) throw new Error("useEarnings must be used within EarningsProvider");
     return ctx;
 };

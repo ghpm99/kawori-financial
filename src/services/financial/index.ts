@@ -8,6 +8,13 @@ export async function fetchAllPaymentService(filters: IPaymentFilters) {
     return response.data;
 }
 
+export async function fetchAllEarningsService(filters: IPaymentFilters) {
+    const response = await apiDjango.get<PaymentsApiResponse>("/financial/earnings/", {
+        params: filters,
+    });
+    return response.data;
+}
+
 export async function saveNewPaymentService(data: INewPaymentRequest) {
     const response = await apiDjango.post("/financial/payment/new", data);
     return response.data;

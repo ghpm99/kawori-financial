@@ -1,16 +1,6 @@
 "use client";
 import FilterDropdown from "@/components/common/filterDropdown/Index";
-import LoadingPage from "@/components/loadingPage/Index";
 import ModalPayoff from "@/components/payments/modalPayoff";
-import {
-    changeDataSourcePayoffPayments,
-    changeSingleDataSourcePayoffPayments,
-    changeStatusPaymentPagination,
-    changeVisibleModalPayoffPayments,
-    fetchAllPayment,
-    setFilterPayments,
-    setFiltersPayments,
-} from "@/lib/features/financial/payment";
 import { ClearOutlined, SearchOutlined, ToTopOutlined } from "@ant-design/icons";
 import {
     Breadcrumb,
@@ -24,23 +14,17 @@ import {
     Space,
     Table,
     Typography,
-    message,
 } from "antd";
 import dayjs from "dayjs";
 
-import { RootState } from "@/lib/store";
-import { payoffPaymentService } from "@/services/financial";
 import Link from "next/link";
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
 
-import { setSelectedMenu } from "@/lib/features/auth";
-import { useAppDispatch } from "@/lib/hooks";
 import { formatMoney, formatterDate, updateSearchParams } from "@/util/index";
 import { usePathname, useRouter } from "next/navigation";
 
 import PaymentsDrawer from "@/components/payments/paymentsDrawer";
-import { usePayments } from "@/components/providers/payments";
+import { useEarnings } from "@/components/providers/earnings";
 import { PayoffPayment, usePayoff } from "@/components/providers/payments/payoff";
 import { faEllipsis, faFileCircleCheck, faFilePen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -51,7 +35,7 @@ const { RangePicker } = DatePicker;
 
 const customFormat = ["DD/MM/YYYY", "DD/MM/YYYY"];
 
-function FinancialPage({ searchParams }) {
+function EarningsPage({ searchParams }) {
     const {
         paymentFilters,
         paymentsData,
@@ -71,7 +55,7 @@ function FinancialPage({ searchParams }) {
         isLoadingPaymentDetail,
         paymentDetail,
         onUpdatePaymentDetail,
-    } = usePayments();
+    } = useEarnings();
 
     const {
         modalBatchVisible,
@@ -92,7 +76,7 @@ function FinancialPage({ searchParams }) {
     const pathname = usePathname();
 
     useEffect(() => {
-        document.title = "Kawori Pagamentos";
+        document.title = "Kawori Ganhos";
         // dispatch(setSelectedMenu(["financial", "payments"]));
         updateFiltersBySearchParams(searchParams);
     }, []);
@@ -344,9 +328,9 @@ function FinancialPage({ searchParams }) {
                 <Table
                     pagination={{
                         showSizeChanger: true,
-                        pageSize: paymentFilters.page_size,
-                        current: paymentFilters.page,
-                        total: paymentsData.total_pages * paymentFilters.page_size,
+                        pageSize: paymentsData.page_size,
+                        current: paymentsData.current_page,
+                        total: paymentsData.total_pages * paymentsData.page_size,
                         onChange: onChangePagination,
                     }}
                     columns={headerTableFinancial}
@@ -404,26 +388,18 @@ function TableSummary({ paymentData }: { paymentData: readonly IPaymentPaginatio
     });
 
     return (
-        <>
-            <Table.Summary.Row>
-                <Table.Summary.Cell colSpan={2} index={0}>
-                    <Text>Total: {formatMoney(total)}</Text>
-                </Table.Summary.Cell>
-                <Table.Summary.Cell index={1}>
-                    <Text>Total Credito: {formatMoney(totalCredit)}</Text>
-                </Table.Summary.Cell>
-                <Table.Summary.Cell index={2}>
-                    <Text>Total Debito: {formatMoney(totalDebit)}</Text>
-                </Table.Summary.Cell>
-            </Table.Summary.Row>
-        </>
+        <Table.Summary.Row>
+            <Table.Summary.Cell colSpan={2} index={0}>
+                <Text>Total: {formatMoney(total)}</Text>
+            </Table.Summary.Cell>
+            <Table.Summary.Cell index={1}>
+                <Text>Total Credito: {formatMoney(totalCredit)}</Text>
+            </Table.Summary.Cell>
+            <Table.Summary.Cell index={2}>
+                <Text>Total Debito: {formatMoney(totalDebit)}</Text>
+            </Table.Summary.Cell>
+        </Table.Summary.Row>
     );
 }
 
-FinancialPage.auth = {
-    role: "admin",
-    loading: <LoadingPage />,
-    unauthorized: "/signin",
-};
-
-export default FinancialPage;
+export default EarningsPage;

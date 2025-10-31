@@ -1,8 +1,9 @@
 "use client";
+import { EarningsProvider } from "@/components/providers/earnings";
 import { PaymentsProvider } from "@/components/providers/payments";
 import { PayoffProvider } from "@/components/providers/payments/payoff";
 
-const FinancialLayout = ({ children }: { children: React.ReactNode }) => {
+const BillslLayout = ({ children }: { children: React.ReactNode }) => {
     return (
         <PaymentsProvider>
             <PayoffProvider>{children}</PayoffProvider>
@@ -10,4 +11,4 @@ const FinancialLayout = ({ children }: { children: React.ReactNode }) => {
     );
 };
 
-export default FinancialLayout;
+export default BillslLayout;
