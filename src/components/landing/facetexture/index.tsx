@@ -1,10 +1,12 @@
-import Image from "next/image";
-import styles from "./facetexture.module.scss";
-import facetextureImage1 from "assets/facetexture-ynomade.png";
-import facetextureImage2 from "assets/facetexture-scorpionemtv.png";
-import facetextureImage3 from "assets/facetexture-kunash.png";
-import facetextureImage4 from "assets/facetexture-amigona.jpg";
 import { MenuTheme } from "antd";
+import Image from "next/image";
+
+import facetextureImage4 from "assets/facetexture-amigona.jpg";
+import facetextureImage3 from "assets/facetexture-kunash.png";
+import facetextureImage2 from "assets/facetexture-scorpionemtv.png";
+import facetextureImage1 from "assets/facetexture-ynomade.png";
+
+import styles from "./facetexture.module.scss";
 
 const Facetexture = ({ theme }: { theme: MenuTheme }) => {
     return (

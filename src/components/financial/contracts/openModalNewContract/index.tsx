@@ -1,9 +1,9 @@
+import { PlusOutlined } from "@ant-design/icons";
+import { Button, message } from "antd";
+
 import { changeVisibleContractsModal } from "@/lib/features/financial/contract";
 import { useAppDispatch, useAppStore } from "@/lib/hooks";
 import { updateAllContractsValue } from "@/services/financial";
-
-import { PlusOutlined } from "@ant-design/icons";
-import { Button, message } from "antd";
 
 const OpenModalNewContract = () => {
     const dispatch = useAppDispatch();

@@ -1,10 +1,21 @@
 "use client";
 
-import { Button, Divider, message } from "antd";
-import LogoKawori from "assets/kaori_logo6.png";
+import { useEffect } from "react";
 
+import { ArrowRightOutlined, DashboardOutlined, PieChartOutlined, WalletOutlined } from "@ant-design/icons";
+import * as Sentry from "@sentry/nextjs";
+import { Button, Divider, message } from "antd";
+import { useForm } from "antd/lib/form/Form";
 import Image from "next/image";
-import styles from "./Home.module.scss";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+import { signinThunk } from "@/lib/features/auth";
+import { fetchNewsFeedThunk } from "@/lib/features/news";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { INewUser, signupService } from "@/services/auth";
+import { formatterDate } from "@/util";
+import LogoKawori from "assets/kaori_logo6.png";
 
 import Facetexture from "@/components/landing/facetexture";
 import FAQ from "@/components/landing/FAQ";
@@ -14,17 +25,8 @@ import Welcome from "@/components/landing/welcome";
 import { ILoginPageProps } from "@/components/signin";
 import { ISignupFormProps } from "@/components/signup";
 import { useTheme } from "@/components/themeProvider/themeContext";
-import { signinThunk } from "@/lib/features/auth";
-import { fetchNewsFeedThunk } from "@/lib/features/news";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { INewUser, signupService } from "@/services/auth";
-import { formatterDate } from "@/util";
-import * as Sentry from "@sentry/nextjs";
-import { useForm } from "antd/lib/form/Form";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import Link from "next/link";
-import { ArrowRightOutlined, DashboardOutlined, PieChartOutlined, WalletOutlined } from "@ant-design/icons";
+
+import styles from "./Home.module.scss";
 
 export default function Home() {
     const [form] = useForm();

@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+
 import { fetchTagsService } from "@/services/financial";
 
 const initialState: ITagStore = {

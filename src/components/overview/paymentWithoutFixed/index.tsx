@@ -1,8 +1,9 @@
 import { Line } from "react-chartjs-2";
 
-import { formatterMonthYearDate } from "@/util/index";
-import styles from "./paymentWithoutFixed.module.scss";
 import { Theme } from "@/styles/theme";
+import { formatterMonthYearDate } from "@/util/index";
+
+import styles from "./paymentWithoutFixed.module.scss";
 
 export default function AccumulatedValue({
     amountForecastValue,

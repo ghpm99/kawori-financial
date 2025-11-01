@@ -1,11 +1,13 @@
 "use client";
 
 import { Button, List, Tabs, TabsProps } from "antd";
+import Link from "next/link";
+
+import { authStatus, IUser } from "@/lib/features/auth";
 
 import LoginPage, { ILoginPageProps } from "@/components/signin";
 import SingupForm, { ISignupFormProps } from "@/components/signup";
-import { authStatus, IUser } from "@/lib/features/auth";
-import Link from "next/link";
+
 import styles from "./userPanel.module.scss";
 
 const tabItens = ({

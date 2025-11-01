@@ -1,17 +1,19 @@
 "use client";
+import { useEffect } from "react";
+
 import { PlusOutlined } from "@ant-design/icons";
 import { Breadcrumb, Button, Layout, message, Table, Tag, Typography } from "antd";
-import { useEffect } from "react";
 import { useSelector } from "react-redux";
-
-import LoadingPage from "@/components/loadingPage/Index";
-import ModalNewTag, { IFormModalNewTag } from "@/components/tags/modalNew";
-import { includeNewTagService } from "@/services/financial";
 
 import { setSelectedMenu } from "@/lib/features/auth";
 import { changeVisibleModalTag, fetchTags } from "@/lib/features/financial/tag";
 import { useAppDispatch } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
+import { includeNewTagService } from "@/services/financial";
+
+import LoadingPage from "@/components/loadingPage/Index";
+import ModalNewTag, { IFormModalNewTag } from "@/components/tags/modalNew";
+
 import styles from "./tags.module.scss";
 
 const { Title } = Typography;

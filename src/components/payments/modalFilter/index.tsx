@@ -1,6 +1,7 @@
+import { MouseEvent } from "react";
+
 import { DatePicker, Form, Input, InputNumber, Modal, Select } from "antd";
 import dayjs from "dayjs";
-import { MouseEvent } from "react";
 
 import styles from "./ModalFilter.module.scss";
 

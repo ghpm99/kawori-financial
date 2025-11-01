@@ -1,3 +1,5 @@
+import { createContext, useContext, useState } from "react";
+
 import { HomeOutlined, LineChartOutlined, SnippetsOutlined, UserOutlined } from "@ant-design/icons";
 import {
     faCalendarDays,
@@ -11,7 +13,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { MenuProps } from "antd";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { createContext, useContext, useState } from "react";
+
 import { useAuth } from "../auth";
 import { useUser } from "../user";
 

@@ -1,14 +1,14 @@
 "use server";
 import { isFilled } from "@prismicio/client";
 import { SliceZone } from "@prismicio/react";
+import { Breadcrumb } from "antd";
 import { Metadata } from "next";
 import Head from "next/head";
 
-import { components } from "@/slices/index";
-
 import { createClient } from "@/prismicio";
+import { components } from "@/slices/index";
 import { formatterDate } from "@/util/index";
-import { Breadcrumb } from "antd";
+
 import ListNews from "./listNews";
 import stylesNews from "./news.module.scss";
 

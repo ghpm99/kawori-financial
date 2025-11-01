@@ -1,4 +1,5 @@
 import { Action, combineReducers, configureStore, ThunkAction } from "@reduxjs/toolkit";
+
 import authReducer from "./features/auth";
 import contractReducer from "./features/financial/contract";
 import contractDetailsReducer from "./features/financial/contract/detail";

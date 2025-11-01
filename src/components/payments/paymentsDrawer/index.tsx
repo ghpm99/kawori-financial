@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 import {
     Button,
     Col,
@@ -12,7 +14,6 @@ import {
     Switch,
     Typography,
 } from "antd";
-import { useEffect } from "react";
 import dayjs from "dayjs";
 
 interface PaymentsDrawerProps {

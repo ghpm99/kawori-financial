@@ -1,7 +1,8 @@
 "use client";
 
-import { addStyle } from "@/util";
 import { ThemeConfig } from "antd";
+
+import { addStyle } from "@/util";
 
 export type Theme = "light" | "dark";
 

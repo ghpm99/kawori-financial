@@ -1,6 +1,5 @@
-import axios, { AxiosError, AxiosResponse, HttpStatusCode } from "axios";
-
 import * as Sentry from "@sentry/nextjs";
+import axios, { AxiosError, AxiosResponse, HttpStatusCode } from "axios";
 
 let isRefreshingToken = false;
 let refreshPromise: Promise<unknown> | null = null;

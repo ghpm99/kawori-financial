@@ -1,5 +1,6 @@
-import AccountMenuInfo from "@/components/accountMenuInfo/index";
 import { fireEvent, render } from "@testing-library/react";
+
+import AccountMenuInfo from "@/components/accountMenuInfo/index";
 
 describe("AccountMenuInfo", () => {
     const user = {

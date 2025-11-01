@@ -1,9 +1,10 @@
-import useMenuHeader from "@/components/menuHeader/useMenuHeader";
+import { cleanup, render, screen } from "@testing-library/react";
 
 import LandingLayout from "@/app/(landing)/layout.tsx";
 import Home from "@/app/(landing)/page.tsx";
 import { renderWithProviders } from "@/util/test-utils";
-import { cleanup, render, screen } from "@testing-library/react";
+
+import useMenuHeader from "@/components/menuHeader/useMenuHeader";
 
 jest.mock("@/components/menuHeader/useMenuHeader");
 jest.mock("@/components/landing/news");

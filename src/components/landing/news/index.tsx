@@ -1,4 +1,5 @@
 import { INewsData, IStatusNews } from "@/lib/features/news";
+
 import styles from "./news.module.scss";
 import NewsList from "./newsList";
 

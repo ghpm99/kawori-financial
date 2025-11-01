@@ -1,8 +1,10 @@
 import { useEffect } from "react";
+
 import { Bar, Pie } from "react-chartjs-2";
 
-import styles from "./invoiceByTag.module.scss";
 import { Theme } from "@/styles/theme";
+
+import styles from "./invoiceByTag.module.scss";
 
 interface IInvoiceByTagProps {
     data: IInvoiceByTag[];

@@ -1,8 +1,9 @@
 import { Line } from "react-chartjs-2";
 
-import { formatterMonthYearDate } from "@/util/index";
-import styles from "./paymentWithFixed.module.scss";
 import { Theme } from "@/styles/theme";
+import { formatterMonthYearDate } from "@/util/index";
+
+import styles from "./paymentWithFixed.module.scss";
 
 export default function PaymentWithFixed({ data, theme }: { data: IPaymentCharts[]; theme: Theme }) {
     const options = {

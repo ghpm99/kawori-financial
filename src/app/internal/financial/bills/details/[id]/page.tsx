@@ -1,14 +1,11 @@
 "use client";
+import { useEffect } from "react";
+
 import { Breadcrumb, Button, Card, Checkbox, DatePicker, InputNumber, Layout, message, Select, Typography } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import dayjs from "dayjs";
-
 import Link from "next/link";
-import { useEffect } from "react";
 import { useSelector } from "react-redux";
-
-import LoadingPage from "@/components/loadingPage/Index";
-import { payoffPaymentService, savePaymentDetailService } from "@/services/financial";
 
 import { setSelectedMenu } from "@/lib/features/auth";
 import {
@@ -23,6 +20,10 @@ import {
 } from "@/lib/features/financial/payment/detail";
 import { useAppDispatch } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
+import { payoffPaymentService, savePaymentDetailService } from "@/services/financial";
+
+import LoadingPage from "@/components/loadingPage/Index";
+
 import styles from "./Details.module.scss";
 
 const { Paragraph } = Typography;

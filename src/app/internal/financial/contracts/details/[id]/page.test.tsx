@@ -1,5 +1,7 @@
-import { renderWithProviders } from "@/util/test-utils";
 import { fireEvent, screen } from "@testing-library/react";
+
+import { renderWithProviders } from "@/util/test-utils";
+
 import ContractDetails from "./page";
 
 jest.mock("@/lib/features/auth", () => ({

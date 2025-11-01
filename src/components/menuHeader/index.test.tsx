@@ -1,6 +1,7 @@
+import { render, screen } from "@testing-library/react";
+
 import MenuHeader from "@/components/menuHeader/index";
 import useMenuHeader from "@/components/menuHeader/useMenuHeader";
-import { render, screen } from "@testing-library/react";
 
 jest.mock("@/components/menuHeader/useMenuHeader");
 

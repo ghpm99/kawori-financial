@@ -1,13 +1,11 @@
 "use client";
-import { Breadcrumb, Button, Layout, message, Table, Typography } from "antd";
-
-import Link from "next/link";
 import { useEffect } from "react";
+
+import { Breadcrumb, Button, Layout, message, Table, Typography } from "antd";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 
-import ModalNew, { INewContractForm } from "@/components/contracts/modalNew";
-import OpenModalNewContract from "@/components/financial/contracts/openModalNewContract";
-import LoadingPage from "@/components/loadingPage/Index";
 import { setSelectedMenu } from "@/lib/features/auth";
 import {
     changePagination,
@@ -20,8 +18,12 @@ import { useAppDispatch } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
 import { saveNewContractService, updateAllContractsValue } from "@/services/financial";
 import { formatMoney, updateSearchParams } from "@/util/index";
+
+import ModalNew, { INewContractForm } from "@/components/contracts/modalNew";
+import OpenModalNewContract from "@/components/financial/contracts/openModalNewContract";
+import LoadingPage from "@/components/loadingPage/Index";
+
 import styles from "./Contracts.module.scss";
-import { usePathname, useRouter } from "next/navigation";
 
 const { Title } = Typography;
 

@@ -1,6 +1,9 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
-import OpenModalNewContract from "@/components/financial/contracts/openModalNewContract";
+
 import { renderWithProviders } from "@/util/test-utils";
+
+import OpenModalNewContract from "@/components/financial/contracts/openModalNewContract";
+
 import "@testing-library/jest-dom";
 import { store } from "@/lib/store";
 

@@ -1,8 +1,11 @@
+import { useCallback, useEffect } from "react";
+
+import { useRouter } from "next/navigation";
+
 import { userDetailThunk, userGroupsThunk, verifyTokenThunk } from "@/lib/features/auth";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { useCallback, useEffect } from "react";
+
 import { LOCAL_STORE_ITEM_NAME } from "../constants";
-import { useRouter } from "next/navigation";
 
 const AuthProvider = ({ children }) => {
     const dispatch = useAppDispatch();

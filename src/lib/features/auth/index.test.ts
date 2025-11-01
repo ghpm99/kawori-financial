@@ -1,5 +1,6 @@
-import TokenService from "@/services/auth/authToken";
 import authReducer, { signout, setToken, setLoading, setSelectedMenu, IAuthState, IUser } from "./index";
+
+import TokenService from "@/services/auth/authToken";
 
 describe("authSlice", () => {
     describe("setLoading", () => {

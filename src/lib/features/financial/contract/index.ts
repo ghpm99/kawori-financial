@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+
 import { fetchAllContractService } from "@/services/financial";
 
 const initialState: IContractStore = {
@@ -63,8 +64,8 @@ export const contractSlice = createSlice({
             };
         },
         includeContract: (state: IContractStore, action: PayloadAction<IContractPagination>) => {
-            state.data.push(action.payload)
-        }
+            state.data.push(action.payload);
+        },
     },
     extraReducers: (builder) => {
         builder

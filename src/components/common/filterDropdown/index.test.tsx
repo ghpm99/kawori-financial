@@ -1,6 +1,8 @@
 import React from "react";
-import FilterDropdown from "@/components/common/filterDropdown/Index";
+
 import { renderWithProviders } from "@/util/test-utils";
+
+import FilterDropdown from "@/components/common/filterDropdown/Index";
 
 describe("FilterDropdown component", () => {
     test("Should be render the component", () => {

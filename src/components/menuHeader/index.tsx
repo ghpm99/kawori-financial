@@ -1,10 +1,10 @@
 "use client";
-import Link from "next/link";
-
 import { Button, Menu } from "antd";
+import Link from "next/link";
 
 import { authStatus, IUser } from "@/lib/features/auth";
 import { Theme } from "@/styles/theme";
+
 import ThemeControl from "../themeControl";
 import styles from "./MenuHeader.module.scss";
 

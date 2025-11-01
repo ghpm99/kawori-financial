@@ -2,6 +2,7 @@
 
 import { Button, Card, ConfigProvider, Form, Input } from "antd";
 import { createStyles } from "antd-style";
+
 import styles from "./signup.module.scss";
 
 const useStyle = createStyles(({ prefixCls, css }) => ({

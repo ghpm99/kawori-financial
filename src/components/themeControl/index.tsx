@@ -1,5 +1,6 @@
 import { ExclamationCircleOutlined, MoonOutlined, SunFilled } from "@ant-design/icons";
 import { Tooltip } from "antd";
+
 import styles from "./themeControl.module.scss";
 import useThemeControl from "./useThemeControl";
 

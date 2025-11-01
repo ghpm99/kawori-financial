@@ -1,8 +1,7 @@
-import { useDispatch } from "react-redux";
-import { AppDispatch, AppStore, RootState } from "./store";
 import { Action, ThunkDispatch } from "@reduxjs/toolkit";
-import { useSelector } from "react-redux";
-import { useStore } from "react-redux";
+import { useDispatch, useSelector, useStore } from "react-redux";
+
+import { AppDispatch, AppStore, RootState } from "./store";
 
 export type ThunkAppDispatch = ThunkDispatch<RootState, void, Action>;
 export const useAppThunkDispatch = (): ThunkAppDispatch => useDispatch<ThunkAppDispatch>();

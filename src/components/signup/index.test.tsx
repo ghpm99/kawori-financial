@@ -1,12 +1,11 @@
-import SingupForm from "@/components/signup/index";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 import { renderWithProviders } from "@/util/test-utils";
 
-import { fireEvent, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-
-import axios from "axios";
-import { useRouter } from "next/navigation";
+import SingupForm from "@/components/signup/index";
 
 jest.mock("next/navigation");
 

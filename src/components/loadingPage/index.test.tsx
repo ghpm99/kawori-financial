@@ -1,4 +1,5 @@
 import { render } from "@testing-library/react";
+
 import LoadingPage from "./Index";
 
 describe("Test Characters container", () => {

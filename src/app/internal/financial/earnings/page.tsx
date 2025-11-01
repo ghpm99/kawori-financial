@@ -1,7 +1,9 @@
 "use client";
-import FilterDropdown from "@/components/common/filterDropdown/Index";
-import ModalPayoff from "@/components/payments/modalPayoff";
+import { useEffect } from "react";
+
 import { ClearOutlined, SearchOutlined, ToTopOutlined } from "@ant-design/icons";
+import { faEllipsis, faFileCircleCheck, faFilePen } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     Breadcrumb,
     Button,
@@ -16,18 +18,17 @@ import {
     Typography,
 } from "antd";
 import dayjs from "dayjs";
-
 import Link from "next/link";
-import { useEffect } from "react";
-
-import { formatMoney, formatterDate, updateSearchParams } from "@/util/index";
 import { usePathname, useRouter } from "next/navigation";
 
+import { formatMoney, formatterDate, updateSearchParams } from "@/util/index";
+
+import FilterDropdown from "@/components/common/filterDropdown/Index";
+import ModalPayoff from "@/components/payments/modalPayoff";
 import PaymentsDrawer from "@/components/payments/paymentsDrawer";
 import { useEarnings } from "@/components/providers/earnings";
 import { PayoffPayment, usePayoff } from "@/components/providers/payments/payoff";
-import { faEllipsis, faFileCircleCheck, faFilePen } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 import styles from "./Payments.module.scss";
 
 const { Title } = Typography;

@@ -1,11 +1,15 @@
 "use client";
 
-import { IUser } from "@/lib/features/auth";
-import { Button, Col, DatePicker, Drawer, Form, Input, Row, Select, Space, Typography } from "antd";
-import styles from "./User.module.scss";
-import { useTheme } from "@/components/themeProvider/themeContext";
 import { useEffect, useState } from "react";
+
+import { Button, Col, DatePicker, Drawer, Form, Input, Row, Select, Space, Typography } from "antd";
 import dayjs from "dayjs";
+
+import { IUser } from "@/lib/features/auth";
+
+import { useTheme } from "@/components/themeProvider/themeContext";
+
+import styles from "./User.module.scss";
 
 const { Title, Paragraph } = Typography;
 const { Option } = Select;

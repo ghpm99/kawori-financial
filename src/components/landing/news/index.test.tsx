@@ -1,9 +1,11 @@
 import React from "react";
+
 import { render, screen, waitFor } from "@testing-library/react";
 
-import News from "./index";
 import { fetchProjectDetailData } from "@/app/api/lib/news";
 import { formatterDate } from "@/util";
+
+import News from "./index";
 
 // Mock the fetchProjectDetailData function
 jest.mock("@/app/api/lib/news", () => ({

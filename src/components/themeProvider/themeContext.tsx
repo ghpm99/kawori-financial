@@ -1,4 +1,5 @@
 import { createContext, Dispatch, useContext } from "react";
+
 import { Action, ThemeStateType } from ".";
 
 type ThemeContextType = {

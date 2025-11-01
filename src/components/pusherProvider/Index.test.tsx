@@ -1,8 +1,10 @@
 import React from "react";
+
 import { render } from "@testing-library/react";
-import PusherProvider from "./Index";
 import Pusher from "pusher-js";
 import { setPusherClient } from "react-pusher";
+
+import PusherProvider from "./Index";
 
 jest.mock("pusher-js");
 jest.mock("react-pusher", () => ({

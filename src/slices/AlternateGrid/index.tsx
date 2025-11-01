@@ -1,5 +1,5 @@
-import { PrismicNextImage } from "@prismicio/next";
 import { type Content, isFilled } from "@prismicio/client";
+import { PrismicNextImage } from "@prismicio/next";
 import { PrismicRichText, SliceComponentProps } from "@prismicio/react";
 
 export type AlternateGridProps = SliceComponentProps<Content.AlternateGridSlice>;

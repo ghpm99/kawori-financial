@@ -1,7 +1,8 @@
 "use client";
-import { formatterDate } from "@/util";
 import { List } from "antd";
 import Link from "next/link";
+
+import { formatterDate } from "@/util";
 
 const ListNews = ({ items }: { items: any[] }) => {
     return (

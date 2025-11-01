@@ -1,4 +1,7 @@
 "use client";
+
+import { MouseEventHandler, useEffect, useState } from "react";
+
 import {
     Breadcrumb,
     Card,
@@ -14,14 +17,9 @@ import {
     Typography,
 } from "antd";
 import dayjs from "dayjs";
-
 import Link from "next/link";
-
-import { MouseEventHandler, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-import ModalNewInvoice, { IFormNewInvoice } from "@/components/contracts/modalNewInvoice";
-import LoadingPage from "@/components/loadingPage/Index";
 import { setSelectedMenu } from "@/lib/features/auth";
 import { fetchAllContract } from "@/lib/features/financial/contract";
 import {
@@ -35,6 +33,10 @@ import { useAppDispatch } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
 import { includeNewInvoiceService, mergeContractService } from "@/services/financial";
 import { formatMoney, formatterDate } from "@/util/index";
+
+import ModalNewInvoice, { IFormNewInvoice } from "@/components/contracts/modalNewInvoice";
+import LoadingPage from "@/components/loadingPage/Index";
+
 import styles from "./Details.module.scss";
 
 const { Paragraph } = Typography;

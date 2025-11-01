@@ -1,5 +1,6 @@
-import { Button as ButtonAntd, ButtonProps } from "antd";
 import React from "react";
+
+import { Button as ButtonAntd, ButtonProps } from "antd";
 
 import styles from "./button.module.scss";
 

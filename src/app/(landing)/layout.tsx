@@ -1,10 +1,14 @@
 "use client";
 
+import React from "react";
+
+import { Layout } from "antd";
+
+import { useAppSelector } from "@/lib/hooks";
+
 import MenuHeader from "@/components/menuHeader";
 import { useAuth } from "@/components/providers/auth";
-import { useAppSelector } from "@/lib/hooks";
-import { Layout } from "antd";
-import React from "react";
+
 import styles from "./landing.module.scss";
 
 const { Footer } = Layout;

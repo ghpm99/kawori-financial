@@ -1,5 +1,6 @@
-import { render, screen } from "@testing-library/react";
 import * as Sentry from "@sentry/nextjs";
+import { render, screen } from "@testing-library/react";
+
 import GlobalError from "@/app/global-error";
 
 describe("GlobalError", () => {

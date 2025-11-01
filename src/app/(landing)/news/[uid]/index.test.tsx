@@ -1,5 +1,7 @@
 import React from "react";
+
 import { render, screen, waitFor } from "@testing-library/react";
+
 import Page from "@/app/(landing)/news/[uid]/page";
 import { createClient } from "@/prismicio"; // substitua pelo caminho correto do seu cliente
 

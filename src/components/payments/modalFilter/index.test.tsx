@@ -1,8 +1,11 @@
 import React from "react";
+
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+
 import "@testing-library/jest-dom";
-import ModalFilter from "./index";
 import userEvent from "@testing-library/user-event";
+
+import ModalFilter from "./index";
 
 describe("ModalFilter Component", () => {
     const mockOnCancel = jest.fn();

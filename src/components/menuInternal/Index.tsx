@@ -1,9 +1,9 @@
 import { Layout, Menu, MenuProps } from "antd";
 import Link from "next/link";
 
-import styles from "./Menu.module.scss";
-
 import { Theme } from "@/styles/theme";
+
+import styles from "./Menu.module.scss";
 
 type MenuItem = Required<MenuProps>["items"][number];
 

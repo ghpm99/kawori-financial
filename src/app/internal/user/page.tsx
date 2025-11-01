@@ -1,17 +1,20 @@
 "use client";
+import { useEffect } from "react";
+
 import { UserOutlined } from "@ant-design/icons";
 import { Avatar, Breadcrumb, Button, Typography } from "antd";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 
-import LoadingPage from "@/components/loadingPage/Index";
-import { useTheme } from "@/components/themeProvider/themeContext";
 import { setSelectedMenu } from "@/lib/features/auth";
 import { useAppDispatch } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { useSelector } from "react-redux";
-import styles from "./User.module.scss";
+
+import LoadingPage from "@/components/loadingPage/Index";
 import { useUser } from "@/components/providers/user";
+import { useTheme } from "@/components/themeProvider/themeContext";
+
+import styles from "./User.module.scss";
 
 const { Title, Paragraph } = Typography;
 

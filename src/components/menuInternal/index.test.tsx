@@ -1,7 +1,8 @@
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
-import useMenu from "@/components/menuInternal/useMenu";
+
 import MenuInternal from "@/components/menuInternal/Index";
+import useMenu from "@/components/menuInternal/useMenu";
 
 jest.mock("@/components/menuInternal/useMenu");
 

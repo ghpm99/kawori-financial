@@ -1,9 +1,12 @@
-import { LOCAL_STORE_ITEM_NAME } from "@/components/constants";
-import { ISigninArgs, ISigninResponse, signinService, signoutService, verifyTokenService } from "@/services/auth";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError, AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+
+import { ISigninArgs, ISigninResponse, signinService, signoutService, verifyTokenService } from "@/services/auth";
+
+import { LOCAL_STORE_ITEM_NAME } from "@/components/constants";
 
 type AuthContextType = {
     isAuthenticated: boolean;

@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import {
     CheckCircleOutlined,
     CloseCircleOutlined,
@@ -5,9 +7,10 @@ import {
     LoadingOutlined,
 } from "@ant-design/icons";
 import { Button, Layout, Modal, Progress, Spin, Table } from "antd";
-import { useState } from "react";
-import styles from "./modalPayoff.module.scss";
+
 import { PayoffPayment } from "@/components/providers/payments/payoff";
+
+import styles from "./modalPayoff.module.scss";
 
 interface IModalPayoffProps {
     visible: boolean;

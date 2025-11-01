@@ -1,9 +1,12 @@
 "use client";
-import { antdThemes, Theme } from "@/styles/theme";
-import { getSavedTheme } from "@/util";
+import React, { useEffect, useReducer } from "react";
+
 import { ConfigProvider, theme } from "antd";
 import locale from "antd/lib/locale/pt_BR";
-import React, { useEffect, useReducer } from "react";
+
+import { antdThemes, Theme } from "@/styles/theme";
+import { getSavedTheme } from "@/util";
+
 import { ThemeContextProvider } from "./themeContext";
 
 const { defaultAlgorithm, darkAlgorithm } = theme;

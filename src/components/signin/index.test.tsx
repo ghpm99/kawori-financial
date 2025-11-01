@@ -1,7 +1,9 @@
-import LoginPage from "@/components/signin";
-import { renderWithProviders } from "@/util/test-utils";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import axios from "axios";
+
+import { renderWithProviders } from "@/util/test-utils";
+
+import LoginPage from "@/components/signin";
 
 jest.mock("next/navigation", () => ({
     useRouter: jest.fn(() => ({

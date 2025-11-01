@@ -1,6 +1,7 @@
+import { cache } from "react";
+
 import { INewsData } from "@/lib/features/news";
 import { createClient } from "@/prismicio";
-import { cache } from "react";
 
 export const fetchNewsFeedData = cache(async () => {
     const client = createClient();

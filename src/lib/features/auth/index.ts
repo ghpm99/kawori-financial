@@ -1,9 +1,10 @@
-import { LOCAL_STORE_ITEM_NAME } from "@/components/constants";
-import { MenuItemKey } from "@/components/menuInternal/Index";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+
 import { apiDjango } from "@/services";
 import { apiAuth } from "@/services/auth";
 
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { LOCAL_STORE_ITEM_NAME } from "@/components/constants";
+import { MenuItemKey } from "@/components/menuInternal/Index";
 
 export type authStatus = "authenticated" | "unauthenticated";
 

@@ -1,8 +1,9 @@
-import { RootState } from "@/lib/store";
 import { createListenerMiddleware } from "@reduxjs/toolkit";
 
-import { setLoading } from ".";
+import { RootState } from "@/lib/store";
 import { LoadingType } from "@/types/commonTypes";
+
+import { setLoading } from ".";
 
 export const LoadingMiddleware = createListenerMiddleware();
 

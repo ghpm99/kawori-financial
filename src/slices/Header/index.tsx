@@ -2,6 +2,7 @@ import { Content } from "@prismicio/client";
 import { PrismicNextImage } from "@prismicio/next";
 import { PrismicRichText, SliceComponentProps } from "@prismicio/react";
 import { Divider } from "antd";
+
 import styles from "./header.module.scss";
 
 /**

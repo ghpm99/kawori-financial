@@ -1,6 +1,8 @@
 import React from "react";
-import ModalNew from "@/components/contracts/modalNew";
+
 import { renderWithProviders } from "@/util/test-utils";
+
+import ModalNew from "@/components/contracts/modalNew";
 
 const defaultProps = {
     visible: true,

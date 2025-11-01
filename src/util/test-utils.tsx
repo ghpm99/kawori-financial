@@ -1,15 +1,13 @@
-import type { RenderOptions } from "@testing-library/react";
-import { render } from "@testing-library/react";
 import { PropsWithChildren } from "react";
 
-import { store as storeDefault } from "@/lib/store";
-
+import { PreloadedStateShapeFromReducersMapObject } from "@reduxjs/toolkit";
+import type { RenderOptions } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { Provider } from "react-redux";
 
-// As a basic setup, import your same slice reducers
+import { store as storeDefault, AppStore, RootState } from "@/lib/store";
 
-import { AppStore, RootState } from "@/lib/store";
-import { PreloadedStateShapeFromReducersMapObject } from "@reduxjs/toolkit";
+// As a basic setup, import your same slice reducers
 
 // This type interface extends the default options for render from RTL, as well
 // as allows the user to specify other things such as initialState, store.

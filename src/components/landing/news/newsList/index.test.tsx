@@ -1,6 +1,8 @@
 import { formatterDate } from "@/util";
+
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
+
 import { NewsProps } from "..";
 import NewsList from "./index";
 

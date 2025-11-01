@@ -1,11 +1,13 @@
 "use client";
 
+import { useEffect } from "react";
+
+import { useQuery } from "@tanstack/react-query";
+import { Card } from "antd";
+
 import { setSelectedMenu } from "@/lib/features/auth";
 import { useAppDispatch } from "@/lib/hooks";
 import { fetchNewUsersAnalytics } from "@/services/analytics";
-import { useQuery } from "@tanstack/react-query";
-import { Card } from "antd";
-import { useEffect } from "react";
 
 const AnalyticsPage = () => {
     const dispatch = useAppDispatch();

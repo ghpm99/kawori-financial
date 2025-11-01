@@ -1,5 +1,6 @@
-import { Form, Input, Modal } from "antd";
 import { MouseEvent } from "react";
+
+import { Form, Input, Modal } from "antd";
 
 import styles from "./ModalNew.module.scss";
 

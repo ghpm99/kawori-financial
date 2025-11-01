@@ -1,5 +1,6 @@
-import { fetchNewsFeedData } from "@/app/api/lib/news";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+
+import { fetchNewsFeedData } from "@/app/api/lib/news";
 
 export interface INewsData {
     first_publication_date: string;

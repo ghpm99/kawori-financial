@@ -1,8 +1,10 @@
 import React from "react";
+
 import { render } from "@testing-library/react";
 
-import AccumulatedValue from "./index";
 import { formatterMonthYearDate } from "@/util/index";
+
+import AccumulatedValue from "./index";
 
 jest.mock("@/util/index", () => ({
     formatterMonthYearDate: jest.fn((date) => date),

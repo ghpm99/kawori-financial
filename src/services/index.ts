@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/nextjs";
 import axios, { AxiosError, AxiosResponse, HttpStatusCode } from "axios";
+
 import { refreshTokenAsync } from "./auth";
 
 export const apiDjango = axios.create({

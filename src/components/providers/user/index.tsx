@@ -1,9 +1,11 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
 
-import { useAuth } from "../auth";
 import { userDetailService, userGroupsService } from "@/services/user";
+
+import { useAuth } from "../auth";
 
 export type UserGroup = {
     id: string;
