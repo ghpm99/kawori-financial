@@ -4,7 +4,6 @@ import { apiDjango } from "@/services";
 import { apiAuth } from "@/services/auth";
 
 import { LOCAL_STORE_ITEM_NAME } from "@/components/constants";
-import { MenuItemKey } from "@/components/menuInternal/Index";
 
 export type authStatus = "authenticated" | "unauthenticated";
 
@@ -12,7 +11,7 @@ interface IAuthState {
     user: IUser;
     status: authStatus;
     loading: boolean;
-    selectedMenu: MenuItemKey[];
+    selectedMenu: string[];
     groups: string[];
 }
 
@@ -109,7 +108,7 @@ export const authSlice = createSlice({
         setLoading: (state: IAuthState, action: PayloadAction<boolean>) => {
             state.loading = action.payload;
         },
-        setSelectedMenu: (state: IAuthState, action: PayloadAction<MenuItemKey[]>) => {
+        setSelectedMenu: (state: IAuthState, action: PayloadAction<string[]>) => {
             state.selectedMenu = action.payload;
         },
     },

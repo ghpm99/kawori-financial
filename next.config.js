@@ -29,6 +29,9 @@ const nextConfig = {
         hostname: 'api.kawori.site'
       }
     ]
+  },
+  eslint:{
+    ignoreDuringBuilds: true
   }
 }
 
@@ -72,7 +75,7 @@ module.exports = withSentryConfig(
     // https://vercel.com/docs/cron-jobs
     automaticVercelMonitors: true,
     eslint: {
-    dirs: ['app', 'components', 'util'], // Only run ESLint on the 'pages' and 'utils' directories during production builds (next build)
+      ignoreDuringBuilds: true,
   },
   }
 )

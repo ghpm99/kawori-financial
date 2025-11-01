@@ -15,7 +15,7 @@ const initialState: IPaymentStore = {
     filters: {
         page: 1,
         active: true,
-        status: 0,
+        status: "all",
         page_size: 20,
     },
     modal: {

@@ -6,14 +6,15 @@
         "dev": "next dev -p 3000",
         "build": "next build",
         "start": "next start",
-        "lint": "eslint --ext .js,.jsx,.ts,.tsx src --fix",
         "cypress": "cypress open",
-        "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
+        "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}' --fix",
+        "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx}'",
         "compile": "tsc",
         "test": "jest",
         "test:ci": "jest --ci",
         "coverage": "jest --coverage",
-        "slicemachine": "start-slicemachine"
+        "slicemachine": "start-slicemachine",
+        "fix": "yarn lint && yarn format"
     },
     "dependencies": {
         "@ant-design/icons": "^5.5.1",
