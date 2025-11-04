@@ -1,20 +1,22 @@
 "use client";
-import { useEffect } from "react";
-
-import { SearchOutlined } from "@ant-design/icons";
-import { Breadcrumb, Button, Layout, Table, Tag, Typography } from "antd";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
 
+import { Payments } from "@/components/invoices/paymentsTable";
+import { PayoffPayment, usePayoff } from "@/components/providers/payments/payoff";
 import { setSelectedMenu } from "@/lib/features/auth";
 import { changePagination, fetchAllInvoice, setFiltersInvoice } from "@/lib/features/financial/invoice";
 import { useAppDispatch } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
 import { formatMoney, formatterDate, updateSearchParams } from "@/util/index";
+import { ClearOutlined, ToTopOutlined } from "@ant-design/icons";
+import { Breadcrumb, Button, Layout, Table, Tag, Typography } from "antd";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
 
 import LoadingPage from "@/components/loadingPage/Index";
-
+import ModalPayoff from "@/components/payments/modalPayoff";
+import { usePayments } from "@/components/providers/payments";
 import styles from "./Invoices.module.scss";
 
 const { Title } = Typography;
@@ -24,6 +26,24 @@ function FinancialPage({ searchParams }) {
     const router = useRouter();
     const pathname = usePathname();
     const financialStore = useSelector((state: RootState) => state.financial.invoice);
+
+    const { selectedRow, updateSelectedRows } = usePayments();
+
+    console.log(selectedRow);
+    const {
+        modalBatchVisible,
+        openPayoffBatchModal,
+        closePayoffBatchModal,
+        paymentsToProcess,
+        paymentPayoffBatchProgress,
+        paymentPayoffBatchProgressText,
+        setPaymentsToProcess,
+        clearPaymentsToProcess,
+        processPayOffBatch,
+        payOffPayment,
+        processPayOffBatchCompleted,
+        processingBatch,
+    } = usePayoff();
 
     useEffect(() => {
         document.title = "Kawori Notas";
@@ -40,6 +60,18 @@ function FinancialPage({ searchParams }) {
         updateSearchParams(router, pathname, financialStore.filters);
         dispatch(fetchAllInvoice(financialStore.filters));
     }, [financialStore.filters, dispatch, router, pathname]);
+
+    const cleanFilter = () => {};
+
+    const openPayoffModal = () => {
+        openPayoffBatchModal();
+        const dataSource: PayoffPayment[] = selectedRow.map((id) => ({
+            id: parseInt(id.toString()),
+            description: "Aguardando",
+            status: "pending",
+        }));
+        setPaymentsToProcess(dataSource);
+    };
 
     const onChangePagination = (page: number, pageSize: number) => {
         dispatch(
@@ -107,8 +139,8 @@ function FinancialPage({ searchParams }) {
         },
         {
             title: "Ações",
-            dataIndex: "id",
-            key: "id",
+            dataIndex: "action",
+            key: "action",
             render: (value: any) => <Link href={`/internal/financial/invoices/details/${value}`}>Detalhes</Link>,
         },
     ];
@@ -126,10 +158,16 @@ function FinancialPage({ searchParams }) {
                         Valores em aberto
                     </Title>
                     <div>
-                        <Button icon={<SearchOutlined />}>Filtrar</Button>
+                        <Button icon={<ToTopOutlined />} onClick={openPayoffModal} disabled={selectedRow.length === 0}>
+                            Baixar pagamentos
+                        </Button>
+                        <Button icon={<ClearOutlined />} onClick={cleanFilter}>
+                            Limpar filtros
+                        </Button>
                     </div>
                 </div>
                 <Table
+                    rowKey={"id"}
                     pagination={{
                         showSizeChanger: true,
                         pageSize: financialStore.filters.page_size,
@@ -141,8 +179,36 @@ function FinancialPage({ searchParams }) {
                     dataSource={financialStore.data}
                     loading={financialStore.loading}
                     summary={(invoiceData) => <TableSummary invoiceData={invoiceData} />}
+                    expandable={{
+                        expandedRowRender: (record) => (
+                            <Payments
+                                invoice={record}
+                                payOffPayment={payOffPayment}
+                                updateSelectedRows={updateSelectedRows}
+                                selectedRow={selectedRow}
+                            />
+                        ),
+                        rowExpandable: (record) => {
+                            return record?.installments > 0;
+                        },
+                        onExpand: (expanded, record) => {
+                            if (expanded) {
+                                console.log("expand", record);
+                            }
+                        },
+                    }}
                 />
             </Layout>
+            <ModalPayoff
+                visible={modalBatchVisible}
+                onCancel={closePayoffBatchModal}
+                onPayoff={processPayOffBatch}
+                data={paymentsToProcess}
+                percent={paymentPayoffBatchProgress}
+                progressText={paymentPayoffBatchProgressText()}
+                completed={processPayOffBatchCompleted}
+                processing={processingBatch}
+            />
         </>
     );
 }

@@ -13,17 +13,10 @@ import {
     savePaymentDetailService,
 } from "@/services/financial";
 
-export type SelectedRowType = {
-    id: number;
-    selected: boolean;
-};
-
-type PaymentsContextValue = {
+type PaymentsTableContextValue = {
     paymentFilters: IPaymentFilters;
-    paymentsData: PaymentsPage;
-    isLoading: boolean;
-    selectedRow: SelectedRowType[];
-    updateSelectedRows: (keys: SelectedRowType[]) => void;
+    selectedRow: React.Key[];
+    setSelectedRow: (keys: React.Key[]) => void;
     cleanFilter: () => void;
     handleChangeFilter: (e: React.ChangeEvent<HTMLInputElement>) => void;
     handleDateRangedFilter: (name: string, dates: string[]) => void;
@@ -39,7 +32,7 @@ type PaymentsContextValue = {
     onUpdatePaymentDetail: (values: IPaymentDetail) => void;
 };
 
-const PaymentsContext = createContext<PaymentsContextValue | undefined>(undefined);
+const PaymentsTableContext = createContext<PaymentsTableContextValue | undefined>(undefined);
 
 type FilterAction =
     | { type: "SET_ALL"; payload: IPaymentFilters }
@@ -92,49 +85,19 @@ const defaultPaymentDetail: IPaymentDetail = {
     invoice_name: "",
 };
 
-const defaultPaymentsPage: PaymentsPage = {
-    current_page: 1,
-    total_pages: 1,
-    page_size: 10,
-    has_previous: false,
-    has_next: false,
-    data: [],
-};
-
-export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const PaymentsTableProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const initFilters = (): IPaymentFilters => {
         return {
             ...defaultFilters,
         };
     };
 
-    const [selectedRow, setSelectedRow] = useState<SelectedRowType[]>([]);
+    const [selectedRow, setSelectedRow] = useState<React.Key[]>([]);
     const [localFilters, dispatchFilters] = React.useReducer(paymentFiltersReducer, undefined, initFilters);
     const [paymentDetailVisible, setPaymentDetailVisible] = useState<boolean>(false);
     const [paymentDetailId, setPaymentDetailId] = useState<number>(undefined);
 
     const [paymentPayoffBatchProgress, setPaymentPayoffBatchProgress] = useState<number>(0);
-
-    const {
-        data,
-        refetch: refetchPayments,
-        isLoading,
-    } = useQuery({
-        queryKey: ["payments", localFilters],
-        queryFn: async () => {
-            const response = await fetchAllPaymentService(localFilters);
-            const data = response.data;
-            if (!data) return defaultPaymentsPage;
-
-            return {
-                ...data,
-                data: data.data.map((item) => ({
-                    ...item,
-                    key: item.id,
-                })),
-            };
-        },
-    });
 
     const {
         data: paymentDetail,
@@ -166,7 +129,6 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         },
         onSuccess: ({ msg }) => {
             refetchPaymentDetail();
-            refetchPayments();
             message.success({
                 content: msg,
                 key: messageKey,
@@ -179,19 +141,6 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             });
         },
     });
-
-    const updateSelectedRows = (newSelectedRows: SelectedRowType[]): void => {
-        const currentIds = new Set(selectedRow.map((row) => row.id));
-
-        const updatedRows = selectedRow.map((currentRow) => {
-            const matchingNewRow = newSelectedRows.find((newRow) => newRow.id === currentRow.id);
-            return matchingNewRow ? { ...currentRow, ...matchingNewRow } : currentRow;
-        });
-
-        const addedRows = newSelectedRows.filter((newRow) => !currentIds.has(newRow.id));
-
-        setSelectedRow([...updatedRows, ...addedRows]);
-    };
 
     const cleanFilter = useCallback(() => {
         dispatchFilters({ type: "RESET" });
@@ -268,19 +217,17 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
 
     return (
-        <PaymentsContext.Provider
+        <PaymentsTableContext.Provider
             value={{
                 paymentFilters: localFilters,
                 selectedRow,
-                updateSelectedRows,
-                isLoading: isLoading,
+                setSelectedRow,
                 cleanFilter,
                 handleChangeFilter,
                 handleDateRangedFilter,
                 handleSelectFilter,
                 updateFiltersBySearchParams,
                 onChangePagination,
-                paymentsData: data ?? defaultPaymentsPage,
                 paymentDetailVisible,
                 onClosePaymentDetail,
                 onOpenPaymentDetail,
@@ -291,12 +238,12 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             }}
         >
             {children}
-        </PaymentsContext.Provider>
+        </PaymentsTableContext.Provider>
     );
 };
 
-export const usePayments = (): PaymentsContextValue => {
-    const ctx = useContext(PaymentsContext);
-    if (!ctx) throw new Error("usePayments must be used within PaymentsProvider");
+export const usePaymentsTable = (): PaymentsTableContextValue => {
+    const ctx = useContext(PaymentsTableContext);
+    if (!ctx) throw new Error("usePaymentsTable must be used within PaymentsTableProvider");
     return ctx;
 };

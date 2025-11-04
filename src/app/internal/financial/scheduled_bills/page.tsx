@@ -95,6 +95,10 @@ function ScheduledBillsPage({ searchParams }) {
     useEffect(() => {
         document.title = "Kawori Pagamentos";
         // dispatch(setSelectedMenu(["financial", "payments"]));
+        const searchParamsFilters = searchParams;
+
+        delete searchParamsFilters.fixed;
+        searchParamsFilters.fixed = true;
         updateFiltersBySearchParams(searchParams);
     }, []);
 
