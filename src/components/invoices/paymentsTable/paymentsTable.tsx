@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { ClearOutlined, SearchOutlined, ToTopOutlined } from "@ant-design/icons";
 import { faEllipsis, faFileCircleCheck, faFilePen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useQuery } from "@tanstack/react-query";
 import {
     Breadcrumb,
     Button,
@@ -44,10 +45,9 @@ import ModalPayoff from "@/components/payments/modalPayoff";
 import PaymentsDrawer from "@/components/payments/paymentsDrawer";
 import { SelectedRowType, usePayments } from "@/components/providers/payments";
 import { PayoffPayment, usePayoff } from "@/components/providers/payments/payoff";
+import { usePaymentsTable } from "@/components/providers/paymentsTable";
 
 import styles from "./Payments.module.scss";
-import { usePaymentsTable } from "@/components/providers/paymentsTable";
-import { useQuery } from "@tanstack/react-query";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
