@@ -145,6 +145,9 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 }) as MenuItemAntd,
         );
 
+    console.log("groups", groups);
+    console.log("menuItemsAntd", menuItemsAntd);
+
     return (
         <LayoutContext.Provider
             value={{

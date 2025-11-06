@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 
-import { ClearOutlined, ToTopOutlined } from "@ant-design/icons";
-import { Breadcrumb, Button, Layout, Table, Tag, Typography } from "antd";
+import { ClearOutlined, SearchOutlined, ToTopOutlined } from "@ant-design/icons";
+import { Breadcrumb, Button, Input, Layout, Table, Tag, Typography } from "antd";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
@@ -14,9 +14,12 @@ import { useAppDispatch } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
 import { formatMoney, formatterDate, updateSearchParams } from "@/util/index";
 
+import FilterDropdown from "@/components/common/filterDropdown/Index";
 import { Payments } from "@/components/invoices/paymentsTable";
 import LoadingPage from "@/components/loadingPage/Index";
 import ModalPayoff from "@/components/payments/modalPayoff";
+import PaymentsDrawer from "@/components/payments/paymentsDrawer";
+import { useInvoices } from "@/components/providers/invoices";
 import { usePayments } from "@/components/providers/payments";
 import { PayoffPayment, usePayoff } from "@/components/providers/payments/payoff";
 
@@ -25,14 +28,22 @@ import styles from "./Invoices.module.scss";
 const { Title } = Typography;
 
 function FinancialPage({ searchParams }) {
-    const dispatch = useAppDispatch();
     const router = useRouter();
     const pathname = usePathname();
-    const financialStore = useSelector((state: RootState) => state.financial.invoice);
 
-    const { selectedRow, updateSelectedRows } = usePayments();
+    const { invoicesData, isLoading, onChangePagination, invoiceFilters, handleChangeFilter, cleanFilter } =
+        useInvoices();
 
-    console.log(selectedRow);
+    const {
+        selectedRow,
+        updateSelectedRows,
+        onClosePaymentDetail,
+        paymentDetailVisible,
+        paymentDetail,
+        isLoadingPaymentDetail,
+        onUpdatePaymentDetail,
+    } = usePayments();
+
     const {
         modalBatchVisible,
         openPayoffBatchModal,
@@ -49,22 +60,8 @@ function FinancialPage({ searchParams }) {
     } = usePayoff();
 
     useEffect(() => {
-        document.title = "Kawori Notas";
-        dispatch(setSelectedMenu(["financial", "invoices"]));
-
-        dispatch(
-            setFiltersInvoice({
-                ...searchParams,
-            }),
-        );
-    }, []);
-
-    useEffect(() => {
-        updateSearchParams(router, pathname, financialStore.filters);
-        dispatch(fetchAllInvoice(financialStore.filters));
-    }, [financialStore.filters, dispatch, router, pathname]);
-
-    const cleanFilter = () => {};
+        updateSearchParams(router, pathname, invoiceFilters);
+    }, [invoiceFilters, router, pathname]);
 
     const openPayoffModal = () => {
         openPayoffBatchModal();
@@ -76,44 +73,44 @@ function FinancialPage({ searchParams }) {
         setPaymentsToProcess(dataSource);
     };
 
-    const onChangePagination = (page: number, pageSize: number) => {
-        dispatch(
-            changePagination({
-                page: page,
-                pageSize: pageSize,
-            }),
-        );
-    };
-
     const headerTableFinancial = [
-        {
-            title: "Id",
-            dataIndex: "id",
-            key: "id",
-            render: (value: any) => <Link href={`/internal/financial/invoices/details/${value}`}>{value}</Link>,
-        },
         {
             title: "Nome",
             dataIndex: "name",
             key: "name",
+            index: 0,
+            filterDropdown: () => (
+                <FilterDropdown applyFilter={() => {}}>
+                    <Input
+                        name="name__icontains"
+                        style={{ width: 220 }}
+                        onChange={(event) => handleChangeFilter(event)}
+                        value={invoiceFilters?.name__icontains ?? ""}
+                    />
+                </FilterDropdown>
+            ),
+            filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
         },
         {
             title: "Valor",
             dataIndex: "value",
             key: "value",
             render: (value: any) => formatMoney(value),
+            index: 1,
         },
         {
             title: "Baixado",
             dataIndex: "value_closed",
             key: "value_closed",
             render: (value: any) => formatMoney(value),
+            index: 2,
         },
         {
             title: "Em aberto",
             dataIndex: "value_open",
             key: "value_open",
             render: (value: any) => formatMoney(value),
+            index: 3,
         },
         {
             title: "Parcelas",
@@ -161,7 +158,11 @@ function FinancialPage({ searchParams }) {
                         Valores em aberto
                     </Title>
                     <div>
-                        <Button icon={<ToTopOutlined />} onClick={openPayoffModal} disabled={selectedRow.length === 0}>
+                        <Button
+                            icon={<ToTopOutlined />}
+                            onClick={openPayoffModal}
+                            disabled={selectedRow.filter((item) => item.selected).length === 0}
+                        >
                             Baixar pagamentos
                         </Button>
                         <Button icon={<ClearOutlined />} onClick={cleanFilter}>
@@ -173,14 +174,14 @@ function FinancialPage({ searchParams }) {
                     rowKey={"id"}
                     pagination={{
                         showSizeChanger: true,
-                        pageSize: financialStore.filters.page_size,
-                        current: financialStore.pagination.currentPage,
-                        total: financialStore.pagination.totalPages * financialStore.filters.page_size,
+                        pageSize: invoicesData.page_size,
+                        current: invoicesData.current_page,
+                        total: invoicesData.total_pages * invoicesData.page_size,
                         onChange: onChangePagination,
                     }}
                     columns={headerTableFinancial}
-                    dataSource={financialStore.data}
-                    loading={financialStore.loading}
+                    dataSource={invoicesData.data}
+                    loading={isLoading}
                     summary={(invoiceData) => <TableSummary invoiceData={invoiceData} />}
                     expandable={{
                         expandedRowRender: (record) => (
@@ -212,6 +213,13 @@ function FinancialPage({ searchParams }) {
                 completed={processPayOffBatchCompleted}
                 processing={processingBatch}
             />
+            <PaymentsDrawer
+                onClose={onClosePaymentDetail}
+                open={paymentDetailVisible}
+                paymentDetail={paymentDetail}
+                isLoading={isLoadingPaymentDetail}
+                onUpdatePaymentDetail={onUpdatePaymentDetail}
+            />
         </>
     );
 }
@@ -231,15 +239,11 @@ function TableSummary({ invoiceData }: { invoiceData: readonly IInvoicePaginatio
     return (
         <>
             <Table.Summary.Row>
-                <Table.Summary.Cell index={0}>
-                    <Text>Total: {formatMoney(total)}</Text>
-                </Table.Summary.Cell>
-                <Table.Summary.Cell index={1}>
-                    <Text>Em aberto: {formatMoney(totalOpen)}</Text>
-                </Table.Summary.Cell>
-                <Table.Summary.Cell index={2}>
-                    <Text>Baixado: {formatMoney(totalClosed)}</Text>
-                </Table.Summary.Cell>
+                <Table.Summary.Cell index={0}></Table.Summary.Cell>
+                <Table.Summary.Cell index={1}>Total</Table.Summary.Cell>
+                <Table.Summary.Cell index={2}>{formatMoney(total)}</Table.Summary.Cell>
+                <Table.Summary.Cell index={3}>{formatMoney(totalOpen)}</Table.Summary.Cell>
+                <Table.Summary.Cell index={4}>{formatMoney(totalClosed)}</Table.Summary.Cell>
             </Table.Summary.Row>
         </>
     );

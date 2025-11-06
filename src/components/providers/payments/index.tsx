@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useCallback, useContext, useState } from "react";
+import React, { createContext, useCallback, useContext, useReducer, useState } from "react";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { message } from "antd";
@@ -109,11 +109,9 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
 
     const [selectedRow, setSelectedRow] = useState<SelectedRowType[]>([]);
-    const [localFilters, dispatchFilters] = React.useReducer(paymentFiltersReducer, undefined, initFilters);
+    const [localFilters, dispatchFilters] = useReducer(paymentFiltersReducer, undefined, initFilters);
     const [paymentDetailVisible, setPaymentDetailVisible] = useState<boolean>(false);
     const [paymentDetailId, setPaymentDetailId] = useState<number>(undefined);
-
-    const [paymentPayoffBatchProgress, setPaymentPayoffBatchProgress] = useState<number>(0);
 
     const {
         data,

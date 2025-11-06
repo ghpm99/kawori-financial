@@ -41,3 +41,16 @@ type PayloadSetFilterInvoiceAction = {
     name: string;
     value: any;
 };
+
+interface InvoicesPage {
+    current_page: number;
+    total_pages: number;
+    page_size: number;
+    has_previous: boolean;
+    has_next: boolean;
+    data: IInvoicePagination[];
+}
+
+interface InvoicesApiResponse {
+    data: InvoicesPage;
+}

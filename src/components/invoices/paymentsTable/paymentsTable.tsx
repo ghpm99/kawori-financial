@@ -70,25 +70,40 @@ interface PaymentsTableProps {
     updateSelectedRows: (keys: SelectedRowType[]) => void;
 }
 
-const PaymentsTable = ({ invoice, payOffPayment, selectedRow, updateSelectedRows }: PaymentsTableProps) => {
-    // const {
-    //     paymentFilters,
-    //     onChangePagination,
-    //     handleChangeFilter,
-    //     handleDateRangedFilter,
-    //     handleSelectFilter,
-    //     handleChangeAllFilters,
-    //     updateFiltersBySearchParams,
-    //     cleanFilter,
-    //     selectedRow,
-    //     setSelectedRow,
-    //     paymentDetailVisible,
-    //     onClosePaymentDetail,
-    //     onOpenPaymentDetail,
-    //     isLoadingPaymentDetail,
-    //     paymentDetail,
-    //     onUpdatePaymentDetail,
-    // } = usePaymentsTable();
+const PaymentsTable = ({ invoice, selectedRow, updateSelectedRows }: PaymentsTableProps) => {
+    const {
+        paymentFilters,
+        onChangePagination,
+        handleChangeFilter,
+        handleDateRangedFilter,
+        handleSelectFilter,
+        handleChangeAllFilters,
+        updateFiltersBySearchParams,
+        cleanFilter,
+        paymentDetailVisible,
+        onClosePaymentDetail,
+
+        isLoadingPaymentDetail,
+        paymentDetail,
+        onUpdatePaymentDetail,
+    } = usePaymentsTable();
+
+    const {
+        modalBatchVisible,
+        openPayoffBatchModal,
+        closePayoffBatchModal,
+        paymentsToProcess,
+        paymentPayoffBatchProgress,
+        paymentPayoffBatchProgressText,
+        setPaymentsToProcess,
+        clearPaymentsToProcess,
+        processPayOffBatch,
+        payOffPayment,
+        processPayOffBatchCompleted,
+        processingBatch,
+    } = usePayoff();
+
+    const { onOpenPaymentDetail } = usePayments();
 
     const {
         data,
@@ -125,7 +140,7 @@ const PaymentsTable = ({ invoice, payOffPayment, selectedRow, updateSelectedRows
                 key: "2",
                 icon: <FontAwesomeIcon icon={faFilePen} />,
                 label: "Editar",
-                // onClick: () => onOpenPaymentDetail(record.id),
+                onClick: () => onOpenPaymentDetail(record.id),
             },
             {
                 key: "3",
@@ -176,10 +191,10 @@ const PaymentsTable = ({ invoice, payOffPayment, selectedRow, updateSelectedRows
                     <RangePicker
                         name={"payment_date"}
                         onChange={(_, formatString) => {
-                            // handleDateRangedFilter("payment_date", formatString);
+                            handleDateRangedFilter("payment_date", formatString);
                         }}
                         format={customFormat}
-                        // value={[dayjs(paymentFilters?.payment_date__gte), dayjs(paymentFilters?.payment_date__lte)]}
+                        value={[dayjs(paymentFilters?.payment_date__gte), dayjs(paymentFilters?.payment_date__lte)]}
                         ranges={{
                             Hoje: [dayjs(), dayjs()],
                             Ontem: [dayjs().subtract(1, "days"), dayjs().subtract(1, "days")],
@@ -223,38 +238,36 @@ const PaymentsTable = ({ invoice, payOffPayment, selectedRow, updateSelectedRows
     ];
 
     return (
-        <>
-            <Table
-                pagination={{
-                    showSizeChanger: true,
-                    pageSize: data?.page_size,
-                    current: data?.current_page,
-                    total: data?.total_pages * data?.page_size,
-                    // onChange: onChangePagination,
-                }}
-                columns={headerTableFinancial}
-                rowSelection={{
-                    type: "checkbox",
-                    selectedRowKeys: selectedRow.filter((item) => item.selected).map((item) => item.id),
-                    onChange: (selectedRowKeys, selectedRows) => {
-                        const selectedRowArray = data?.data.map(
-                            (item) =>
-                                ({
-                                    id: item.id,
-                                    selected: selectedRowKeys.includes(item.id),
-                                }) as SelectedRowType,
-                        );
-                        updateSelectedRows(selectedRowArray);
-                    },
-                    selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT, Table.SELECTION_NONE],
-                    getCheckboxProps: (record) => ({
-                        disabled: record.status === 1,
-                    }),
-                }}
-                dataSource={data?.data ?? []}
-                loading={isLoading}
-            />
-        </>
+        <Table
+            pagination={{
+                showSizeChanger: true,
+                pageSize: data?.page_size,
+                current: data?.current_page,
+                total: data?.total_pages * data?.page_size,
+                onChange: onChangePagination,
+            }}
+            columns={headerTableFinancial}
+            rowSelection={{
+                type: "checkbox",
+                selectedRowKeys: selectedRow.filter((item) => item.selected).map((item) => item.id),
+                onChange: (selectedRowKeys, selectedRows) => {
+                    const selectedRowArray = data?.data.map(
+                        (item) =>
+                            ({
+                                id: item.id,
+                                selected: selectedRowKeys.includes(item.id),
+                            }) as SelectedRowType,
+                    );
+                    updateSelectedRows(selectedRowArray);
+                },
+                selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT, Table.SELECTION_NONE],
+                getCheckboxProps: (record) => ({
+                    disabled: record.status === 1,
+                }),
+            }}
+            dataSource={data?.data ?? []}
+            loading={isLoading}
+        />
     );
 };
 

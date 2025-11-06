@@ -74,7 +74,7 @@ export async function fetchAllContractService(filters: IContractFilters) {
 }
 
 export async function fetchAllInvoiceService(filters: IInvoiceFilters) {
-    const response = await apiDjango.get("/financial/invoice/", {
+    const response = await apiDjango.get<InvoicesApiResponse>("/financial/invoice/", {
         params: filters,
     });
     return response.data;
