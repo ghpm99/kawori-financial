@@ -16,33 +16,17 @@ import {
     Space,
     Table,
     Typography,
-    message,
 } from "antd";
 import dayjs from "dayjs";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
 
-import { setSelectedMenu } from "@/lib/features/auth";
-import {
-    changeDataSourcePayoffPayments,
-    changeSingleDataSourcePayoffPayments,
-    changeStatusPaymentPagination,
-    changeVisibleModalPayoffPayments,
-    fetchAllPayment,
-    setFilterPayments,
-    setFiltersPayments,
-} from "@/lib/features/financial/payment";
-import { useAppDispatch } from "@/lib/hooks";
-import { RootState } from "@/lib/store";
-import { payoffPaymentService } from "@/services/financial";
 import { formatMoney, formatterDate, updateSearchParams } from "@/util/index";
 
 import FilterDropdown from "@/components/common/filterDropdown/Index";
-import LoadingPage from "@/components/loadingPage/Index";
 import ModalPayoff from "@/components/payments/modalPayoff";
 import PaymentsDrawer from "@/components/payments/paymentsDrawer";
-import { usePayments } from "@/components/providers/payments";
+import { SelectedRowType, usePayments } from "@/components/providers/payments";
 import { PayoffPayment, usePayoff } from "@/components/providers/payments/payoff";
 
 import styles from "./Payments.module.scss";
@@ -65,13 +49,13 @@ function BillsPage({ searchParams }) {
         updateFiltersBySearchParams,
         cleanFilter,
         selectedRow,
-        setSelectedRow,
         paymentDetailVisible,
         onClosePaymentDetail,
         onOpenPaymentDetail,
         isLoadingPaymentDetail,
         paymentDetail,
         onUpdatePaymentDetail,
+        updateSelectedRows,
     } = usePayments();
 
     const {
@@ -353,9 +337,16 @@ function BillsPage({ searchParams }) {
                     columns={headerTableFinancial}
                     rowSelection={{
                         type: "checkbox",
-                        selectedRowKeys: selectedRow,
+                        selectedRowKeys: selectedRow.filter((x) => x.selected).map((x) => x.id),
                         onChange: (selectedRowKeys, selectedRows) => {
-                            setSelectedRow(selectedRowKeys);
+                            const selectedRowArray = paymentsData.data.map(
+                                (item) =>
+                                    ({
+                                        id: item.id,
+                                        selected: selectedRowKeys.includes(item.id),
+                                    }) as SelectedRowType,
+                            );
+                            updateSelectedRows(selectedRowArray);
                         },
                         selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT, Table.SELECTION_NONE],
                         getCheckboxProps: (record) => ({

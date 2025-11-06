@@ -6,12 +6,7 @@ import { ClearOutlined, SearchOutlined, ToTopOutlined } from "@ant-design/icons"
 import { Breadcrumb, Button, Input, Layout, Table, Tag, Typography } from "antd";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
 
-import { setSelectedMenu } from "@/lib/features/auth";
-import { changePagination, fetchAllInvoice, setFiltersInvoice } from "@/lib/features/financial/invoice";
-import { useAppDispatch } from "@/lib/hooks";
-import { RootState } from "@/lib/store";
 import { formatMoney, formatterDate, updateSearchParams } from "@/util/index";
 
 import FilterDropdown from "@/components/common/filterDropdown/Index";

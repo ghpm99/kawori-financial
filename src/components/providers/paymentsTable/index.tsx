@@ -6,12 +6,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { message } from "antd";
 import dayjs from "dayjs";
 
-import {
-    fetchAllPaymentService,
-    fetchDetailPaymentService,
-    payoffPaymentService,
-    savePaymentDetailService,
-} from "@/services/financial";
+import { fetchDetailPaymentService, savePaymentDetailService } from "@/services/financial";
 
 type PaymentsTableContextValue = {
     paymentFilters: IPaymentFilters;

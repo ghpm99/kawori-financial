@@ -1,53 +1,19 @@
 "use client";
-import React, { useEffect } from "react";
 
-import { ClearOutlined, SearchOutlined, ToTopOutlined } from "@ant-design/icons";
+import { SearchOutlined } from "@ant-design/icons";
 import { faEllipsis, faFileCircleCheck, faFilePen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useQuery } from "@tanstack/react-query";
-import {
-    Breadcrumb,
-    Button,
-    DatePicker,
-    Dropdown,
-    Input,
-    Layout,
-    MenuProps,
-    Select,
-    Space,
-    Table,
-    Typography,
-    message,
-} from "antd";
+import { DatePicker, Dropdown, MenuProps, Select, Space, Table, Typography } from "antd";
 import dayjs from "dayjs";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
 
-import { setSelectedMenu } from "@/lib/features/auth";
-import {
-    changeDataSourcePayoffPayments,
-    changeSingleDataSourcePayoffPayments,
-    changeStatusPaymentPagination,
-    changeVisibleModalPayoffPayments,
-    fetchAllPayment,
-    setFilterPayments,
-    setFiltersPayments,
-} from "@/lib/features/financial/payment";
-import { useAppDispatch } from "@/lib/hooks";
-import { RootState } from "@/lib/store";
-import { fetchAllPaymentService, fetchDetailInvoicePaymentsService, payoffPaymentService } from "@/services/financial";
-import { formatMoney, formatterDate, updateSearchParams } from "@/util/index";
+import { fetchDetailInvoicePaymentsService } from "@/services/financial";
+import { formatMoney, formatterDate } from "@/util/index";
 
 import FilterDropdown from "@/components/common/filterDropdown/Index";
-import LoadingPage from "@/components/loadingPage/Index";
-import ModalPayoff from "@/components/payments/modalPayoff";
-import PaymentsDrawer from "@/components/payments/paymentsDrawer";
 import { SelectedRowType, usePayments } from "@/components/providers/payments";
-import { PayoffPayment, usePayoff } from "@/components/providers/payments/payoff";
+import { usePayoff } from "@/components/providers/payments/payoff";
 import { usePaymentsTable } from "@/components/providers/paymentsTable";
-
-import styles from "./Payments.module.scss";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
