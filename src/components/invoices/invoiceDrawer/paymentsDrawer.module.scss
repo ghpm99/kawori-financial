@@ -29,3 +29,31 @@
 .form_label:first-child {
     width: 140px;
 }
+
+.label-detail {
+    display: flex;
+    padding: 6px;
+    align-items: center;
+    flex-grow: 1;
+    width: 33%;
+}
+
+.container_labels {
+    margin: 16px;
+}
+
+.label {
+    margin: 6px;
+}
+
+.buttons {
+    float: right;
+}
+
+.button_save {
+    margin: 0 6px;
+}
+
+.row {
+    display: flex;
+}

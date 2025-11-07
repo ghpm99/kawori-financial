@@ -1,12 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
-
 import { Layout } from "antd";
-import { useRouter } from "next/navigation";
-
-import { signoutThunk } from "@/lib/features/auth";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 
 import LoginHeader from "@/components/loginHeader/Index";
 import MenuInternal from "@/components/menuInternal/Index";

@@ -1,8 +1,11 @@
-import { createContext, useCallback, useContext, useReducer } from "react";
+import { createContext, useCallback, useContext, useReducer, useState } from "react";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
-import { fetchAllInvoiceService } from "@/services/financial";
+import { fetchAllInvoiceService, fetchDetailInvoiceService } from "@/services/financial";
+import { message } from "antd";
+
+const messageKey = "invoice_pagination_message";
 
 type InvoicesContextValue = {
     invoicesData: InvoicesPage;
@@ -13,6 +16,12 @@ type InvoicesContextValue = {
     handleChangeAllFilters: (filters: IInvoiceFilters) => void;
     updateFiltersBySearchParams: (searchParams: any) => void;
     onChangePagination: (page: number, pageSize: number) => void;
+    onOpenInvoiceDetail: (invoiceId?: number) => void;
+    onCloseInvoiceDetail: () => void;
+    invoiceDetailVisible: boolean;
+    invoiceDetail: IInvoiceDetail;
+    isLoadingInvoiceDetail: boolean;
+    onUpdateInvoiceDetail: (values: IInvoiceDetail) => void;
 };
 
 const InvoicesContext = createContext<InvoicesContextValue | undefined>(undefined);
@@ -26,6 +35,7 @@ type FilterAction =
 const defaultFilters: IInvoiceFilters = {
     page: 1,
     page_size: 10,
+    status: "open",
 };
 
 const invoicesFiltersReducer = (state: IInvoiceFilters, action: FilterAction): IInvoiceFilters => {
@@ -56,8 +66,23 @@ const defaultInvoicesPage: InvoicesPage = {
     data: [],
 };
 
+const defaultInvoiceDetail: IInvoiceDetail = {
+    id: 0,
+    status: 0,
+    name: "",
+    date: "",
+    installments: 0,
+    value: 0,
+    value_closed: 0,
+    value_open: 0,
+    next_payment: "",
+    tags: [],
+};
+
 export const InvoicesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [localFilters, dispatchFilters] = useReducer(invoicesFiltersReducer, defaultFilters);
+    const [invoiceDetailVisible, setInvoiceDetailVisible] = useState<boolean>(false);
+    const [invoiceDetailId, setInvoiceDetailId] = useState<number>(undefined);
 
     const {
         data,
@@ -77,6 +102,42 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                     key: item.id,
                 })),
             };
+        },
+    });
+
+    const {
+        data: invoiceDetail,
+        refetch: refetchInvoiceDetail,
+        isLoading: isLoadingInvoiceDetail,
+    } = useQuery({
+        enabled: !!invoiceDetailId,
+        queryKey: ["invoiceDetail", invoiceDetailId],
+        queryFn: async () => {
+            if (!invoiceDetailId) return defaultInvoiceDetail;
+            const response = await fetchDetailInvoiceService(invoiceDetailId);
+            const data = response.data;
+            if (!data) return defaultInvoiceDetail;
+            return response.data;
+        },
+    });
+
+    const { mutate: mutateUpdateInvoiceDetail } = useMutation({
+        mutationKey: ["updateInvoiceDetail", invoiceDetailId],
+        mutationFn: async (data: IInvoiceDetail) => {
+            return { msg: "Sucesso" };
+        },
+        onSuccess: ({ msg }) => {
+            refetchInvoiceDetail();
+            message.success({
+                content: msg,
+                key: messageKey,
+            });
+        },
+        onError: (error: Error) => {
+            message.error({
+                content: `Erro ao atualizar nota: ${error.message}`,
+                key: messageKey,
+            });
         },
     });
 
@@ -115,6 +176,24 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         };
         handleChangeAllFilters(filters);
     };
+
+    const onCloseInvoiceDetail = () => {
+        setInvoiceDetailVisible(false);
+    };
+
+    const onOpenInvoiceDetail = (invoiceId?: number) => {
+        setInvoiceDetailVisible(true);
+        setInvoiceDetailId(invoiceId);
+    };
+
+    const onUpdateInvoiceDetail = (values: IInvoiceDetail) => {
+        message.loading({
+            key: messageKey,
+            content: "Processando",
+        });
+        mutateUpdateInvoiceDetail(values);
+    };
+
     return (
         <InvoicesContext.Provider
             value={{
@@ -126,6 +205,12 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 handleChangeFilter,
                 onChangePagination,
                 updateFiltersBySearchParams,
+                onOpenInvoiceDetail,
+                onCloseInvoiceDetail,
+                invoiceDetailVisible,
+                invoiceDetail,
+                isLoadingInvoiceDetail,
+                onUpdateInvoiceDetail,
             }}
         >
             {children}

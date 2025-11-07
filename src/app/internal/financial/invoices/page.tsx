@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 
 import { ClearOutlined, SearchOutlined, ToTopOutlined } from "@ant-design/icons";
-import { Breadcrumb, Button, Input, Layout, Table, Tag, Typography } from "antd";
+import { Breadcrumb, Button, Dropdown, Input, Layout, MenuProps, Space, Table, Tag, Typography } from "antd";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -19,6 +19,9 @@ import { usePayments } from "@/components/providers/payments";
 import { PayoffPayment, usePayoff } from "@/components/providers/payments/payoff";
 
 import styles from "./Invoices.module.scss";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEllipsis, faFilePen } from "@fortawesome/free-solid-svg-icons";
+import InvoiceDrawer from "@/components/invoices/invoiceDrawer";
 
 const { Title } = Typography;
 
@@ -26,8 +29,20 @@ function FinancialPage({ searchParams }) {
     const router = useRouter();
     const pathname = usePathname();
 
-    const { invoicesData, isLoading, onChangePagination, invoiceFilters, handleChangeFilter, cleanFilter } =
-        useInvoices();
+    const {
+        invoicesData,
+        isLoading,
+        onChangePagination,
+        invoiceFilters,
+        handleChangeFilter,
+        cleanFilter,
+        onOpenInvoiceDetail,
+        invoiceDetailVisible,
+        onCloseInvoiceDetail,
+        invoiceDetail,
+        isLoadingInvoiceDetail,
+        onUpdateInvoiceDetail,
+    } = useInvoices();
 
     const {
         selectedRow,
@@ -66,6 +81,27 @@ function FinancialPage({ searchParams }) {
             status: "pending",
         }));
         setPaymentsToProcess(dataSource);
+    };
+
+    const createDropdownMenu = (record: PaymentItem): MenuProps => {
+        const items: MenuProps["items"] = [
+            {
+                key: "1",
+                label: "Ações",
+                disabled: true,
+            },
+            {
+                type: "divider",
+            },
+            {
+                key: "2",
+                icon: <FontAwesomeIcon icon={faFilePen} />,
+                label: "Editar",
+                onClick: () => onOpenInvoiceDetail(record.id),
+            },
+        ];
+
+        return { items };
     };
 
     const headerTableFinancial = [
@@ -113,9 +149,9 @@ function FinancialPage({ searchParams }) {
             key: "installments",
         },
         {
-            title: "Dia",
-            dataIndex: "date",
-            key: "date",
+            title: "Proximo pagamento",
+            dataIndex: "next_payment",
+            key: "next_payment",
             render: (value: any) => formatterDate(value),
         },
         {
@@ -134,9 +170,17 @@ function FinancialPage({ searchParams }) {
         },
         {
             title: "Ações",
-            dataIndex: "action",
-            key: "action",
-            render: (value: any) => <Link href={`/internal/financial/invoices/details/${value}`}>Detalhes</Link>,
+            dataIndex: "id",
+            key: "id",
+            render: (value: any, record: any) => (
+                <Dropdown menu={createDropdownMenu(record)}>
+                    <a onClick={(e) => e.preventDefault()}>
+                        <Space>
+                            <FontAwesomeIcon icon={faEllipsis} />
+                        </Space>
+                    </a>
+                </Dropdown>
+            ),
         },
     ];
 
@@ -214,6 +258,13 @@ function FinancialPage({ searchParams }) {
                 paymentDetail={paymentDetail}
                 isLoading={isLoadingPaymentDetail}
                 onUpdatePaymentDetail={onUpdatePaymentDetail}
+            />
+            <InvoiceDrawer
+                open={invoiceDetailVisible}
+                onClose={onCloseInvoiceDetail}
+                invoiceDetail={invoiceDetail}
+                isLoading={isLoadingInvoiceDetail}
+                onUpdateInvoiceDetail={onUpdateInvoiceDetail}
             />
         </>
     );

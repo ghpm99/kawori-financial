@@ -14,7 +14,7 @@ interface PaymentsProps {
 }
 
 export const Payments = ({ invoice, payOffPayment, updateSelectedRows, selectedRow }: PaymentsProps) => (
-    <PaymentsTableProvider>
+    <PaymentsTableProvider invoice={invoice}>
         <PayoffProvider>
             <PaymentsTable
                 invoice={invoice}

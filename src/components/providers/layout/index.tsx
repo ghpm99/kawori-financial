@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 import { HomeOutlined, LineChartOutlined, SnippetsOutlined, UserOutlined } from "@ant-design/icons";
 import {
@@ -29,7 +29,7 @@ type MenuItem = {
 };
 
 type LayoutContextValue = {
-    selectedMenu: string[];
+    selectedMenu: string;
     menuCollapsed: boolean;
     toggleCollapsed: () => void;
     menuItems: MenuItemAntd[];
@@ -128,7 +128,15 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setMenuCollapsed((prev) => !prev);
     };
 
-    const selectedMenu = menuItems.filter((menuItem) => menuItem.path === pathname).map((menuItem) => menuItem.key);
+    const selectedMenuItem = menuItems.filter((menuItem) => menuItem.path === pathname);
+    const containsPath = selectedMenuItem.length === 1;
+    const selectedMenu = containsPath ? selectedMenuItem[0].key : menuItems[0].key;
+
+    useEffect(() => {
+        if (containsPath) {
+            document.title = `Kawori ${selectedMenuItem[0].label}`;
+        }
+    }, [containsPath, selectedMenu, selectedMenuItem]);
 
     const menuItemsAntd: MenuItemAntd[] = menuItems
         .filter((menuItem) => {

@@ -20,7 +20,7 @@ interface IInvoicePagination {
     value_open: number;
     value_closed: number;
     date: string;
-    contract: number;
+    next_payment: string;
     tags: ITags[];
 }
 

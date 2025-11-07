@@ -103,7 +103,7 @@ export async function includeNewInvoiceService(data: INewInvoiceRequest) {
 }
 
 export async function fetchDetailInvoiceService(id: number) {
-    const response = await apiDjango.get(`/financial/invoice/${id}/`);
+    const response = await apiDjango.get<{ data: IInvoiceDetail }>(`/financial/invoice/${id}/`);
     return response.data;
 }
 

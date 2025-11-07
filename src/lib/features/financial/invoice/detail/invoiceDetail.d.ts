@@ -13,8 +13,7 @@ interface IInvoiceDetail {
     value_open: number;
     value_closed: number;
     date: string;
-    contract: number;
-    contract_name: string;
+    next_payment: string;
     tags: ITags[];
 }
 

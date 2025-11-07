@@ -52,7 +52,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         enabled: isAuthenticated,
     });
 
-    const { data: userGroupsData } = useQuery<AxiosResponse<{ data: string[] }>, Error>({
+    const { data: userGroupsData, refetch: refetchUserGroups } = useQuery<AxiosResponse<{ data: string[] }>, Error>({
         queryKey: ["user", "groups"],
         queryFn: userGroupsService,
         enabled: isAuthenticated,
@@ -61,8 +61,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     useEffect(() => {
         if (isAuthenticated) {
             refetchUser();
+            refetchUserGroups();
         }
-    }, [isAuthenticated]);
+    }, [isAuthenticated, refetchUser, refetchUserGroups]);
 
     const value = useMemo<UserContextType>(
         () => ({

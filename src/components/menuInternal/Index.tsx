@@ -11,7 +11,7 @@ const { Sider } = Layout;
 
 interface IMenuInternal {
     theme: Theme;
-    selectedMenu: string[];
+    selectedMenu: string;
     collapsed: boolean;
     toggleCollapsed: () => void;
     menuItems: MenuItem[];
@@ -24,7 +24,7 @@ const MenuInternal = ({ theme, selectedMenu, collapsed, toggleCollapsed, menuIte
                     Kawori
                 </Link>
             </div>
-            <Menu theme={theme} selectedKeys={selectedMenu} mode="vertical" items={menuItems} />
+            <Menu theme={theme} selectedKeys={[selectedMenu]} mode="vertical" items={menuItems} />
         </Sider>
     );
 };

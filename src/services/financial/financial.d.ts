@@ -23,7 +23,7 @@ interface IPaymentFilters {
 interface IInvoiceFilters {
     page: number;
     page_size: number;
-    status?: number;
+    status?: string;
     name__icontains?: string;
     installments?: number;
     date__gte?: string;

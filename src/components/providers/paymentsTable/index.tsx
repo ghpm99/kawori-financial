@@ -6,9 +6,15 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { message } from "antd";
 import dayjs from "dayjs";
 
-import { fetchDetailPaymentService, savePaymentDetailService } from "@/services/financial";
+import {
+    fetchDetailInvoicePaymentsService,
+    fetchDetailPaymentService,
+    savePaymentDetailService,
+} from "@/services/financial";
 
 type PaymentsTableContextValue = {
+    paymentsData: PaymentsPage;
+    isLoading: boolean;
     paymentFilters: IPaymentFilters;
     selectedRow: React.Key[];
     setSelectedRow: (keys: React.Key[]) => void;
@@ -80,17 +86,44 @@ const defaultPaymentDetail: IPaymentDetail = {
     invoice_name: "",
 };
 
-export const PaymentsTableProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const initFilters = (): IPaymentFilters => {
-        return {
-            ...defaultFilters,
-        };
-    };
+const defaultPaymentsPage: PaymentsPage = {
+    current_page: 1,
+    total_pages: 1,
+    page_size: 10,
+    has_previous: false,
+    has_next: false,
+    data: [],
+};
 
+export const PaymentsTableProvider: React.FC<{ children: React.ReactNode; invoice: IInvoicePagination }> = ({
+    children,
+    invoice,
+}) => {
     const [selectedRow, setSelectedRow] = useState<React.Key[]>([]);
-    const [localFilters, dispatchFilters] = useReducer(paymentFiltersReducer, undefined, initFilters);
+    const [localFilters, dispatchFilters] = useReducer(paymentFiltersReducer, defaultFilters);
     const [paymentDetailVisible, setPaymentDetailVisible] = useState<boolean>(false);
     const [paymentDetailId, setPaymentDetailId] = useState<number>(undefined);
+
+    const {
+        data,
+        refetch: refetchPayments,
+        isLoading,
+    } = useQuery({
+        queryKey: ["paymentsTable", invoice.id, localFilters],
+        queryFn: async () => {
+            const response = await fetchDetailInvoicePaymentsService(invoice.id, localFilters);
+            const data = response.data;
+            if (!data) return defaultPaymentsPage;
+
+            return {
+                ...data,
+                data: data.data.map((item) => ({
+                    ...item,
+                    key: item.id,
+                })),
+            };
+        },
+    });
 
     const {
         data: paymentDetail,
@@ -212,6 +245,8 @@ export const PaymentsTableProvider: React.FC<{ children: React.ReactNode }> = ({
     return (
         <PaymentsTableContext.Provider
             value={{
+                paymentsData: data ?? [],
+                isLoading,
                 paymentFilters: localFilters,
                 selectedRow,
                 setSelectedRow,

@@ -20,15 +20,6 @@ const { RangePicker } = DatePicker;
 
 const customFormat = ["DD/MM/YYYY", "DD/MM/YYYY"];
 
-const defaultPaymentsPage: PaymentsPage = {
-    current_page: 1,
-    total_pages: 1,
-    page_size: 10,
-    has_previous: false,
-    has_next: false,
-    data: [],
-};
-
 interface PaymentsTableProps {
     invoice: IInvoicePagination;
     payOffPayment: (id: number) => void;
@@ -38,6 +29,8 @@ interface PaymentsTableProps {
 
 const PaymentsTable = ({ invoice, selectedRow, updateSelectedRows }: PaymentsTableProps) => {
     const {
+        paymentsData,
+        isLoading,
         paymentFilters,
         onChangePagination,
         handleChangeFilter,
@@ -70,27 +63,6 @@ const PaymentsTable = ({ invoice, selectedRow, updateSelectedRows }: PaymentsTab
     } = usePayoff();
 
     const { onOpenPaymentDetail } = usePayments();
-
-    const {
-        data,
-        refetch: refetchPayments,
-        isLoading,
-    } = useQuery({
-        queryKey: ["paymentsTable", invoice.id],
-        queryFn: async () => {
-            const response = await fetchDetailInvoicePaymentsService(invoice.id, { page: 1, page_size: 10 });
-            const data = response.data;
-            if (!data) return defaultPaymentsPage;
-
-            return {
-                ...data,
-                data: data.data.map((item) => ({
-                    ...item,
-                    key: item.id,
-                })),
-            };
-        },
-    });
 
     const createDropdownMenu = (record: PaymentItem): MenuProps => {
         const items: MenuProps["items"] = [
@@ -207,9 +179,9 @@ const PaymentsTable = ({ invoice, selectedRow, updateSelectedRows }: PaymentsTab
         <Table
             pagination={{
                 showSizeChanger: true,
-                pageSize: data?.page_size,
-                current: data?.current_page,
-                total: data?.total_pages * data?.page_size,
+                pageSize: paymentsData?.page_size,
+                current: paymentsData?.current_page,
+                total: paymentsData?.total_pages * paymentsData?.page_size,
                 onChange: onChangePagination,
             }}
             columns={headerTableFinancial}
@@ -217,7 +189,7 @@ const PaymentsTable = ({ invoice, selectedRow, updateSelectedRows }: PaymentsTab
                 type: "checkbox",
                 selectedRowKeys: selectedRow.filter((item) => item.selected).map((item) => item.id),
                 onChange: (selectedRowKeys, selectedRows) => {
-                    const selectedRowArray = data?.data.map(
+                    const selectedRowArray = paymentsData?.data.map(
                         (item) =>
                             ({
                                 id: item.id,
@@ -231,7 +203,7 @@ const PaymentsTable = ({ invoice, selectedRow, updateSelectedRows }: PaymentsTab
                     disabled: record.status === 1,
                 }),
             }}
-            dataSource={data?.data ?? []}
+            dataSource={paymentsData?.data ?? []}
             loading={isLoading}
         />
     );
