@@ -72,7 +72,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             loading: isLoading,
             error: error ?? null,
         }),
-        [localUser, userData, isLoading, error],
+        [localUser, userData, userGroupsData, isLoading, error],
     );
 
     return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
