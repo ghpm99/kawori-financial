@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 
 import { PlusOutlined } from "@ant-design/icons";
-import { Breadcrumb, Button, Layout, message, Table, Tag, Typography } from "antd";
+import { Breadcrumb, Button, Dropdown, Layout, MenuProps, message, Space, Table, Tag, Typography } from "antd";
 import { useSelector } from "react-redux";
 
 import { setSelectedMenu } from "@/lib/features/auth";
@@ -15,6 +15,12 @@ import LoadingPage from "@/components/loadingPage/Index";
 import ModalNewTag, { IFormModalNewTag } from "@/components/tags/modalNew";
 
 import styles from "./tags.module.scss";
+import { title } from "process";
+import { formatMoney } from "@/util";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEllipsis, faFilePen } from "@fortawesome/free-solid-svg-icons";
+import { useTags } from "@/components/providers/tags";
+import TagDrawer from "@/components/tags/tagDrawer";
 
 const { Title } = Typography;
 
@@ -22,11 +28,16 @@ function TagPage() {
     const financialStore = useSelector((state: RootState) => state.financial.tag);
     const dispatch = useAppDispatch();
 
-    useEffect(() => {
-        document.title = "Kawori Tags";
-        dispatch(setSelectedMenu(["financial", "tags"]));
-        dispatch(fetchTags());
-    }, []);
+    const {
+        handleOnOpenDrawer,
+        handleOnCloseDrawer,
+        openDrawer,
+        isLoadingTagDetails,
+        data,
+        loading,
+        tagDetails,
+        onUpdateTagDetail,
+    } = useTags();
 
     const openModal = (modal: keyof IModalTags) => {
         dispatch(changeVisibleModalTag({ modal, visible: true }));
@@ -49,19 +60,26 @@ function TagPage() {
         });
     };
 
-    const headerTableFinancial = [
-        {
-            title: "Id",
-            dataIndex: "id",
-            key: "id",
-        },
-        {
-            title: "Nome",
-            dataIndex: "name",
-            key: "name",
-            render: (_: any, tag: ITags) => <Tag color={tag.color}>{tag.name}</Tag>,
-        },
-    ];
+    const createDropdownMenu = (record: PaymentItem): MenuProps => {
+        const items: MenuProps["items"] = [
+            {
+                key: "1",
+                label: "Ações",
+                disabled: true,
+            },
+            {
+                type: "divider",
+            },
+            {
+                key: "2",
+                icon: <FontAwesomeIcon icon={faFilePen} />,
+                label: "Editar",
+                onClick: () => handleOnOpenDrawer(record.id),
+            },
+        ];
+
+        return { items };
+    };
 
     return (
         <>
@@ -73,10 +91,10 @@ function TagPage() {
             <Layout>
                 <div className={styles.header_command}>
                     <Title level={3} className={styles.title}>
-                        Valores em aberto
+                        Etiquetas
                     </Title>
                     <div>
-                        <Button icon={<PlusOutlined />} onClick={() => openModal("newTag")}>
+                        <Button icon={<PlusOutlined />} onClick={() => handleOnOpenDrawer()}>
                             Novo
                         </Button>
                     </div>
@@ -86,14 +104,65 @@ function TagPage() {
                         showSizeChanger: true,
                         defaultPageSize: 20,
                     }}
-                    columns={headerTableFinancial}
-                    dataSource={financialStore.data}
-                    loading={financialStore.loading}
+                    columns={[
+                        {
+                            title: "Id",
+                            dataIndex: "id",
+                            key: "id",
+                        },
+                        {
+                            title: "Nome",
+                            dataIndex: "name",
+                            key: "name",
+                            render: (_: any, tag: ITags) => <Tag color={tag.color}>{tag.name}</Tag>,
+                        },
+                        {
+                            title: "Quantidade de pagamentos",
+                            dataIndex: "total_payments",
+                            key: "total_payments",
+                        },
+                        {
+                            title: "Total de valor",
+                            dataIndex: "total_value",
+                            key: "total_value",
+                            render: (value: any) => formatMoney(value),
+                        },
+                        {
+                            title: "Total em aberto",
+                            dataIndex: "total_open",
+                            key: "total_open",
+                            render: (value: any) => formatMoney(value),
+                        },
+                        {
+                            title: "Total baixado",
+                            dataIndex: "total_closed",
+                            key: "total_closed",
+                            render: (value: any) => formatMoney(value),
+                        },
+                        {
+                            title: "Ações",
+                            dataIndex: "id",
+                            key: "id",
+                            render: (value: any, record: any) => (
+                                <Dropdown menu={createDropdownMenu(record)}>
+                                    <a onClick={(e) => e.preventDefault()}>
+                                        <Space>
+                                            <FontAwesomeIcon icon={faEllipsis} />
+                                        </Space>
+                                    </a>
+                                </Dropdown>
+                            ),
+                        },
+                    ]}
+                    dataSource={data}
+                    loading={loading}
                 />
-                <ModalNewTag
-                    visible={financialStore.modal.newTag.visible}
-                    onCancel={() => closeModal("newTag")}
-                    onFinish={onFinish}
+                <TagDrawer
+                    open={openDrawer}
+                    onClose={handleOnCloseDrawer}
+                    isLoading={isLoadingTagDetails}
+                    tagDetails={tagDetails}
+                    onUpdateTagDetail={onUpdateTagDetail}
                 />
             </Layout>
         </>

@@ -120,12 +120,17 @@ export async function mergeContractService(data: IMergeContractRequest) {
 }
 
 export async function fetchTagsService() {
-    const response = await apiDjango.get("/financial/tag/");
+    const response = await apiDjango.get<{ data: ITags[] }>("/financial/tag/");
     return response.data;
 }
 
 export async function includeNewTagService(tag: { name: string }) {
     const response = await apiDjango.post("/financial/tag/new", tag);
+    return response.data;
+}
+
+export async function fetchDetailTagService(id: number) {
+    const response = await apiDjango.get<{ data: ITags }>(`/financial/tag/${id}/`);
     return response.data;
 }
 
