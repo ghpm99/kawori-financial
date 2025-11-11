@@ -1,6 +1,9 @@
-import { fetchDetailTagService, fetchTagsService } from "@/services/financial";
-import { useQuery } from "@tanstack/react-query";
+import { fetchDetailTagService, fetchTagsService, saveTagService } from "@/services/financial";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { message } from "antd";
 import { createContext, useContext, useState } from "react";
+
+const messageKey = "tag_pagination_message";
 
 type TagsContextValue = {
     data: ITags[];
@@ -19,7 +22,7 @@ export const TagsProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [openDrawer, setOpenDrawer] = useState(false);
     const [detailTagId, setDetailTagId] = useState(undefined);
 
-    const { data, isLoading } = useQuery({
+    const { data, isLoading, refetch } = useQuery({
         queryKey: ["tags"],
         queryFn: async () => {
             const response = await fetchTagsService();
@@ -36,6 +39,20 @@ export const TagsProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
     });
 
+    const { mutate } = useMutation({
+        mutationFn: async (tag: ITag) => {
+            const response = await saveTagService(tag);
+            return response.data;
+        },
+        onSuccess: (data) => {
+            message.success({
+                content: data.msg,
+                key: messageKey,
+            });
+            refetch();
+        },
+    });
+
     const handleOnOpenDrawer = (id?: number) => {
         setDetailTagId(id);
         setOpenDrawer(true);
@@ -46,7 +63,7 @@ export const TagsProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const onUpdateTagDetail = (values: ITag) => {
-        console.log(values);
+        mutate(values);
     };
     return (
         <TagsContext.Provider

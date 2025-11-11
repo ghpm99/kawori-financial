@@ -69,6 +69,9 @@ const TagDrawer = ({ open, onClose, tagDetails, isLoading, onUpdateTagDetail }: 
             <Form form={form} layout="vertical" hideRequiredMark variant="underlined" onFinish={onFinish}>
                 <Row gutter={16}>
                     <Col span={12}>
+                        <Form.Item label="Id" name="id" hidden>
+                            <Input placeholder="Digite o nome" data-testid="tag-name" />
+                        </Form.Item>
                         <Form.Item
                             label="Nome"
                             name="name"

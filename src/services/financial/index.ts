@@ -134,6 +134,11 @@ export async function fetchDetailTagService(id: number) {
     return response.data;
 }
 
+export async function saveTagService(tag: ITag) {
+    const response = await apiDjango.post<{ msg: string }>(`/financial/tag/${tag.id}/save`, tag);
+    return response;
+}
+
 export async function saveInvoiceTagsService(idInvoice: number, tags: number[]) {
     const response = await apiDjango.post(`/financial/invoice/${idInvoice}/tags`, tags);
     return response;

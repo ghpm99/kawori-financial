@@ -106,11 +106,6 @@ function TagPage() {
                     }}
                     columns={[
                         {
-                            title: "Id",
-                            dataIndex: "id",
-                            key: "id",
-                        },
-                        {
                             title: "Nome",
                             dataIndex: "name",
                             key: "name",
