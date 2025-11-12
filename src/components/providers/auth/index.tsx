@@ -1,10 +1,19 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { message } from "antd";
 import { AxiosError, AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
 
-import { ISigninArgs, ISigninResponse, signinService, signoutService, verifyTokenService } from "@/services/auth";
+import {
+    INewUser,
+    ISigninArgs,
+    ISigninResponse,
+    signinService,
+    signoutService,
+    signupService,
+    verifyTokenService,
+} from "@/services/auth";
 
 import { LOCAL_STORE_ITEM_NAME } from "@/components/constants";
 
@@ -13,6 +22,7 @@ type AuthContextType = {
     loading: boolean;
     errorMessage?: string;
     signIn: (args: ISigninArgs) => Promise<void>;
+    signUp: (user: INewUser) => Promise<void>;
     signOut: () => void;
     verify: () => Promise<boolean>;
 };
@@ -26,6 +36,8 @@ const verifyLocalStore = (): boolean => {
     const tokenDate = new Date(raw);
     return dateNow < tokenDate;
 };
+
+const messageKey = "auth_message_key";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const navigate = useRouter();
@@ -57,6 +69,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
     });
 
+    const { mutateAsync: mutateSignupAsync, isPending: isLoadingSignup } = useMutation({
+        mutationKey: ["signup"],
+        mutationFn: signupService,
+        onSuccess: (res) => {
+            message.success({
+                content: res.data.msg,
+                key: messageKey,
+                duration: 3,
+            });
+        },
+        onError: (error: AxiosError) => {
+            const errorMessage = (error?.response?.data as { msg: string })?.msg;
+            if (errorMessage) {
+                message.error({
+                    content: errorMessage,
+                    key: messageKey,
+                    duration: 3,
+                });
+                console.error("Signup failed:", errorMessage);
+            } else {
+                message.error({
+                    content: "Falhou ao cadastrar.",
+                    key: messageKey,
+                    duration: 3,
+                });
+                console.error("Signup failed:", error);
+            }
+        },
+    });
+
     const { data: verifyTokenData, refetch: refetchVerifyToken } = useQuery({
         queryKey: ["verifyToken"],
         queryFn: verifyTokenService,
@@ -70,7 +112,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         onSuccess: () => {
             localStorage.removeItem(LOCAL_STORE_ITEM_NAME);
             setIsAuthenticated(false);
-            navigate.push("/signout");
+            navigate.push("/");
+            queryClient.invalidateQueries({ queryKey: ["user"] });
         },
     });
 
@@ -82,9 +125,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         [mutateAsync],
     );
 
+    const signUp = useCallback(
+        async (user: INewUser) => {
+            await mutateSignupAsync(user);
+            await mutateAsync({
+                username: user.username,
+                password: user.password,
+                remember: true,
+            });
+        },
+        [mutateAsync, mutateSignupAsync],
+    );
+
     const signOut = useCallback(() => {
         signoutMutate();
-    }, [navigate]);
+    }, [signoutMutate]);
 
     const verify = useCallback(async (): Promise<boolean> => {
         if (!verifyLocalStore()) {
@@ -99,7 +154,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             signOut();
             return false;
         }
-    }, [signOut]);
+    }, [refetchVerifyToken, signOut]);
 
     useEffect(() => {
         // verifica ao montar
@@ -129,6 +184,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loading: isLoging,
         errorMessage: errorMessage,
         signIn,
+        signUp,
         signOut,
         verify,
     };

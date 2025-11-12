@@ -1,7 +1,11 @@
 "use client";
+import { title } from "process";
+
 import { useEffect } from "react";
 
 import { PlusOutlined } from "@ant-design/icons";
+import { faEllipsis, faFilePen } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Breadcrumb, Button, Dropdown, Layout, MenuProps, message, Space, Table, Tag, Typography } from "antd";
 import { useSelector } from "react-redux";
 
@@ -10,17 +14,16 @@ import { changeVisibleModalTag, fetchTags } from "@/lib/features/financial/tag";
 import { useAppDispatch } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
 import { includeNewTagService } from "@/services/financial";
+import { formatMoney } from "@/util";
 
 import LoadingPage from "@/components/loadingPage/Index";
+import { useTags } from "@/components/providers/tags";
 import ModalNewTag, { IFormModalNewTag } from "@/components/tags/modalNew";
+import TagDrawer from "@/components/tags/tagDrawer";
 
 import styles from "./tags.module.scss";
-import { title } from "process";
-import { formatMoney } from "@/util";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEllipsis, faFilePen } from "@fortawesome/free-solid-svg-icons";
-import { useTags } from "@/components/providers/tags";
-import TagDrawer from "@/components/tags/tagDrawer";
+
+
 
 const { Title } = Typography;
 

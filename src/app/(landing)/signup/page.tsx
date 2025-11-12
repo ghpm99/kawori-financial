@@ -1,9 +1,17 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { Button, Card, ConfigProvider, Form, Input } from "antd";
 import { createStyles } from "antd-style";
+import { useRouter } from "next/navigation";
+
+import { INewUser } from "@/services/auth";
+
+import { useAuth } from "@/components/providers/auth";
 
 import styles from "./signup.module.scss";
+
 
 const useStyle = createStyles(({ prefixCls, css }) => ({
     linearGradientButton: css`
@@ -32,11 +40,15 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
 const SignupPage = () => {
     const { styles: antdStyle } = useStyle();
     const [form] = Form.useForm();
+    const { signUp, isAuthenticated } = useAuth();
+    const navigate = useRouter();
 
-    const onFinish = (values: any) => {
-        console.log("Cadastro values:", values);
-        // aqui você chamaria sua API de autenticação
-    };
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate.push("/internal/financial/overview");
+        }
+    }, [isAuthenticated, navigate]);
+
     return (
         <ConfigProvider
             button={{
@@ -52,7 +64,7 @@ const SignupPage = () => {
                         form={form}
                         name="login"
                         layout="horizontal"
-                        onFinish={onFinish}
+                        onFinish={signUp}
                         requiredMark={false}
                     >
                         <Form.Item label="Usuario" name="username" rules={[{ required: true }]}>

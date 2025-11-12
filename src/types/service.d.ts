@@ -6,3 +6,5 @@ type updateFacetexturePayload = {
         image: string;
     }[];
 };
+
+type CommonApiResponse = { msg: string };

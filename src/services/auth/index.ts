@@ -36,6 +36,10 @@ const errorInterceptor = async (error: AxiosError) => {
         }
     }
 
+    if (response.status === HttpStatusCode.Forbidden) {
+        window.dispatchEvent(new CustomEvent("tokenRefreshFailed"));
+    }
+
     Sentry.captureException(error);
     return Promise.reject(error);
 };
@@ -87,7 +91,7 @@ export interface INewUser {
 }
 
 export const signupService = (user: INewUser) => {
-    const response = apiAuth.post<{ msg: string }>("signup", user);
+    const response = apiAuth.post<CommonApiResponse>("signup", user);
     return response;
 };
 

@@ -15,7 +15,13 @@ export const apiDjango = axios.create({
 let tried = 0;
 const retryMaxCount = 3;
 const retryDelay = 1500;
-const statusCodeRetry = [401, 408, 504, 500];
+const statusCodeRetry = [
+    HttpStatusCode.Unauthorized,
+    HttpStatusCode.RequestTimeout,
+    HttpStatusCode.GatewayTimeout,
+    HttpStatusCode.InternalServerError,
+    HttpStatusCode.ServiceUnavailable,
+];
 
 const sleepRequest = (milliseconds: number, originalRequest: any) => {
     return new Promise((resolve, reject) => {
@@ -42,6 +48,9 @@ export const errorInterceptor = async (error: AxiosError) => {
         tried++;
         return sleepRequest(retryDelay, originalRequest);
     } else {
+        if (response.status === HttpStatusCode.Forbidden) {
+            window.dispatchEvent(new CustomEvent("tokenRefreshFailed"));
+        }
         Sentry.captureException(error);
         return Promise.reject(error);
     }

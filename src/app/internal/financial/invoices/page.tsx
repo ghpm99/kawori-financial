@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 
 import { ClearOutlined, SearchOutlined, ToTopOutlined } from "@ant-design/icons";
+import { faEllipsis, faFilePen } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Breadcrumb, Button, Dropdown, Input, Layout, MenuProps, Space, Table, Tag, Typography } from "antd";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -10,6 +12,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { formatMoney, formatterDate, updateSearchParams } from "@/util/index";
 
 import FilterDropdown from "@/components/common/filterDropdown/Index";
+import InvoiceDrawer from "@/components/invoices/invoiceDrawer";
 import { Payments } from "@/components/invoices/paymentsTable";
 import LoadingPage from "@/components/loadingPage/Index";
 import ModalPayoff from "@/components/payments/modalPayoff";
@@ -19,9 +22,7 @@ import { usePayments } from "@/components/providers/payments";
 import { PayoffPayment, usePayoff } from "@/components/providers/payments/payoff";
 
 import styles from "./Invoices.module.scss";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEllipsis, faFilePen } from "@fortawesome/free-solid-svg-icons";
-import InvoiceDrawer from "@/components/invoices/invoiceDrawer";
+
 
 const { Title } = Typography;
 
