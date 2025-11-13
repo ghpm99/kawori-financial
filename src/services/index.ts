@@ -48,7 +48,7 @@ export const errorInterceptor = async (error: AxiosError) => {
         tried++;
         return sleepRequest(retryDelay, originalRequest);
     } else {
-        if (response.status === HttpStatusCode.Forbidden) {
+        if (typeof window !== "undefined" && response.status === HttpStatusCode.Forbidden) {
             window.dispatchEvent(new CustomEvent("tokenRefreshFailed"));
         }
         Sentry.captureException(error);

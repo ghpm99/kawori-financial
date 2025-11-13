@@ -1,3 +1,4 @@
+"use client";
 import * as Sentry from "@sentry/nextjs";
 import axios, { AxiosError, AxiosResponse, HttpStatusCode } from "axios";
 
@@ -36,7 +37,7 @@ const errorInterceptor = async (error: AxiosError) => {
         }
     }
 
-    if (response.status === HttpStatusCode.Forbidden) {
+    if (typeof window !== "undefined" && response.status === HttpStatusCode.Forbidden) {
         window.dispatchEvent(new CustomEvent("tokenRefreshFailed"));
     }
 
@@ -46,7 +47,9 @@ const errorInterceptor = async (error: AxiosError) => {
 
 apiAuth.interceptors.response.use(responseInterceptor, errorInterceptor);
 
-apiAuth.get("/csrf/");
+if (typeof window !== "undefined") {
+    apiAuth.get("/csrf/");
+}
 
 export const refreshTokenAsync = async () => {
     if (isRefreshingToken) {
@@ -64,7 +67,7 @@ export const refreshTokenAsync = async () => {
                 resolve(refreshResponse.data);
             }
         } catch (error) {
-            if (error?.status === HttpStatusCode.Forbidden) {
+            if (typeof window !== "undefined" && error?.status === HttpStatusCode.Forbidden) {
                 window.dispatchEvent(new CustomEvent("tokenRefreshFailed"));
             }
             reject(error);

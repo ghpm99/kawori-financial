@@ -52,6 +52,14 @@ const menuItems: MenuItem[] = [
         userGroup: "financial",
     },
     {
+        key: "budget",
+        label: "Orçamento",
+        path: "/internal/financial/budget",
+        icon: <SnippetsOutlined />,
+        securePath: true,
+        userGroup: "financial",
+    },
+    {
         key: "invoices",
         label: "Notas",
         path: "/internal/financial/invoices",
@@ -136,9 +144,6 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                     icon: menuItem.icon,
                 }) as MenuItemAntd,
         );
-
-    console.log("groups", groups);
-    console.log("menuItemsAntd", menuItemsAntd);
 
     return (
         <LayoutContext.Provider

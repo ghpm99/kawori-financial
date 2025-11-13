@@ -10,11 +10,6 @@ import { useAuth } from "@/components/providers/auth";
 
 import styles from "./signin.module.scss";
 
-interface SigninFormValues {
-    username: string;
-    password: string;
-    remember: boolean;
-}
 const SigninPage = () => {
     const [form] = Form.useForm();
     const { signIn, isAuthenticated, loading, errorMessage } = useAuth();

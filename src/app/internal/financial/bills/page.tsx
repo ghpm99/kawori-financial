@@ -308,7 +308,7 @@ function BillsPage({ searchParams }) {
     return (
         <>
             <Breadcrumb className={styles.breadcrumb}>
-                <Breadcrumb.Item>Kawori</Breadcrumb.Item>
+                <Breadcrumb.Item href="/">Kawori</Breadcrumb.Item>
                 <Breadcrumb.Item>Financeiro</Breadcrumb.Item>
                 <Breadcrumb.Item>Pagamentos</Breadcrumb.Item>
             </Breadcrumb>
