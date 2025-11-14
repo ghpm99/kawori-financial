@@ -12,6 +12,7 @@ interface ITags {
     total_value: number;
     total_open: number;
     total_closed: number;
+    is_budget: boolean;
 }
 
 interface IModalTags {

@@ -23,8 +23,6 @@ import TagDrawer from "@/components/tags/tagDrawer";
 
 import styles from "./tags.module.scss";
 
-
-
 const { Title } = Typography;
 
 function TagPage() {
@@ -63,7 +61,7 @@ function TagPage() {
         });
     };
 
-    const createDropdownMenu = (record: PaymentItem): MenuProps => {
+    const createDropdownMenu = (record: ITags): MenuProps => {
         const items: MenuProps["items"] = [
             {
                 key: "1",
@@ -78,6 +76,7 @@ function TagPage() {
                 icon: <FontAwesomeIcon icon={faFilePen} />,
                 label: "Editar",
                 onClick: () => handleOnOpenDrawer(record.id),
+                disabled: record.is_budget,
             },
         ];
 
@@ -112,7 +111,12 @@ function TagPage() {
                             title: "Nome",
                             dataIndex: "name",
                             key: "name",
-                            render: (_: any, tag: ITags) => <Tag color={tag.color}>{tag.name}</Tag>,
+                            render: (_: any, tag: ITags) => (
+                                <Tag color={tag.color}>
+                                    {tag.is_budget ? "# " : ""}
+                                    {tag.name}
+                                </Tag>
+                            ),
                         },
                         {
                             title: "Quantidade de pagamentos",
