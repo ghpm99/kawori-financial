@@ -1,13 +1,16 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
-import { AlertProps } from "antd";
+import { AlertProps, message } from "antd";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { fetchAllBudgetService, saveBudgetService } from "@/services/financial";
+import { AxiosError } from "axios";
 
+const messageKey = "budget_message";
 export interface IBudget {
     id: number;
     name: string;
-    amount: number; // valor em float (ex: 350.5)
-    color?: string;
-    active?: boolean;
+    allocation_percentage: number;
+    color: string;
 }
 
 type FeedbackMessageType = { msg: string; type: AlertProps["type"] };
@@ -15,7 +18,7 @@ type FeedbackMessageType = { msg: string; type: AlertProps["type"] };
 type BudgetContextValue = {
     budgets: IBudget[];
     selectedBudget?: IBudget;
-    loading: boolean;
+    isLoading: boolean;
     totalAmount: number;
     setBudgets: (items: IBudget[]) => void;
     addBudget: (b: IBudget) => void;
@@ -23,25 +26,56 @@ type BudgetContextValue = {
     removeBudget: (id: number) => void;
     selectBudget: (id?: number) => void;
     clearSelection: () => void;
-    updateBudgetAmount: (id: number, amount: number) => void;
+    updateBudgetAllocationPercentage: (id: number, allocation_percentage: number) => void;
     feedbackMessage: FeedbackMessageType;
     enabledSave: boolean;
+    saveBudgets: () => void;
 };
 
 const BudgetContext = createContext<BudgetContextValue | undefined>(undefined);
 
-export const BudgetProvider: React.FC<{ children: React.ReactNode; initial?: IBudget[] }> = ({
-    children,
-    initial = [],
-}) => {
-    const [budgets, setBudgetsState] = useState<IBudget[]>(initial);
+export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [budgets, setBudgetsState] = useState<IBudget[]>([]);
     const [selectedId, setSelectedId] = useState<number | undefined>(undefined);
-    const [loading, setLoading] = useState(false);
+
     const [enabledSave, setEnabledSave] = useState(false);
     const [feedbackMessage, setfeedbackMessage] = useState<FeedbackMessageType>({
         msg: "",
         type: "info",
     });
+
+    const { data, isLoading } = useQuery({
+        queryKey: ["budgets"],
+        queryFn: async () => {
+            const response = await fetchAllBudgetService();
+            return response.data;
+        },
+    });
+
+    const { mutate: saveBudgetsMutate } = useMutation({
+        mutationFn: async (data: IBudget[]) => {
+            const response = await saveBudgetService(data);
+            return response.msg;
+        },
+        onSuccess: (msg) => {
+            message.success({
+                content: msg,
+                key: messageKey,
+            });
+        },
+        onError: (error: AxiosError) => {
+            message.error({
+                content: error.response?.data?.msg || "Erro ao salvar orçamentos.",
+                key: messageKey,
+            });
+        },
+    });
+
+    useEffect(() => {
+        if (data) {
+            setBudgetsState(data);
+        }
+    }, [data]);
 
     const setBudgets = useCallback((items: IBudget[]) => {
         setBudgetsState(items);
@@ -71,15 +105,17 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode; initial?: IBu
 
     const selectedBudget = useMemo(() => budgets.find((b) => b.id === selectedId), [budgets, selectedId]);
 
-    const totalAmount = useMemo(() => budgets.reduce((s, b) => s + (Number(b.amount) || 0), 0), [budgets]);
+    const totalAmount = useMemo(
+        () => budgets.reduce((s, b) => s + (Number(b.allocation_percentage) || 0), 0),
+        [budgets],
+    );
 
-    const updateBudgetAmount = useCallback((id: number, amount: number) => {
-        setBudgetsState((prev) => prev.map((b) => (b.id === id ? { ...b, amount } : b)));
+    const updateBudgetAllocationPercentage = useCallback((id: number, allocation_percentage: number) => {
+        setBudgetsState((prev) => prev.map((b) => (b.id === id ? { ...b, allocation_percentage } : b)));
     }, []);
 
     useEffect(() => {
         setEnabledSave(false);
-        const totalAmount = budgets.reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
         if (totalAmount > 100) {
             setfeedbackMessage({ msg: "A soma dos orçamentos não pode exceder 100%.", type: "error" });
         } else if (totalAmount < 100) {
@@ -88,13 +124,17 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode; initial?: IBu
             setfeedbackMessage({ msg: "Utilize o botao salvar para atualizar as metas", type: "info" });
             setEnabledSave(true);
         }
-    }, [budgets]);
+    }, [totalAmount]);
+
+    const saveBudgets = useCallback(() => {
+        saveBudgetsMutate(budgets);
+    }, [budgets, saveBudgetsMutate]);
 
     const value: BudgetContextValue = useMemo(
         () => ({
             budgets,
             selectedBudget,
-            loading,
+            isLoading,
             totalAmount,
             setBudgets,
             addBudget,
@@ -102,14 +142,15 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode; initial?: IBu
             removeBudget,
             selectBudget,
             clearSelection,
-            updateBudgetAmount,
+            updateBudgetAllocationPercentage,
             feedbackMessage,
             enabledSave,
+            saveBudgets,
         }),
         [
             budgets,
             selectedBudget,
-            loading,
+            isLoading,
             totalAmount,
             setBudgets,
             addBudget,
@@ -117,9 +158,10 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode; initial?: IBu
             removeBudget,
             selectBudget,
             clearSelection,
-            updateBudgetAmount,
+            updateBudgetAllocationPercentage,
             feedbackMessage,
             enabledSave,
+            saveBudgets,
         ],
     );
 

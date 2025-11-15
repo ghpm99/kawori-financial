@@ -4,26 +4,31 @@ import { IBudget } from "@/components/providers/budget";
 
 const formatter: NonNullable<SliderSingleProps["tooltip"]>["formatter"] = (value) => `${value}%`;
 
-const BudgetItem = ({ item, handleChangeAmount }: { item: IBudget; handleChangeAmount: (amount: number) => void }) => {
-    console.log(item);
+const BudgetItem = ({
+    item,
+    handleChangeAllocationPercentage,
+}: {
+    item: IBudget;
+    handleChangeAllocationPercentage: (allocationPercentage: number) => void;
+}) => {
     return (
         <div>
             <div>
                 <div>{item.name}</div>
                 <InputNumber<number>
-                    value={item.amount}
+                    value={item.allocation_percentage}
                     formatter={(value) => `${value}%`}
                     parser={(value) => value?.replace("%", "") as unknown as number}
-                    onChange={handleChangeAmount}
+                    onChange={handleChangeAllocationPercentage}
                     variant="borderless"
                 />
             </div>
             <Slider
                 min={0}
                 max={100}
-                value={typeof item.amount === "number" ? item.amount : 0}
+                value={typeof item.allocation_percentage === "number" ? item.allocation_percentage : 0}
                 tooltip={{ formatter }}
-                onChange={handleChangeAmount}
+                onChange={handleChangeAllocationPercentage}
                 styles={{
                     track: {
                         background: item.color,

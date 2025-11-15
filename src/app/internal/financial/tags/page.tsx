@@ -88,7 +88,7 @@ function TagPage() {
             <Breadcrumb className={styles.breadcrumb}>
                 <Breadcrumb.Item>Kawori</Breadcrumb.Item>
                 <Breadcrumb.Item>Financeiro</Breadcrumb.Item>
-                <Breadcrumb.Item>Em aberto</Breadcrumb.Item>
+                <Breadcrumb.Item>Etiquetas</Breadcrumb.Item>
             </Breadcrumb>
             <Layout>
                 <div className={styles.header_command}>
@@ -111,7 +111,7 @@ function TagPage() {
                             title: "Nome",
                             dataIndex: "name",
                             key: "name",
-                            render: (_: any, tag: ITags) => (
+                            render: (_: string, tag: ITags) => (
                                 <Tag color={tag.color}>
                                     {tag.is_budget ? "# " : ""}
                                     {tag.name}
@@ -127,25 +127,25 @@ function TagPage() {
                             title: "Total de valor",
                             dataIndex: "total_value",
                             key: "total_value",
-                            render: (value: any) => formatMoney(value),
+                            render: (value: number) => formatMoney(value),
                         },
                         {
                             title: "Total em aberto",
                             dataIndex: "total_open",
                             key: "total_open",
-                            render: (value: any) => formatMoney(value),
+                            render: (value: number) => formatMoney(value),
                         },
                         {
                             title: "Total baixado",
                             dataIndex: "total_closed",
                             key: "total_closed",
-                            render: (value: any) => formatMoney(value),
+                            render: (value: number) => formatMoney(value),
                         },
                         {
                             title: "Ações",
                             dataIndex: "id",
                             key: "id",
-                            render: (value: any, record: any) => (
+                            render: (value: number, record: ITags) => (
                                 <Dropdown menu={createDropdownMenu(record)}>
                                     <a onClick={(e) => e.preventDefault()}>
                                         <Space>

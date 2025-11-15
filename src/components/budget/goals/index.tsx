@@ -4,9 +4,11 @@ import { useBudget } from "@/components/providers/budget";
 
 import AddBudgetGoal from "./addBudget";
 import BudgetItem from "./budgetItem";
+import styles from "./goals.module.scss";
 
 const Goals = () => {
-    const { budgets, updateBudgetAmount, feedbackMessage, enabledSave } = useBudget();
+    const { budgets, updateBudgetAllocationPercentage, feedbackMessage, enabledSave, totalAmount, saveBudgets } =
+        useBudget();
     return (
         <Card title="Metas">
             {feedbackMessage.msg && <Alert message={feedbackMessage.msg} type={feedbackMessage.type} showIcon />}
@@ -14,11 +16,17 @@ const Goals = () => {
                 <BudgetItem
                     key={budget.id}
                     item={budget}
-                    handleChangeAmount={(amount) => updateBudgetAmount(budget.id, amount)}
+                    handleChangeAllocationPercentage={(allocationPercentage) =>
+                        updateBudgetAllocationPercentage(budget.id, allocationPercentage)
+                    }
                 />
             ))}
-            <AddBudgetGoal />
-            <Button disabled={!enabledSave}>Salvar</Button>
+            <div className={styles["footer"]}>
+                Total do orçamento: {totalAmount}%
+                <Button type="primary" disabled={!enabledSave} onClick={saveBudgets}>
+                    Salvar
+                </Button>
+            </div>
         </Card>
     );
 };

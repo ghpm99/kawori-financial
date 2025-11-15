@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 import { apiDjango } from "..";
+import { IBudget } from "@/components/providers/budget";
 
 export async function fetchAllPaymentService(filters: IPaymentFilters) {
     const response = await apiDjango.get<PaymentsApiResponse>("/financial/payment/", {
@@ -147,4 +148,14 @@ export async function saveInvoiceTagsService(idInvoice: number, tags: number[]) 
 export async function updateAllContractsValue() {
     const response = await apiDjango.post("/financial/contract/update_all_contracts_value");
     return response;
+}
+
+export async function fetchAllBudgetService() {
+    const response = await apiDjango.get<{ data: IBudget[] }>("/financial/budget/");
+    return response.data;
+}
+
+export async function saveBudgetService(budgetList: IBudget[]) {
+    const response = await apiDjango.post<CommonApiResponse>("/financial/budget/save", { data: budgetList });
+    return response.data;
 }
