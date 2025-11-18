@@ -1,15 +1,19 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
-import { AlertProps, message } from "antd";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { fetchAllBudgetService, saveBudgetService } from "@/services/financial";
+import { AlertProps, message } from "antd";
 import { AxiosError } from "axios";
+import { Dayjs } from "dayjs";
 
+import { fetchAllBudgetService, resetBudgetService, saveBudgetService } from "@/services/financial";
 const messageKey = "budget_message";
 export interface IBudget {
     id: number;
     name: string;
     allocation_percentage: number;
+    estimated_expense: number;
+    actual_expense: number;
+    difference: number;
     color: string;
 }
 
@@ -17,6 +21,7 @@ type FeedbackMessageType = { msg: string; type: AlertProps["type"] };
 
 type BudgetContextValue = {
     budgets: IBudget[];
+    data: IBudget[];
     selectedBudget?: IBudget;
     isLoading: boolean;
     totalAmount: number;
@@ -30,6 +35,9 @@ type BudgetContextValue = {
     feedbackMessage: FeedbackMessageType;
     enabledSave: boolean;
     saveBudgets: () => void;
+    changePeriodFilter: (date: Dayjs, dateString: string | string[]) => void;
+    periodFilter: string;
+    resetBudgets: () => void;
 };
 
 const BudgetContext = createContext<BudgetContextValue | undefined>(undefined);
@@ -37,6 +45,9 @@ const BudgetContext = createContext<BudgetContextValue | undefined>(undefined);
 export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [budgets, setBudgetsState] = useState<IBudget[]>([]);
     const [selectedId, setSelectedId] = useState<number | undefined>(undefined);
+    const [periodFilter, setPeriodFilter] = useState<string>(
+        new Date().toLocaleDateString("pt-BR", { month: "2-digit", year: "numeric" }),
+    );
 
     const [enabledSave, setEnabledSave] = useState(false);
     const [feedbackMessage, setfeedbackMessage] = useState<FeedbackMessageType>({
@@ -44,10 +55,10 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         type: "info",
     });
 
-    const { data, isLoading } = useQuery({
-        queryKey: ["budgets"],
+    const { data, isLoading, refetch } = useQuery({
+        queryKey: ["budgets", periodFilter],
         queryFn: async () => {
-            const response = await fetchAllBudgetService();
+            const response = await fetchAllBudgetService(periodFilter);
             return response.data;
         },
     });
@@ -58,6 +69,7 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             return response.msg;
         },
         onSuccess: (msg) => {
+            refetch();
             message.success({
                 content: msg,
                 key: messageKey,
@@ -71,11 +83,36 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         },
     });
 
+    const { mutate: resetBudgetsMutate } = useMutation({
+        mutationFn: async (period: string) => {
+            const response = await resetBudgetService();
+            return response.msg;
+        },
+        onSuccess: (msg) => {
+            refetch();
+            message.success({
+                content: msg,
+                key: messageKey,
+            });
+        },
+        onError: (error: AxiosError) => {
+            message.error({
+                content: error.response?.data?.msg || "Erro ao resetar orçamentos.",
+                key: messageKey,
+            });
+        },
+    });
+
     useEffect(() => {
         if (data) {
             setBudgetsState(data);
         }
     }, [data]);
+
+    const changePeriodFilter = (date: Dayjs, dateString: string) => {
+        console.log("Changing period filter to:", date, dateString);
+        setPeriodFilter(dateString);
+    };
 
     const setBudgets = useCallback((items: IBudget[]) => {
         setBudgetsState(items);
@@ -130,9 +167,14 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         saveBudgetsMutate(budgets);
     }, [budgets, saveBudgetsMutate]);
 
+    const resetBudgets = useCallback(() => {
+        resetBudgetsMutate(periodFilter);
+    }, [periodFilter, resetBudgetsMutate]);
+
     const value: BudgetContextValue = useMemo(
         () => ({
             budgets,
+            data,
             selectedBudget,
             isLoading,
             totalAmount,
@@ -146,9 +188,13 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             feedbackMessage,
             enabledSave,
             saveBudgets,
+            changePeriodFilter,
+            periodFilter,
+            resetBudgets,
         }),
         [
             budgets,
+            data,
             selectedBudget,
             isLoading,
             totalAmount,
@@ -162,6 +208,9 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             feedbackMessage,
             enabledSave,
             saveBudgets,
+            changePeriodFilter,
+            periodFilter,
+            resetBudgets,
         ],
     );
 

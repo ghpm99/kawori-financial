@@ -7,8 +7,15 @@ import BudgetItem from "./budgetItem";
 import styles from "./goals.module.scss";
 
 const Goals = () => {
-    const { budgets, updateBudgetAllocationPercentage, feedbackMessage, enabledSave, totalAmount, saveBudgets } =
-        useBudget();
+    const {
+        budgets,
+        updateBudgetAllocationPercentage,
+        feedbackMessage,
+        enabledSave,
+        totalAmount,
+        saveBudgets,
+        resetBudgets,
+    } = useBudget();
     return (
         <Card title="Metas">
             {feedbackMessage.msg && <Alert message={feedbackMessage.msg} type={feedbackMessage.type} showIcon />}
@@ -23,9 +30,14 @@ const Goals = () => {
             ))}
             <div className={styles["footer"]}>
                 Total do orçamento: {totalAmount}%
-                <Button type="primary" disabled={!enabledSave} onClick={saveBudgets}>
-                    Salvar
-                </Button>
+                <div>
+                    <Button danger onClick={resetBudgets}>
+                        Resetar
+                    </Button>
+                    <Button type="primary" disabled={!enabledSave} onClick={saveBudgets}>
+                        Salvar
+                    </Button>
+                </div>
             </div>
         </Card>
     );
