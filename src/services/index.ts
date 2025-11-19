@@ -23,7 +23,7 @@ const statusCodeRetry = [
     HttpStatusCode.ServiceUnavailable,
 ];
 
-const sleepRequest = (milliseconds: number, originalRequest: any) => {
+const sleepRequest = (milliseconds: number, originalRequest) => {
     return new Promise((resolve, reject) => {
         setTimeout(() => resolve(apiDjango(originalRequest)), milliseconds);
     });

@@ -1,20 +1,14 @@
 "use client";
-import { Breadcrumb, DatePicker, Layout, Select, Table, Typography } from "antd";
-import dayjs from "dayjs";
-
-import { formatMoney } from "@/util";
+import { Breadcrumb, Layout, Typography } from "antd";
 
 import Goals from "@/components/budget/goals";
-import { useBudget } from "@/components/providers/budget";
+import Report from "@/components/budget/report";
 
 import styles from "./budget.module.scss";
 
-const { Title } = Typography;
-const { Option } = Select;
+const { Title, Text } = Typography;
 
 const BudgetPage = () => {
-    const { changePeriodFilter, isLoading, data, periodFilter } = useBudget();
-
     return (
         <>
             <Breadcrumb className={styles.breadcrumb}>
@@ -27,83 +21,16 @@ const BudgetPage = () => {
                     <Title level={3} className={styles.title}>
                         Orçamento doméstico
                     </Title>
+                    <Text className={styles["sub-title"]}>
+                        Controle seu orçamento doméstico com base em suas próprias metas e rendimentos.
+                    </Text>
                 </div>
-                <div className={styles.title}>
-                    Controle seu orçamento doméstico com base em suas próprias metas e rendimentos.
+                <div className={styles.title}></div>
+
+                <div className={styles["container"]}>
+                    <Report />
+                    <Goals />
                 </div>
-                <div>
-                    Visualizar gastos de:
-                    <span>
-                        <DatePicker
-                            format="MM/YYYY"
-                            picker="month"
-                            disabled={isLoading}
-                            onChange={changePeriodFilter}
-                            defaultValue={periodFilter ? dayjs(periodFilter, "MM/YYYY") : null}
-                        />
-                        {/* <Select
-                            defaultValue={"yesterday"}
-                            disabled={isLoading}
-                            // style={{ padding: "0", width: "100%" }}
-                            onChange={changePeriodFilter}
-                        >
-                            <Option className={`${styles["select-option"]} `} value={"current_day"}>
-                                {"hoje"}
-                            </Option>
-                            <Option className={`${styles["select-option"]} `} value={"yesterday"}>
-                                {"ontem"}
-                            </Option>
-                            <Option className={`${styles["select-option"]} `} value={"weekly"}>
-                                {"últimos 7 dias"}
-                            </Option>
-                            <Option className={`${styles["select-option"]} `} value={"current"}>
-                                {"mês atual"}
-                            </Option>
-                            <Option className={`${styles["select-option"]} `} value={"last_month"}>
-                                {"mês passado"}
-                            </Option>
-                            <Option className={`${styles["select-option"]} `} value={"30"}>
-                                {"últimos 30 dias"}
-                            </Option>
-                            <Option className={`${styles["select-option"]} `} value={"60"}>
-                                {"últimos 60 dias"}
-                            </Option>
-                        </Select> */}
-                    </span>
-                </div>
-                <Table
-                    pagination={false}
-                    columns={[
-                        { title: "Orçamento", dataIndex: "name", key: "name" },
-                        {
-                            title: "Estimativa de Gastos",
-                            dataIndex: "estimated_expense",
-                            key: "estimated_expense",
-                            render: (value: any) => formatMoney(value),
-                        },
-                        {
-                            title: "Gastos Reais",
-                            dataIndex: "actual_expense",
-                            key: "actual_expense",
-                            render: (value: any) => formatMoney(value),
-                        },
-                        {
-                            title: "Diferença",
-                            dataIndex: "difference",
-                            key: "difference",
-                            render(_, record) {
-                                const difference = record.estimated_expense - record.actual_expense;
-                                return (
-                                    <span style={{ color: difference < 0 ? "red" : "green" }}>
-                                        {formatMoney(difference)}
-                                    </span>
-                                );
-                            },
-                        },
-                    ]}
-                    dataSource={data}
-                />
-                <Goals />
             </Layout>
         </>
     );

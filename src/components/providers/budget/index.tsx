@@ -109,10 +109,9 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         }
     }, [data]);
 
-    const changePeriodFilter = (date: Dayjs, dateString: string) => {
-        console.log("Changing period filter to:", date, dateString);
+    const changePeriodFilter = useCallback((date: Dayjs, dateString: string) => {
         setPeriodFilter(dateString);
-    };
+    }, []);
 
     const setBudgets = useCallback((items: IBudget[]) => {
         setBudgetsState(items);

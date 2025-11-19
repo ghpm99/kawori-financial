@@ -1,10 +1,12 @@
-import { Alert, Button, Card } from "antd";
+import { Alert, Button, Card, Typography } from "antd";
 
 import { useBudget } from "@/components/providers/budget";
 
 import AddBudgetGoal from "./addBudget";
 import BudgetItem from "./budgetItem";
 import styles from "./goals.module.scss";
+
+const { Title } = Typography;
 
 const Goals = () => {
     const {
@@ -17,29 +19,44 @@ const Goals = () => {
         resetBudgets,
     } = useBudget();
     return (
-        <Card title="Metas">
-            {feedbackMessage.msg && <Alert message={feedbackMessage.msg} type={feedbackMessage.type} showIcon />}
-            {budgets.map((budget) => (
-                <BudgetItem
-                    key={budget.id}
-                    item={budget}
-                    handleChangeAllocationPercentage={(allocationPercentage) =>
-                        updateBudgetAllocationPercentage(budget.id, allocationPercentage)
-                    }
-                />
-            ))}
-            <div className={styles["footer"]}>
-                Total do orçamento: {totalAmount}%
-                <div>
-                    <Button danger onClick={resetBudgets}>
-                        Resetar
-                    </Button>
-                    <Button type="primary" disabled={!enabledSave} onClick={saveBudgets}>
-                        Salvar
-                    </Button>
+        <div className={styles["container"]}>
+            <Card
+                title={
+                    <Title level={4} style={{ margin: "0" }}>
+                        Editar Metas
+                    </Title>
+                }
+            >
+                {feedbackMessage.msg && (
+                    <Alert
+                        className={styles["alert"]}
+                        message={feedbackMessage.msg}
+                        type={feedbackMessage.type}
+                        showIcon
+                    />
+                )}
+                {budgets.map((budget) => (
+                    <BudgetItem
+                        key={budget.id}
+                        item={budget}
+                        handleChangeAllocationPercentage={(allocationPercentage) =>
+                            updateBudgetAllocationPercentage(budget.id, allocationPercentage)
+                        }
+                    />
+                ))}
+                <div className={styles["footer"]}>
+                    <div>Total do orçamento: {totalAmount}%</div>
+                    <div className={styles["button-group"]}>
+                        <Button danger onClick={resetBudgets}>
+                            Redefinir
+                        </Button>
+                        <Button type="primary" disabled={!enabledSave} onClick={saveBudgets}>
+                            Salvar
+                        </Button>
+                    </div>
                 </div>
-            </div>
-        </Card>
+            </Card>
+        </div>
     );
 };
 

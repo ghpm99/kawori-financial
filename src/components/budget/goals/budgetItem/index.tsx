@@ -2,6 +2,8 @@ import { InputNumber, Slider, SliderSingleProps } from "antd";
 
 import { IBudget } from "@/components/providers/budget";
 
+import styles from "./budgetItem.module.scss";
+
 const formatter: NonNullable<SliderSingleProps["tooltip"]>["formatter"] = (value) => `${value}%`;
 
 const BudgetItem = ({
@@ -13,7 +15,7 @@ const BudgetItem = ({
 }) => {
     return (
         <div>
-            <div>
+            <div className={styles["item"]}>
                 <div>{item.name}</div>
                 <InputNumber<number>
                     value={item.allocation_percentage}
