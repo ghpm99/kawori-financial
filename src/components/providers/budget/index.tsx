@@ -77,7 +77,7 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         },
         onError: (error: AxiosError) => {
             message.error({
-                content: error.response?.data?.msg || "Erro ao salvar orçamentos.",
+                content: (error.response?.data as CommonApiResponse)?.msg || "Erro ao salvar orçamentos.",
                 key: messageKey,
             });
         },
@@ -97,7 +97,7 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         },
         onError: (error: AxiosError) => {
             message.error({
-                content: error.response?.data?.msg || "Erro ao resetar orçamentos.",
+                content: (error.response?.data as CommonApiResponse)?.msg || "Erro ao resetar orçamentos.",
                 key: messageKey,
             });
         },

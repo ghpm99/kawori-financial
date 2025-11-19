@@ -15,7 +15,7 @@ const initialState: IInvoiceStore = {
     filters: {
         page: 1,
         page_size: 20,
-        status: 0,
+        status: "",
     },
     pagination: {
         currentPage: 1,

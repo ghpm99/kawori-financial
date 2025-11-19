@@ -128,13 +128,6 @@ export default function InvoiceDetails({ params }: { params: { id: number } }) {
                         <div className={styles.label}>ID: {financialStore.data?.id}</div>
                     </div>
                     <div className={styles["label-detail"]}>
-                        <Link href={`/internal/financial/contracts/details/${financialStore.data?.contract}`}>
-                            <div className={styles.label} style={{ cursor: "pointer" }}>
-                                Contrato: {`${financialStore.data?.contract} - ${financialStore.data?.contract_name}`}
-                            </div>
-                        </Link>
-                    </div>
-                    <div className={styles["label-detail"]}>
                         <div className={styles.label}>Nome:</div>
                         <Paragraph style={{ margin: "0" }} editable={{ onChange: changeName }}>
                             {financialStore.data?.name}

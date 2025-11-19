@@ -12,8 +12,7 @@ const initialState: IInvoiceDetailStore = {
         value_open: 0,
         value_closed: 0,
         date: "",
-        contract: 0,
-        contract_name: "",
+        next_payment: "",
         tags: [],
     },
     payments: {
