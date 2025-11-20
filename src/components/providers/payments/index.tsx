@@ -22,8 +22,6 @@ type PaymentsContextValue = {
     paymentFilters: IPaymentFilters;
     paymentsData: PaymentsPage;
     isLoading: boolean;
-    selectedRow: SelectedRowType[];
-    updateSelectedRows: (keys: SelectedRowType[]) => void;
     cleanFilter: () => void;
     handleChangeFilter: (e: React.ChangeEvent<HTMLInputElement>) => void;
     handleDateRangedFilter: (name: string, dates: string[]) => void;
@@ -108,7 +106,6 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         };
     };
 
-    const [selectedRow, setSelectedRow] = useState<SelectedRowType[]>([]);
     const [localFilters, dispatchFilters] = useReducer(paymentFiltersReducer, undefined, initFilters);
     const [paymentDetailVisible, setPaymentDetailVisible] = useState<boolean>(false);
     const [paymentDetailId, setPaymentDetailId] = useState<number>(undefined);
@@ -177,19 +174,6 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             });
         },
     });
-
-    const updateSelectedRows = (newSelectedRows: SelectedRowType[]): void => {
-        const currentIds = new Set(selectedRow.map((row) => row.id));
-
-        const updatedRows = selectedRow.map((currentRow) => {
-            const matchingNewRow = newSelectedRows.find((newRow) => newRow.id === currentRow.id);
-            return matchingNewRow ? { ...currentRow, ...matchingNewRow } : currentRow;
-        });
-
-        const addedRows = newSelectedRows.filter((newRow) => !currentIds.has(newRow.id));
-
-        setSelectedRow([...updatedRows, ...addedRows]);
-    };
 
     const cleanFilter = useCallback(() => {
         dispatchFilters({ type: "RESET" });
@@ -269,8 +253,6 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         <PaymentsContext.Provider
             value={{
                 paymentFilters: localFilters,
-                selectedRow,
-                updateSelectedRows,
                 isLoading: isLoading,
                 cleanFilter,
                 handleChangeFilter,

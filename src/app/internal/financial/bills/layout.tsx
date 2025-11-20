@@ -1,13 +1,16 @@
 "use client";
 import { EarningsProvider } from "@/components/providers/earnings";
 import { PaymentsProvider } from "@/components/providers/payments";
-import { PayoffProvider } from "@/components/providers/payments/payoff";
+import { PayoffProvider } from "@/components/providers/payoff";
+import { SelectPaymentsProvider } from "@/components/providers/selectPayments";
 
 const BillslLayout = ({ children }: { children: React.ReactNode }) => {
     return (
-        <PaymentsProvider>
-            <PayoffProvider>{children}</PayoffProvider>
-        </PaymentsProvider>
+        <SelectPaymentsProvider>
+            <PaymentsProvider>
+                <PayoffProvider>{children}</PayoffProvider>
+            </PaymentsProvider>
+        </SelectPaymentsProvider>
     );
 };
 

@@ -1,25 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import { ClearOutlined, FileAddOutlined, SearchOutlined, ToTopOutlined } from "@ant-design/icons";
 import { faEllipsis, faFilePen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Breadcrumb, Button, Dropdown, Input, Layout, MenuProps, Space, Table, Tag, Typography } from "antd";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 import { formatMoney, formatterDate, updateSearchParams } from "@/util/index";
 
 import FilterDropdown from "@/components/common/filterDropdown/Index";
 import InvoiceDrawer from "@/components/invoices/invoiceDrawer";
-import { Payments } from "@/components/invoices/payments";
+import { InvoicePayments } from "@/components/invoices/payments";
 import LoadingPage from "@/components/loadingPage/Index";
 import ModalPayoff from "@/components/payments/modalPayoff";
-import PaymentsDrawer from "@/components/payments/paymentsDrawer";
 import { useInvoices } from "@/components/providers/invoices";
-import { usePayments } from "@/components/providers/payments";
-import { PayoffPayment, usePayoff } from "@/components/providers/payments/payoff";
+import { usePayoff } from "@/components/providers/payoff";
+import { useSelectPayments } from "@/components/providers/selectPayments";
 import { useTags } from "@/components/providers/tags";
 
 import styles from "./Invoices.module.scss";
@@ -46,15 +44,7 @@ function FinancialPage({ searchParams }) {
         onUpdateInvoiceDetail,
     } = useInvoices();
 
-    const {
-        selectedRow,
-        updateSelectedRows,
-        onClosePaymentDetail,
-        paymentDetailVisible,
-        paymentDetail,
-        isLoadingPaymentDetail,
-        onUpdatePaymentDetail,
-    } = usePayments();
+    const { selectedRow } = useSelectPayments();
 
     const {
         modalBatchVisible,
@@ -63,10 +53,7 @@ function FinancialPage({ searchParams }) {
         paymentsToProcess,
         paymentPayoffBatchProgress,
         paymentPayoffBatchProgressText,
-        setPaymentsToProcess,
-        clearPaymentsToProcess,
         processPayOffBatch,
-        payOffPayment,
         processPayOffBatchCompleted,
         processingBatch,
     } = usePayoff();
@@ -74,18 +61,6 @@ function FinancialPage({ searchParams }) {
     useEffect(() => {
         updateSearchParams(router, pathname, invoiceFilters);
     }, [invoiceFilters, router, pathname]);
-
-    const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
-
-    const openPayoffModal = () => {
-        openPayoffBatchModal();
-        const dataSource: PayoffPayment[] = selectedRow.map((id) => ({
-            id: parseInt(id.toString()),
-            description: "Aguardando",
-            status: "pending",
-        }));
-        setPaymentsToProcess(dataSource);
-    };
 
     const createDropdownMenu = (record: IInvoicePagination): MenuProps => {
         const items: MenuProps["items"] = [
@@ -130,7 +105,7 @@ function FinancialPage({ searchParams }) {
                         </Button>
                         <Button
                             icon={<ToTopOutlined />}
-                            onClick={openPayoffModal}
+                            onClick={openPayoffBatchModal}
                             disabled={selectedRow.filter((item) => item.selected).length === 0}
                         >
                             Baixar pagamentos
@@ -228,24 +203,9 @@ function FinancialPage({ searchParams }) {
                     loading={isLoading}
                     summary={(invoiceData) => <TableSummary invoiceData={invoiceData} />}
                     expandable={{
-                        expandedRowKeys,
-                        expandedRowRender: (record) => (
-                            <Payments
-                                invoice={record}
-                                payOffPayment={payOffPayment}
-                                updateSelectedRows={updateSelectedRows}
-                                selectedRow={selectedRow}
-                            />
-                        ),
+                        expandedRowRender: (record) => <InvoicePayments invoice={record} />,
                         rowExpandable: (record) => {
                             return record?.installments > 0;
-                        },
-                        onExpand: (expanded, record) => {
-                            if (expanded) {
-                                setExpandedRowKeys([record.id]);
-                            } else {
-                                setExpandedRowKeys([]);
-                            }
                         },
                     }}
                 />
@@ -260,13 +220,7 @@ function FinancialPage({ searchParams }) {
                 completed={processPayOffBatchCompleted}
                 processing={processingBatch}
             />
-            <PaymentsDrawer
-                onClose={onClosePaymentDetail}
-                open={paymentDetailVisible}
-                paymentDetail={paymentDetail}
-                isLoading={isLoadingPaymentDetail}
-                onUpdatePaymentDetail={onUpdatePaymentDetail}
-            />
+
             <InvoiceDrawer
                 open={invoiceDetailVisible}
                 onClose={onCloseInvoiceDetail}
@@ -281,8 +235,6 @@ function FinancialPage({ searchParams }) {
 }
 
 function TableSummary({ invoiceData }: { invoiceData: readonly IInvoicePagination[] }) {
-    const { Text } = Typography;
-
     let total = 0;
     let totalOpen = 0;
     let totalClosed = 0;

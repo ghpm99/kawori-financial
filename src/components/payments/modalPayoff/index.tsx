@@ -8,7 +8,7 @@ import {
 } from "@ant-design/icons";
 import { Button, Layout, Modal, Progress, Spin, Table } from "antd";
 
-import { PayoffPayment } from "@/components/providers/payments/payoff";
+import { PayoffPayment } from "@/components/providers/payoff";
 
 import styles from "./modalPayoff.module.scss";
 

@@ -73,6 +73,7 @@ const PaymentsTable = ({
 
     return (
         <Table
+            title={() => "Pagamentos"}
             scroll={{ x: "max-content" }}
             pagination={{
                 showSizeChanger: true,

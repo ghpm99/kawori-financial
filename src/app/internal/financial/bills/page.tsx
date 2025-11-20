@@ -1,36 +1,20 @@
 "use client";
 import { useEffect } from "react";
 
-import { ClearOutlined, SearchOutlined, ToTopOutlined } from "@ant-design/icons";
-import { faEllipsis, faFileCircleCheck, faFilePen } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-    Breadcrumb,
-    Button,
-    DatePicker,
-    Dropdown,
-    Input,
-    Layout,
-    MenuProps,
-    Select,
-    Space,
-    Table,
-    Typography,
-} from "antd";
-import dayjs from "dayjs";
-import Link from "next/link";
+import { ClearOutlined, ToTopOutlined } from "@ant-design/icons";
+import { Breadcrumb, Button, Layout, Typography } from "antd";
 import { usePathname, useRouter } from "next/navigation";
 
-import { formatMoney, formatterDate, updateSearchParams } from "@/util/index";
+import { updateSearchParams } from "@/util/index";
 
-import FilterDropdown from "@/components/common/filterDropdown/Index";
 import ModalPayoff from "@/components/payments/modalPayoff";
 import PaymentsDrawer from "@/components/payments/paymentsDrawer";
-import { SelectedRowType, usePayments } from "@/components/providers/payments";
-import { PayoffPayment, usePayoff } from "@/components/providers/payments/payoff";
+import PaymentsTable from "@/components/payments/paymentsTable";
+import { usePayments } from "@/components/providers/payments";
+import { PayoffPayment, usePayoff } from "@/components/providers/payoff";
+import { useSelectPayments } from "@/components/providers/selectPayments";
 
 import styles from "./Payments.module.scss";
-import PaymentsTable from "@/components/payments/paymentsTable";
 
 const { Title } = Typography;
 
@@ -43,18 +27,18 @@ function BillsPage({ searchParams }) {
         handleChangeFilter,
         handleDateRangedFilter,
         handleSelectFilter,
-        handleChangeAllFilters,
         updateFiltersBySearchParams,
         cleanFilter,
-        selectedRow,
+
         paymentDetailVisible,
         onClosePaymentDetail,
         onOpenPaymentDetail,
         isLoadingPaymentDetail,
         paymentDetail,
         onUpdatePaymentDetail,
-        updateSelectedRows,
     } = usePayments();
+
+    const { selectedRow, updateSelectedRows } = useSelectPayments();
 
     const {
         modalBatchVisible,
@@ -64,7 +48,7 @@ function BillsPage({ searchParams }) {
         paymentPayoffBatchProgress,
         paymentPayoffBatchProgressText,
         setPaymentsToProcess,
-        clearPaymentsToProcess,
+
         processPayOffBatch,
         payOffPayment,
         processPayOffBatchCompleted,
@@ -75,10 +59,8 @@ function BillsPage({ searchParams }) {
     const pathname = usePathname();
 
     useEffect(() => {
-        document.title = "Kawori Pagamentos";
-        // dispatch(setSelectedMenu(["financial", "payments"]));
         updateFiltersBySearchParams(searchParams);
-    }, []);
+    }, [searchParams]);
 
     useEffect(() => {
         updateSearchParams(router, pathname, paymentFilters);

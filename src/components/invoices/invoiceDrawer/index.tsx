@@ -19,6 +19,8 @@ import {
 import type { SelectProps } from "antd";
 import dayjs from "dayjs";
 
+import { InvoicePayments } from "../payments";
+
 interface InvoiceDrawerProps {
     open: boolean;
     onClose: () => void;
@@ -27,8 +29,6 @@ interface InvoiceDrawerProps {
     onUpdateInvoiceDetail: (values: IInvoiceDetail) => void;
     tags_data: ITags[];
     isLoadingTags: boolean;
-    invoicePaymentsData: PaymentsPage;
-    isLoadingInvoicePaymentsData: boolean;
 }
 
 const { Paragraph } = Typography;
@@ -328,6 +328,7 @@ const InvoiceDrawer = ({
                     </Col>
                 </Row>
             </Form>
+            {isEdit && <InvoicePayments invoice={invoiceDetail} />}
         </Drawer>
     );
 };

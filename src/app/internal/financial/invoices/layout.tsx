@@ -1,18 +1,18 @@
 "use client";
 import { InvoicesProvider } from "@/components/providers/invoices";
-import { PaymentsProvider } from "@/components/providers/payments";
-import { PayoffProvider } from "@/components/providers/payments/payoff";
+import { PayoffProvider } from "@/components/providers/payoff";
+import { SelectPaymentsProvider } from "@/components/providers/selectPayments";
 import { TagsProvider } from "@/components/providers/tags";
 
 const InvoiceslLayout = ({ children }: { children: React.ReactNode }) => (
     <TagsProvider>
-        <PayoffProvider>
-            <InvoicesProvider>
-                <PaymentsProvider>
+        <SelectPaymentsProvider>
+            <PayoffProvider>
+                <InvoicesProvider>
                     <PayoffProvider>{children}</PayoffProvider>
-                </PaymentsProvider>
-            </InvoicesProvider>
-        </PayoffProvider>
+                </InvoicesProvider>
+            </PayoffProvider>
+        </SelectPaymentsProvider>
     </TagsProvider>
 );
 

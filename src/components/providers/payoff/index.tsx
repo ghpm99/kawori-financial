@@ -7,6 +7,8 @@ import { message } from "antd";
 
 import { payoffPaymentService } from "@/services/financial";
 
+import { useSelectPayments } from "../selectPayments";
+
 export type PayoffPayment = {
     id: number;
     description: string;
@@ -34,6 +36,8 @@ const messageKey = "payment_payoff_message";
 
 export const PayoffProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const queryClient = useQueryClient();
+
+    const { selectedRow } = useSelectPayments();
     const [modalBatchVisible, setModalBatchVisible] = useState<boolean>(false);
     const [processingBatch, setProcessingBatch] = useState<boolean>(false);
     const [paymentsToProcess, setPaymentsToProcess] = useState<PayoffPayment[]>([]);
@@ -121,6 +125,12 @@ export const PayoffProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
 
     const openPayoffBatchModal = () => {
+        const dataSource: PayoffPayment[] = selectedRow.map((id) => ({
+            id: parseInt(id.toString()),
+            description: "Aguardando",
+            status: "pending",
+        }));
+        setPaymentsToProcess(dataSource);
         setModalBatchVisible(true);
     };
     const closePayoffBatchModal = () => {

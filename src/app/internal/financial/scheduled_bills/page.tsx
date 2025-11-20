@@ -27,7 +27,7 @@ import FilterDropdown from "@/components/common/filterDropdown/Index";
 import ModalPayoff from "@/components/payments/modalPayoff";
 import PaymentsDrawer from "@/components/payments/paymentsDrawer";
 import { SelectedRowType, usePayments } from "@/components/providers/payments";
-import { PayoffPayment, usePayoff } from "@/components/providers/payments/payoff";
+import { PayoffPayment, usePayoff } from "@/components/providers/payoff";
 
 import styles from "./Payments.module.scss";
 
