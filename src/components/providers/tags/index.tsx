@@ -5,7 +5,6 @@ import { message } from "antd";
 
 import { fetchDetailTagService, fetchTagsService, saveTagService } from "@/services/financial";
 
-
 const messageKey = "tag_pagination_message";
 
 type TagsContextValue = {
@@ -29,7 +28,15 @@ export const TagsProvider: React.FC<{ children: React.ReactNode }> = ({ children
         queryKey: ["tags"],
         queryFn: async () => {
             const response = await fetchTagsService();
-            return response.data;
+            const tags = response.data;
+            if (!tags) return [];
+
+            return tags
+                .sort((a: ITags, b: ITags) => a.name.localeCompare(b.name) && Number(b.is_budget) - Number(a.is_budget))
+                .map((tag) => ({
+                    ...tag,
+                    name: tag.is_budget ? `# ${tag.name}` : tag.name,
+                }));
         },
     });
 

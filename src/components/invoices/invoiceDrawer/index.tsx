@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import {
     Button,
@@ -12,8 +12,10 @@ import {
     Select,
     Space,
     Switch,
+    Tag,
     Typography,
 } from "antd";
+import type { SelectProps } from "antd";
 import dayjs from "dayjs";
 
 interface InvoiceDrawerProps {
@@ -22,13 +24,45 @@ interface InvoiceDrawerProps {
     invoiceDetail?: IInvoiceDetail;
     isLoading?: boolean;
     onUpdateInvoiceDetail: (values: IInvoiceDetail) => void;
+    tags_data: ITags[];
+    isLoadingTags: boolean;
 }
 
 const { Paragraph } = Typography;
 const { Option } = Select;
+type TagRender = SelectProps["tagRender"];
 
-const InvoiceDrawer = ({ open, onClose, invoiceDetail, isLoading, onUpdateInvoiceDetail }: InvoiceDrawerProps) => {
+const InvoiceDrawer = ({
+    open,
+    onClose,
+    invoiceDetail,
+    isLoading,
+    onUpdateInvoiceDetail,
+    tags_data = [],
+    isLoadingTags,
+}: InvoiceDrawerProps) => {
     const [form] = Form.useForm();
+    const isEdit = Boolean(invoiceDetail && invoiceDetail.id);
+
+    const tags = tags_data.map((tag) => ({
+        ...tag,
+        value: tag.name,
+        label: tag.name,
+    }));
+
+    const [tagSelection, setTagSelection] = useState<ITags[]>([]);
+    console.log("tagSelection", tagSelection);
+
+    const hasAlreadySelectedBudget =
+        tags.filter((tag) => tagSelection.map((tag) => tag.name).includes(tag.name) && tag.is_budget).length > 0;
+
+    const tagsOptions = tags
+        .filter((tag) => !tagSelection.map((tag) => tag.name).includes(tag.name))
+        .map((tag) => ({
+            ...tag,
+            disabled: tag.is_budget && hasAlreadySelectedBudget,
+        }));
+
     useEffect(() => {
         if (open && invoiceDetail) {
             const init = {
@@ -36,6 +70,7 @@ const InvoiceDrawer = ({ open, onClose, invoiceDetail, isLoading, onUpdateInvoic
                 value: typeof invoiceDetail.value === "number" ? Math.round(invoiceDetail.value * 100) : 0,
                 date: invoiceDetail.date ? dayjs(invoiceDetail.date) : undefined,
                 payment_date: invoiceDetail.next_payment ? dayjs(invoiceDetail.next_payment) : undefined,
+                tags: invoiceDetail.tags.map((tag) => tag.name),
             };
             form.setFieldsValue(init);
         } else {
@@ -61,12 +96,36 @@ const InvoiceDrawer = ({ open, onClose, invoiceDetail, isLoading, onUpdateInvoic
         return Number(digits);
     };
 
-    const onFinish = (values: any) => {
+    const onSaveEditTagDetail = (values: IInvoiceDetail) => {
         const payload = {
             ...values,
             value: typeof values.value === "number" ? Number((values.value / 100).toFixed(2)) : 0,
             date: values.date ? dayjs(values.date).format("YYYY-MM-DD") : null,
-            payment_date: values.payment_date ? dayjs(values.payment_date).format("YYYY-MM-DD") : null,
+        };
+        onUpdateInvoiceDetail(payload);
+    };
+
+    const onSaveNewTagDetail = (values: IInvoiceDetail) => {
+        const payload = {
+            ...values,
+            value: typeof values.value === "number" ? Number((values.value / 100).toFixed(2)) : 0,
+            date: values.date ? dayjs(values.date).format("YYYY-MM-DD") : null,
+            tags: tagSelection,
+        };
+        onUpdateInvoiceDetail(payload);
+    };
+
+    const onFinish = (values: IInvoiceDetail) => {
+        if (!isEdit) {
+            console.log(values);
+            console.log(tagSelection);
+
+            return;
+        }
+        const payload = {
+            ...values,
+            value: typeof values.value === "number" ? Number((values.value / 100).toFixed(2)) : 0,
+            date: values.date ? dayjs(values.date).format("YYYY-MM-DD") : null,
         };
         onClose();
         onUpdateInvoiceDetail(payload);
@@ -75,6 +134,35 @@ const InvoiceDrawer = ({ open, onClose, invoiceDetail, isLoading, onUpdateInvoic
     const handleSubmitForm = () => {
         form.submit();
     };
+
+    const handleChangeTags = (value) => {
+        console.log(value);
+        const tagsList = value.map((tagId) => {
+            return tags.find((tag) => tag.name === tagId)!;
+        });
+        setTagSelection(tagsList);
+    };
+
+    const tagRender: TagRender = (props) => {
+        const { label, value, closable, onClose } = props;
+        const onPreventMouseDown = (event: React.MouseEvent<HTMLSpanElement>) => {
+            event.preventDefault();
+            event.stopPropagation();
+        };
+        const color = tags.find((tag) => tag.name === value)?.color || "blue";
+        return (
+            <Tag
+                color={color}
+                onMouseDown={onPreventMouseDown}
+                closable={closable}
+                onClose={onClose}
+                style={{ marginInlineEnd: 4 }}
+            >
+                {label}
+            </Tag>
+        );
+    };
+
     return (
         <Drawer
             title={invoiceDetail ? `Nota #${invoiceDetail.id}` : "Nova nota"}
@@ -96,52 +184,26 @@ const InvoiceDrawer = ({ open, onClose, invoiceDetail, isLoading, onUpdateInvoic
                 </Space>
             }
         >
-            <Form form={form} layout="vertical" hideRequiredMark variant="underlined" onFinish={onFinish}>
+            <Form
+                form={form}
+                name="invoice"
+                layout="vertical"
+                hideRequiredMark
+                variant="underlined"
+                onFinish={onFinish}
+            >
+                <Form.Item name="id" label="ID" hidden>
+                    <Input disabled />
+                </Form.Item>
+
                 <Row gutter={16}>
-                    <Col span={12}>
-                        <Form.Item name="id" label="ID">
-                            <Input placeholder="Please enter user name" disabled />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="contract" label="contrato" hidden>
-                            <Input />
-                        </Form.Item>
-                        <Form.Item
-                            name="contract_name"
-                            label="Contrato"
-                            rules={[{ required: true, message: "Please enter url" }]}
-                        >
-                            <Input placeholder="Please enter user name" disabled />
-                        </Form.Item>
-                    </Col>
-                </Row>
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Form.Item name="invoice" label="Nota" hidden>
-                            <Input />
-                        </Form.Item>
-                        <Form.Item
-                            name="invoice_name"
-                            label="Nota"
-                            rules={[{ required: true, message: "Please select an owner" }]}
-                        >
-                            <Select placeholder="Please select an owner" disabled>
-                                <Option value="xiao">Xiaoxiao Fu</Option>
-                                <Option value="mao">Maomao Zhou</Option>
-                            </Select>
-                        </Form.Item>
-                    </Col>
                     <Col span={12}>
                         <Form.Item
                             name="name"
                             label="Nome"
-                            rules={[{ required: true, message: "Please choose the type" }]}
+                            rules={[{ required: true, message: "Por favor digite um nome para a nota" }]}
                         >
-                            <Select placeholder="Please choose the type">
-                                <Option value="private">Private</Option>
-                                <Option value="public">Public</Option>
-                            </Select>
+                            <Input placeholder="Entre com o nome da nota" />
                         </Form.Item>
                     </Col>
                 </Row>
@@ -150,16 +212,16 @@ const InvoiceDrawer = ({ open, onClose, invoiceDetail, isLoading, onUpdateInvoic
                         <Form.Item
                             name="date"
                             label="Dia de lançamento"
-                            rules={[{ required: true, message: "Please choose the approver" }]}
+                            rules={[{ required: true, message: "Selecione a data da nota" }]}
                         >
-                            <DatePicker style={{ width: "100%" }} format={"DD/MM/YYYY"} disabled />
+                            <DatePicker style={{ width: "100%" }} format={"DD/MM/YYYY"} disabled={isEdit} />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
                         <Form.Item
                             name="payment_date"
                             label="Dia de pagamento"
-                            rules={[{ required: true, message: "Please choose the dateTime" }]}
+                            rules={[{ required: true, message: "Selecione a data do pagamento" }]}
                         >
                             <DatePicker style={{ width: "100%" }} format={"DD/MM/YYYY"} />
                         </Form.Item>
@@ -167,12 +229,8 @@ const InvoiceDrawer = ({ open, onClose, invoiceDetail, isLoading, onUpdateInvoic
                 </Row>
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item
-                            name="status"
-                            label="Status"
-                            rules={[{ required: true, message: "Please select an owner" }]}
-                        >
-                            <Select placeholder="Please select an owner" disabled>
+                        <Form.Item name="status" label="Status">
+                            <Select defaultValue={0} placeholder="Please select an owner" disabled>
                                 <Option value={0}>Em aberto</Option>
                                 <Option value={1}>Baixado</Option>
                             </Select>
@@ -182,9 +240,9 @@ const InvoiceDrawer = ({ open, onClose, invoiceDetail, isLoading, onUpdateInvoic
                         <Form.Item
                             name="type"
                             label="Tipo"
-                            rules={[{ required: true, message: "Please choose the type" }]}
+                            rules={[{ required: true, message: "Selecione o tipo de entrada" }]}
                         >
-                            <Select placeholder="Please choose the type">
+                            <Select placeholder="Selecione o tipo de entrada">
                                 <Option value={0}>Credito</Option>
                                 <Option value={1}>Debito</Option>
                             </Select>
@@ -198,10 +256,7 @@ const InvoiceDrawer = ({ open, onClose, invoiceDetail, isLoading, onUpdateInvoic
                             label="Parcelas"
                             rules={[{ required: true, message: "Please select an owner" }]}
                         >
-                            <Select placeholder="Please select an owner" disabled>
-                                <Option value="xiao">Xiaoxiao Fu</Option>
-                                <Option value="mao">Maomao Zhou</Option>
-                            </Select>
+                            <InputNumber defaultValue={1} step={1} precision={0} style={{ width: "100%" }} />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -221,21 +276,33 @@ const InvoiceDrawer = ({ open, onClose, invoiceDetail, isLoading, onUpdateInvoic
                     </Col>
                 </Row>
                 <Row gutter={16}>
+                    <Col span={24}>
+                        <Form.Item label="Tags" name="tags">
+                            <Select
+                                mode="multiple"
+                                style={{ width: "100%" }}
+                                placeholder="Tags"
+                                loading={isLoadingTags}
+                                onChange={handleChangeTags}
+                                value={tagSelection}
+                                tagRender={tagRender}
+                                options={tagsOptions?.map((item) => ({
+                                    value: item.name,
+                                    label: item.name,
+                                    disabled: item.disabled,
+                                }))}
+                            />
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item
-                            name="fixed"
-                            label="Fixo"
-                            rules={[{ required: true, message: "Please select an owner" }]}
-                        >
+                        <Form.Item name="fixed" label="Fixo">
                             <Switch />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item
-                            name="active"
-                            label="Ativo"
-                            rules={[{ required: true, message: "Please choose the type" }]}
-                        >
+                        <Form.Item name="active" label="Ativo">
                             <Switch />
                         </Form.Item>
                     </Col>

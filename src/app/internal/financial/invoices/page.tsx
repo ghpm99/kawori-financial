@@ -20,6 +20,7 @@ import PaymentsDrawer from "@/components/payments/paymentsDrawer";
 import { useInvoices } from "@/components/providers/invoices";
 import { usePayments } from "@/components/providers/payments";
 import { PayoffPayment, usePayoff } from "@/components/providers/payments/payoff";
+import { useTags } from "@/components/providers/tags";
 
 import styles from "./Invoices.module.scss";
 
@@ -29,6 +30,7 @@ function FinancialPage({ searchParams }) {
     const router = useRouter();
     const pathname = usePathname();
 
+    const { data: tags, loading: isLoadingTags } = useTags();
     const {
         invoicesData,
         isLoading,
@@ -217,6 +219,7 @@ function FinancialPage({ searchParams }) {
                     </div>
                 </div>
                 <Table
+                    scroll={{ x: "max-content" }}
                     rowKey={"id"}
                     pagination={{
                         showSizeChanger: true,
@@ -272,6 +275,8 @@ function FinancialPage({ searchParams }) {
                 invoiceDetail={invoiceDetail}
                 isLoading={isLoadingInvoiceDetail}
                 onUpdateInvoiceDetail={onUpdateInvoiceDetail}
+                tags_data={tags}
+                isLoadingTags={isLoadingTags}
             />
         </>
     );
