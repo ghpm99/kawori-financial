@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-import { ClearOutlined, SearchOutlined, ToTopOutlined } from "@ant-design/icons";
+import { ClearOutlined, FileAddOutlined, SearchOutlined, ToTopOutlined } from "@ant-design/icons";
 import { faEllipsis, faFilePen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Breadcrumb, Button, Dropdown, Input, Layout, MenuProps, Space, Table, Tag, Typography } from "antd";
@@ -22,7 +22,6 @@ import { usePayments } from "@/components/providers/payments";
 import { PayoffPayment, usePayoff } from "@/components/providers/payments/payoff";
 
 import styles from "./Invoices.module.scss";
-
 
 const { Title } = Typography;
 
@@ -198,6 +197,13 @@ function FinancialPage({ searchParams }) {
                         Valores em aberto
                     </Title>
                     <div>
+                        <Button
+                            icon={<FileAddOutlined />}
+                            type="primary"
+                            onClick={() => onOpenInvoiceDetail(undefined)}
+                        >
+                            Adicionar nota
+                        </Button>
                         <Button
                             icon={<ToTopOutlined />}
                             onClick={openPayoffModal}
