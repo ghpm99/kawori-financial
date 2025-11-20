@@ -72,6 +72,6 @@ interface PaymentItem {
     payment_date: string;
     fixed: boolean;
     value: number;
-    contract_id: number;
-    contract_name: string;
+    invoice_id: number;
+    invoice_name: string;
 }

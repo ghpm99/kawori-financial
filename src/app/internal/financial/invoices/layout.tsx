@@ -6,11 +6,13 @@ import { TagsProvider } from "@/components/providers/tags";
 
 const InvoiceslLayout = ({ children }: { children: React.ReactNode }) => (
     <TagsProvider>
-        <InvoicesProvider>
-            <PaymentsProvider>
-                <PayoffProvider>{children}</PayoffProvider>
-            </PaymentsProvider>
-        </InvoicesProvider>
+        <PayoffProvider>
+            <InvoicesProvider>
+                <PaymentsProvider>
+                    <PayoffProvider>{children}</PayoffProvider>
+                </PaymentsProvider>
+            </InvoicesProvider>
+        </PayoffProvider>
     </TagsProvider>
 );
 

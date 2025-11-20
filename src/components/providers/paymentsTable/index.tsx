@@ -211,7 +211,7 @@ export const PaymentsTableProvider: React.FC<{ children: React.ReactNode; invoic
             page: searchParams.page,
             page_size: searchParams.page_size,
             active: searchParams.active,
-            contract: searchParams.contract,
+            invoice: searchParams.invoice,
             date__gte: searchParams.date__gte,
             date__lte: searchParams.date__lte,
             fixed: searchParams.fixed,
@@ -245,7 +245,7 @@ export const PaymentsTableProvider: React.FC<{ children: React.ReactNode; invoic
     return (
         <PaymentsTableContext.Provider
             value={{
-                paymentsData: data ?? [],
+                paymentsData: data,
                 isLoading,
                 paymentFilters: localFilters,
                 selectedRow,

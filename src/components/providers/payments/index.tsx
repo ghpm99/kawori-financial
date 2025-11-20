@@ -234,7 +234,7 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             page: searchParams.page,
             page_size: searchParams.page_size,
             active: searchParams.active,
-            contract: searchParams.contract,
+            invoice: searchParams.invoice,
             date__gte: searchParams.date__gte,
             date__lte: searchParams.date__lte,
             fixed: searchParams.fixed,

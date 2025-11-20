@@ -3,7 +3,11 @@ import { createContext, useCallback, useContext, useReducer, useState } from "re
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { message } from "antd";
 
-import { fetchAllInvoiceService, fetchDetailInvoiceService } from "@/services/financial";
+import {
+    fetchAllInvoiceService,
+    fetchDetailInvoicePaymentsService,
+    fetchDetailInvoiceService,
+} from "@/services/financial";
 
 const messageKey = "invoice_pagination_message";
 
@@ -22,6 +26,8 @@ type InvoicesContextValue = {
     invoiceDetail: IInvoiceDetail;
     isLoadingInvoiceDetail: boolean;
     onUpdateInvoiceDetail: (values: IInvoiceDetail) => void;
+    invoicePaymentsData: PaymentsPage;
+    isLoadInginvoicePaymentsData: boolean;
 };
 
 const InvoicesContext = createContext<InvoicesContextValue | undefined>(undefined);
@@ -77,6 +83,7 @@ const defaultInvoiceDetail: IInvoiceDetail = {
     value_open: 0,
     next_payment: "",
     tags: [],
+    active: false,
 };
 
 export const InvoicesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -121,9 +128,26 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         },
     });
 
+    const {
+        data: invoicePaymentsData,
+        refetch: refetchInvoicePaymentsData,
+        isLoading: isLoadInginvoicePaymentsData,
+    } = useQuery({
+        enabled: !!invoiceDetailId,
+        queryKey: ["invoicePayments", invoiceDetailId],
+        queryFn: async () => {
+            if (!invoiceDetailId) return { data: {} } as PaymentsPage;
+            const response = await fetchDetailInvoicePaymentsService(invoiceDetailId, { page: 1, page_size: 10 });
+            const data = response.data;
+            if (!data) return { data: {} } as PaymentsPage;
+            return response.data;
+        },
+    });
+
     const { mutate: mutateUpdateInvoiceDetail } = useMutation({
         mutationKey: ["updateInvoiceDetail", invoiceDetailId],
         mutationFn: async (data: IInvoiceDetail) => {
+            console.log("Updating invoice detail", data);
             return { msg: "Sucesso" };
         },
         onSuccess: ({ msg }) => {
@@ -211,6 +235,8 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 invoiceDetail,
                 isLoadingInvoiceDetail,
                 onUpdateInvoiceDetail,
+                invoicePaymentsData,
+                isLoadInginvoicePaymentsData,
             }}
         >
             {children}

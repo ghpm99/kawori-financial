@@ -12,6 +12,7 @@ import {
     Select,
     Space,
     Switch,
+    Table,
     Tag,
     Typography,
 } from "antd";
@@ -26,6 +27,8 @@ interface InvoiceDrawerProps {
     onUpdateInvoiceDetail: (values: IInvoiceDetail) => void;
     tags_data: ITags[];
     isLoadingTags: boolean;
+    invoicePaymentsData: PaymentsPage;
+    isLoadingInvoicePaymentsData: boolean;
 }
 
 const { Paragraph } = Typography;
@@ -72,6 +75,22 @@ const InvoiceDrawer = ({
                 payment_date: invoiceDetail.next_payment ? dayjs(invoiceDetail.next_payment) : undefined,
                 tags: invoiceDetail.tags.map((tag) => tag.name),
             };
+            setTagSelection(invoiceDetail.tags);
+            form.setFieldsValue(init);
+        } else if (open) {
+            const init = {
+                value: 0,
+                date: dayjs(),
+                payment_date: dayjs(),
+                installments: 1,
+                name: "",
+                id: 0,
+                tags: [],
+                value_closed: 0,
+                value_open: 0,
+                status: 0,
+                active: true,
+            };
             form.setFieldsValue(init);
         } else {
             form.resetFields();
@@ -117,18 +136,11 @@ const InvoiceDrawer = ({
 
     const onFinish = (values: IInvoiceDetail) => {
         if (!isEdit) {
-            console.log(values);
-            console.log(tagSelection);
-
-            return;
+            onSaveEditTagDetail(values);
+        } else {
+            onSaveNewTagDetail(values);
         }
-        const payload = {
-            ...values,
-            value: typeof values.value === "number" ? Number((values.value / 100).toFixed(2)) : 0,
-            date: values.date ? dayjs(values.date).format("YYYY-MM-DD") : null,
-        };
         onClose();
-        onUpdateInvoiceDetail(payload);
     };
 
     const handleSubmitForm = () => {
@@ -206,6 +218,14 @@ const InvoiceDrawer = ({
                             <Input placeholder="Entre com o nome da nota" />
                         </Form.Item>
                     </Col>
+                    <Col span={12}>
+                        <Form.Item name="status" label="Status">
+                            <Select placeholder="Please select an owner" disabled>
+                                <Option value={0}>Em aberto</Option>
+                                <Option value={1}>Baixado</Option>
+                            </Select>
+                        </Form.Item>
+                    </Col>
                 </Row>
                 <Row gutter={16}>
                     <Col span={12}>
@@ -229,41 +249,26 @@ const InvoiceDrawer = ({
                 </Row>
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item name="status" label="Status">
-                            <Select defaultValue={0} placeholder="Please select an owner" disabled>
-                                <Option value={0}>Em aberto</Option>
-                                <Option value={1}>Baixado</Option>
-                            </Select>
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item
-                            name="type"
-                            label="Tipo"
-                            rules={[{ required: true, message: "Selecione o tipo de entrada" }]}
-                        >
-                            <Select placeholder="Selecione o tipo de entrada">
-                                <Option value={0}>Credito</Option>
-                                <Option value={1}>Debito</Option>
-                            </Select>
-                        </Form.Item>
-                    </Col>
-                </Row>
-                <Row gutter={16}>
-                    <Col span={12}>
                         <Form.Item
                             name="installments"
                             label="Parcelas"
                             rules={[{ required: true, message: "Please select an owner" }]}
                         >
-                            <InputNumber defaultValue={1} step={1} precision={0} style={{ width: "100%" }} />
+                            <InputNumber step={1} precision={0} style={{ width: "100%" }} />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
                         <Form.Item
                             name="value"
                             label="Valor"
-                            rules={[{ required: true, message: "Please choose the type" }]}
+                            rules={[
+                                { required: true, message: "Please choose the type" },
+                                {
+                                    type: "number",
+                                    min: 1,
+                                    message: "O valor deve ser maior que zero",
+                                },
+                            ]}
                         >
                             <InputNumber
                                 step={1}
@@ -277,11 +282,26 @@ const InvoiceDrawer = ({
                 </Row>
                 <Row gutter={16}>
                     <Col span={24}>
-                        <Form.Item label="Tags" name="tags">
+                        <Form.Item
+                            label="Etiquetas"
+                            name="tags"
+                            rules={[
+                                {
+                                    validator: () => {
+                                        if (!hasAlreadySelectedBudget) {
+                                            return Promise.reject(
+                                                new Error("Selecione ao menos uma etiqueta orcamentaria"),
+                                            );
+                                        }
+                                        return Promise.resolve();
+                                    },
+                                },
+                            ]}
+                        >
                             <Select
                                 mode="multiple"
                                 style={{ width: "100%" }}
-                                placeholder="Tags"
+                                placeholder="Etiquetas"
                                 loading={isLoadingTags}
                                 onChange={handleChangeTags}
                                 value={tagSelection}
@@ -303,7 +323,7 @@ const InvoiceDrawer = ({
                     </Col>
                     <Col span={12}>
                         <Form.Item name="active" label="Ativo">
-                            <Switch />
+                            <Switch disabled={!isEdit} />
                         </Form.Item>
                     </Col>
                 </Row>

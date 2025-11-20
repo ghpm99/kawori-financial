@@ -28,15 +28,7 @@ export const TagsProvider: React.FC<{ children: React.ReactNode }> = ({ children
         queryKey: ["tags"],
         queryFn: async () => {
             const response = await fetchTagsService();
-            const tags = response.data;
-            if (!tags) return [];
-
-            return tags
-                .sort((a: ITags, b: ITags) => a.name.localeCompare(b.name) && Number(b.is_budget) - Number(a.is_budget))
-                .map((tag) => ({
-                    ...tag,
-                    name: tag.is_budget ? `# ${tag.name}` : tag.name,
-                }));
+            return response.data;
         },
     });
 

@@ -15,6 +15,7 @@ interface IInvoiceDetail {
     date: string;
     next_payment: string;
     tags: ITags[];
+    active: boolean;
 }
 
 interface IInvoicePaymentsDetail {

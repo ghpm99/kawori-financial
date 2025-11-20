@@ -110,7 +110,7 @@ export async function fetchDetailInvoiceService(id: number) {
 }
 
 export async function fetchDetailInvoicePaymentsService(id: number, filters: IPaymentFilters) {
-    const response = await apiDjango.get(`/financial/invoice/${id}/payments/`, {
+    const response = await apiDjango.get<PaymentsApiResponse>(`/financial/invoice/${id}/payments/`, {
         params: filters,
     });
     return response.data;

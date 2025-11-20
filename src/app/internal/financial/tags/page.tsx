@@ -111,12 +111,7 @@ function TagPage() {
                             title: "Nome",
                             dataIndex: "name",
                             key: "name",
-                            render: (_: string, tag: ITags) => (
-                                <Tag color={tag.color}>
-                                    {tag.is_budget ? "# " : ""}
-                                    {tag.name}
-                                </Tag>
-                            ),
+                            render: (_: string, tag: ITags) => <Tag color={tag.color}>{tag.name}</Tag>,
                         },
                         {
                             title: "Quantidade de pagamentos",

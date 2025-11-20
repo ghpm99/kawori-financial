@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { ClearOutlined, FileAddOutlined, SearchOutlined, ToTopOutlined } from "@ant-design/icons";
 import { faEllipsis, faFilePen } from "@fortawesome/free-solid-svg-icons";
@@ -13,7 +13,7 @@ import { formatMoney, formatterDate, updateSearchParams } from "@/util/index";
 
 import FilterDropdown from "@/components/common/filterDropdown/Index";
 import InvoiceDrawer from "@/components/invoices/invoiceDrawer";
-import { Payments } from "@/components/invoices/paymentsTable";
+import { Payments } from "@/components/invoices/payments";
 import LoadingPage from "@/components/loadingPage/Index";
 import ModalPayoff from "@/components/payments/modalPayoff";
 import PaymentsDrawer from "@/components/payments/paymentsDrawer";
@@ -75,6 +75,8 @@ function FinancialPage({ searchParams }) {
         updateSearchParams(router, pathname, invoiceFilters);
     }, [invoiceFilters, router, pathname]);
 
+    const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
+
     const openPayoffModal = () => {
         openPayoffBatchModal();
         const dataSource: PayoffPayment[] = selectedRow.map((id) => ({
@@ -85,7 +87,7 @@ function FinancialPage({ searchParams }) {
         setPaymentsToProcess(dataSource);
     };
 
-    const createDropdownMenu = (record: PaymentItem): MenuProps => {
+    const createDropdownMenu = (record: IInvoicePagination): MenuProps => {
         const items: MenuProps["items"] = [
             {
                 key: "1",
@@ -105,86 +107,6 @@ function FinancialPage({ searchParams }) {
 
         return { items };
     };
-
-    const headerTableFinancial = [
-        {
-            title: "Nome",
-            dataIndex: "name",
-            key: "name",
-            index: 0,
-            filterDropdown: () => (
-                <FilterDropdown applyFilter={() => {}}>
-                    <Input
-                        name="name__icontains"
-                        style={{ width: 220 }}
-                        onChange={(event) => handleChangeFilter(event)}
-                        value={invoiceFilters?.name__icontains ?? ""}
-                    />
-                </FilterDropdown>
-            ),
-            filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
-        },
-        {
-            title: "Valor",
-            dataIndex: "value",
-            key: "value",
-            render: (value: any) => formatMoney(value),
-            index: 1,
-        },
-        {
-            title: "Baixado",
-            dataIndex: "value_closed",
-            key: "value_closed",
-            render: (value: any) => formatMoney(value),
-            index: 2,
-        },
-        {
-            title: "Em aberto",
-            dataIndex: "value_open",
-            key: "value_open",
-            render: (value: any) => formatMoney(value),
-            index: 3,
-        },
-        {
-            title: "Parcelas",
-            dataIndex: "installments",
-            key: "installments",
-        },
-        {
-            title: "Proximo pagamento",
-            dataIndex: "next_payment",
-            key: "next_payment",
-            render: (value: any) => formatterDate(value),
-        },
-        {
-            title: "Tags",
-            dataIndex: "tags",
-            key: "tags",
-            render: (_: any, { tags }: IInvoicePagination) => (
-                <>
-                    {tags.map((tag) => (
-                        <Tag color={tag.color} key={`invoice-tags-${tag.id}`}>
-                            {tag.name}
-                        </Tag>
-                    ))}
-                </>
-            ),
-        },
-        {
-            title: "Ações",
-            dataIndex: "id",
-            key: "id",
-            render: (value: any, record: any) => (
-                <Dropdown menu={createDropdownMenu(record)}>
-                    <a onClick={(e) => e.preventDefault()}>
-                        <Space>
-                            <FontAwesomeIcon icon={faEllipsis} />
-                        </Space>
-                    </a>
-                </Dropdown>
-            ),
-        },
-    ];
 
     return (
         <>
@@ -228,11 +150,85 @@ function FinancialPage({ searchParams }) {
                         total: invoicesData.total_pages * invoicesData.page_size,
                         onChange: onChangePagination,
                     }}
-                    columns={headerTableFinancial}
+                    columns={[
+                        {
+                            title: "Nome",
+                            dataIndex: "name",
+                            key: "name",
+                            filterDropdown: () => (
+                                <FilterDropdown applyFilter={() => {}}>
+                                    <Input
+                                        name="name__icontains"
+                                        style={{ width: 220 }}
+                                        onChange={(event) => handleChangeFilter(event)}
+                                        value={invoiceFilters?.name__icontains ?? ""}
+                                    />
+                                </FilterDropdown>
+                            ),
+                            filterIcon: (filtered: boolean) => (
+                                <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+                            ),
+                        },
+                        {
+                            title: "Valor",
+                            dataIndex: "value",
+                            key: "value",
+                            render: (value) => formatMoney(value),
+                        },
+                        {
+                            title: "Baixado",
+                            dataIndex: "value_closed",
+                            key: "value_closed",
+                            render: (value) => formatMoney(value),
+                        },
+                        {
+                            title: "Em aberto",
+                            dataIndex: "value_open",
+                            key: "value_open",
+                            render: (value) => formatMoney(value),
+                        },
+                        {
+                            title: "Parcelas",
+                            dataIndex: "installments",
+                            key: "installments",
+                        },
+                        {
+                            title: "Proximo pagamento",
+                            dataIndex: "next_payment",
+                            key: "next_payment",
+                            render: (value) => formatterDate(value),
+                        },
+                        {
+                            title: "Tags",
+                            dataIndex: "tags",
+                            key: "tags",
+                            render: (_, { tags }: IInvoicePagination) =>
+                                tags.map((tag) => (
+                                    <Tag color={tag.color} key={`invoice-tags-${tag.id}`}>
+                                        {tag.name}
+                                    </Tag>
+                                )),
+                        },
+                        {
+                            title: "Ações",
+                            dataIndex: "id",
+                            key: "id",
+                            render: (_, record) => (
+                                <Dropdown menu={createDropdownMenu(record)}>
+                                    <a onClick={(e) => e.preventDefault()}>
+                                        <Space>
+                                            <FontAwesomeIcon icon={faEllipsis} />
+                                        </Space>
+                                    </a>
+                                </Dropdown>
+                            ),
+                        },
+                    ]}
                     dataSource={invoicesData.data}
                     loading={isLoading}
                     summary={(invoiceData) => <TableSummary invoiceData={invoiceData} />}
                     expandable={{
+                        expandedRowKeys,
                         expandedRowRender: (record) => (
                             <Payments
                                 invoice={record}
@@ -246,7 +242,9 @@ function FinancialPage({ searchParams }) {
                         },
                         onExpand: (expanded, record) => {
                             if (expanded) {
-                                console.log("expand", record);
+                                setExpandedRowKeys([record.id]);
+                            } else {
+                                setExpandedRowKeys([]);
                             }
                         },
                     }}
