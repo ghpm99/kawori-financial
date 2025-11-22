@@ -8,7 +8,14 @@ const InvoiceslLayout = ({ children }: { children: React.ReactNode }) => (
     <TagsProvider>
         <SelectPaymentsProvider>
             <PayoffProvider>
-                <InvoicesProvider>
+                <InvoicesProvider
+                    customDefaultFilters={{
+                        fixed: false,
+                        type: 1,
+                        page: 1,
+                        page_size: 10,
+                    }}
+                >
                     <PayoffProvider>{children}</PayoffProvider>
                 </InvoicesProvider>
             </PayoffProvider>

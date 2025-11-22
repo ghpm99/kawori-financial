@@ -12,6 +12,8 @@ const { Title } = Typography;
 const Report = () => {
     const { changePeriodFilter, isLoading, data, periodFilter } = useBudget();
 
+    console.log(periodFilter);
+
     const renderPercent = (percent: number) => {
         if (isNaN(percent) || !isFinite(percent)) {
             return <span className={styles["positive"]}>0%</span>;
@@ -42,7 +44,7 @@ const Report = () => {
                                 picker="month"
                                 disabled={isLoading}
                                 onChange={changePeriodFilter}
-                                defaultValue={periodFilter ? dayjs(periodFilter, "MM/YYYY") : null}
+                                defaultValue={periodFilter ? periodFilter : null}
                             />
                         </span>
                     </div>

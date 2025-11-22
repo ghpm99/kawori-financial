@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+import type { SelectProps } from "antd";
 import {
     Button,
     Col,
@@ -12,11 +13,9 @@ import {
     Select,
     Space,
     Switch,
-    Table,
     Tag,
     Typography,
 } from "antd";
-import type { SelectProps } from "antd";
 import dayjs from "dayjs";
 
 import { InvoicePayments } from "../payments";
@@ -91,6 +90,7 @@ const InvoiceDrawer = ({
                 status: 0,
                 active: true,
             };
+            setTagSelection([]);
             form.setFieldsValue(init);
         } else {
             form.resetFields();
@@ -262,7 +262,7 @@ const InvoiceDrawer = ({
                             name="value"
                             label="Valor"
                             rules={[
-                                { required: true, message: "Please choose the type" },
+                                { required: true, message: "Digite um valor" },
                                 {
                                     type: "number",
                                     min: 1,
@@ -286,6 +286,7 @@ const InvoiceDrawer = ({
                             label="Etiquetas"
                             name="tags"
                             rules={[
+                                { required: true, message: "Selecione ao menos uma etiqueta" },
                                 {
                                     validator: () => {
                                         if (!hasAlreadySelectedBudget) {

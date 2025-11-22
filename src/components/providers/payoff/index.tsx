@@ -7,6 +7,8 @@ import { message } from "antd";
 
 import { payoffPaymentService } from "@/services/financial";
 
+import ModalPayoff from "@/components/payments/modalPayoff";
+
 import { useSelectPayments } from "../selectPayments";
 
 export type PayoffPayment = {
@@ -41,6 +43,7 @@ export const PayoffProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const [modalBatchVisible, setModalBatchVisible] = useState<boolean>(false);
     const [processingBatch, setProcessingBatch] = useState<boolean>(false);
     const [paymentsToProcess, setPaymentsToProcess] = useState<PayoffPayment[]>([]);
+    console.log(paymentsToProcess);
 
     const clearPaymentsToProcess = () => setPaymentsToProcess([]);
 
@@ -155,6 +158,16 @@ export const PayoffProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             }}
         >
             {children}
+            <ModalPayoff
+                visible={modalBatchVisible}
+                onCancel={closePayoffBatchModal}
+                onPayoff={processPayOffBatch}
+                data={paymentsToProcess}
+                percent={paymentPayoffBatchProgress}
+                progressText={paymentPayoffBatchProgressText()}
+                completed={processPayOffBatchCompleted}
+                processing={processingBatch}
+            />
         </PayoffContext.Provider>
     );
 };

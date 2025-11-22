@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useReducer, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useReducer, useState } from "react";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { message } from "antd";
@@ -8,6 +8,8 @@ import {
     fetchDetailInvoicePaymentsService,
     fetchDetailInvoiceService,
 } from "@/services/financial";
+import { usePathname, useRouter } from "next/navigation";
+import { updateSearchParams } from "@/util";
 
 const messageKey = "invoice_pagination_message";
 
@@ -86,16 +88,26 @@ const defaultInvoiceDetail: IInvoiceDetail = {
     active: false,
 };
 
-export const InvoicesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [localFilters, dispatchFilters] = useReducer(invoicesFiltersReducer, defaultFilters);
+export const InvoicesProvider: React.FC<{ children: React.ReactNode; customDefaultFilters?: IInvoiceFilters }> = ({
+    children,
+    customDefaultFilters = {},
+}) => {
+    const router = useRouter();
+    const pathname = usePathname();
+    const [isInitialized, setIsInitialized] = useState(false);
+    const [localFilters, dispatchFilters] = useReducer(invoicesFiltersReducer, {
+        ...defaultFilters,
+        ...customDefaultFilters,
+    });
     const [invoiceDetailVisible, setInvoiceDetailVisible] = useState<boolean>(false);
     const [invoiceDetailId, setInvoiceDetailId] = useState<number>(undefined);
 
     const {
         data,
-        refetch: refetchPayments,
+        refetch: refetchInvoices,
         isLoading,
     } = useQuery({
+        enabled: isInitialized,
         queryKey: ["invoices", localFilters],
         queryFn: async () => {
             const response = await fetchAllInvoiceService(localFilters);
@@ -128,11 +140,7 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         },
     });
 
-    const {
-        data: invoicePaymentsData,
-        refetch: refetchInvoicePaymentsData,
-        isLoading: isLoadInginvoicePaymentsData,
-    } = useQuery({
+    const { data: invoicePaymentsData, isLoading: isLoadInginvoicePaymentsData } = useQuery({
         enabled: !!invoiceDetailId,
         queryKey: ["invoicePayments", invoiceDetailId],
         queryFn: async () => {
@@ -151,7 +159,8 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             return { msg: "Sucesso" };
         },
         onSuccess: ({ msg }) => {
-            refetchInvoiceDetail();
+            refetchInvoices();
+            onCloseInvoiceDetail();
             message.success({
                 content: msg,
                 key: messageKey,
@@ -182,8 +191,14 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         dispatchFilters({ type: "SET_ALL", payload: filters });
     };
 
+    useEffect(() => {
+        if (!isInitialized) return;
+        updateSearchParams(router, pathname, localFilters);
+    }, [isInitialized, localFilters, router, pathname]);
+
     const updateFiltersBySearchParams = (searchParams: any) => {
         if (!searchParams || Object.keys(searchParams).length === 0) {
+            setIsInitialized(true);
             return;
         }
         const filters: IInvoiceFilters = {
@@ -199,6 +214,7 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             status: searchParams.status,
         };
         handleChangeAllFilters(filters);
+        setIsInitialized(true);
     };
 
     const onCloseInvoiceDetail = () => {

@@ -3,7 +3,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AlertProps, message } from "antd";
 import { AxiosError } from "axios";
-import { Dayjs } from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 
 import { fetchAllBudgetService, resetBudgetService, saveBudgetService } from "@/services/financial";
 const messageKey = "budget_message";
@@ -36,7 +36,7 @@ type BudgetContextValue = {
     enabledSave: boolean;
     saveBudgets: () => void;
     changePeriodFilter: (date: Dayjs, dateString: string | string[]) => void;
-    periodFilter: string;
+    periodFilter: Dayjs;
     resetBudgets: () => void;
 };
 
@@ -45,9 +45,7 @@ const BudgetContext = createContext<BudgetContextValue | undefined>(undefined);
 export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [budgets, setBudgetsState] = useState<IBudget[]>([]);
     const [selectedId, setSelectedId] = useState<number | undefined>(undefined);
-    const [periodFilter, setPeriodFilter] = useState<string>(
-        new Date().toLocaleDateString("pt-BR", { month: "2-digit", year: "numeric" }),
-    );
+    const [periodFilter, setPeriodFilter] = useState<Dayjs>(dayjs());
 
     const [enabledSave, setEnabledSave] = useState(false);
     const [feedbackMessage, setfeedbackMessage] = useState<FeedbackMessageType>({
@@ -58,7 +56,8 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const { data, isLoading, refetch } = useQuery({
         queryKey: ["budgets", periodFilter],
         queryFn: async () => {
-            const response = await fetchAllBudgetService(periodFilter);
+            const periodDate = periodFilter.format("MM/YYYY");
+            const response = await fetchAllBudgetService(periodDate);
             return response.data;
         },
     });
@@ -110,7 +109,7 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }, [data]);
 
     const changePeriodFilter = useCallback((date: Dayjs, dateString: string) => {
-        setPeriodFilter(dateString);
+        setPeriodFilter(date);
     }, []);
 
     const setBudgets = useCallback((items: IBudget[]) => {

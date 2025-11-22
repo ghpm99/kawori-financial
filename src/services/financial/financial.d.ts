@@ -29,6 +29,8 @@ interface IInvoiceFilters {
     installments?: number;
     date__gte?: string;
     date__lte?: string;
+    type?: number;
+    fixed?: boolean;
 }
 
 interface INewPaymentRequest {

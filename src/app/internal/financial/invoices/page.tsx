@@ -1,33 +1,21 @@
 "use client";
 
-import { useEffect } from "react";
+import { ClearOutlined, FileAddOutlined, ToTopOutlined } from "@ant-design/icons";
+import { Breadcrumb, Button, Layout, Typography } from "antd";
 
-import { ClearOutlined, FileAddOutlined, SearchOutlined, ToTopOutlined } from "@ant-design/icons";
-import { faEllipsis, faFilePen } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Breadcrumb, Button, Dropdown, Input, Layout, MenuProps, Space, Table, Tag, Typography } from "antd";
-import { usePathname, useRouter } from "next/navigation";
-
-import { formatMoney, formatterDate, updateSearchParams } from "@/util/index";
-
-import FilterDropdown from "@/components/common/filterDropdown/Index";
 import InvoiceDrawer from "@/components/invoices/invoiceDrawer";
-import { InvoicePayments } from "@/components/invoices/payments";
-import LoadingPage from "@/components/loadingPage/Index";
-import ModalPayoff from "@/components/payments/modalPayoff";
+import InvoicesTable from "@/components/invoices/invoicesTable";
 import { useInvoices } from "@/components/providers/invoices";
 import { usePayoff } from "@/components/providers/payoff";
 import { useSelectPayments } from "@/components/providers/selectPayments";
 import { useTags } from "@/components/providers/tags";
 
 import styles from "./Invoices.module.scss";
+import { useEffect } from "react";
 
 const { Title } = Typography;
 
 function FinancialPage({ searchParams }) {
-    const router = useRouter();
-    const pathname = usePathname();
-
     const { data: tags, loading: isLoadingTags } = useTags();
     const {
         invoicesData,
@@ -42,52 +30,23 @@ function FinancialPage({ searchParams }) {
         invoiceDetail,
         isLoadingInvoiceDetail,
         onUpdateInvoiceDetail,
+        updateFiltersBySearchParams,
     } = useInvoices();
+
+    useEffect(() => {
+        updateFiltersBySearchParams(searchParams);
+    }, []);
 
     const { selectedRow } = useSelectPayments();
 
-    const {
-        modalBatchVisible,
-        openPayoffBatchModal,
-        closePayoffBatchModal,
-        paymentsToProcess,
-        paymentPayoffBatchProgress,
-        paymentPayoffBatchProgressText,
-        processPayOffBatch,
-        processPayOffBatchCompleted,
-        processingBatch,
-    } = usePayoff();
-
-    useEffect(() => {
-        updateSearchParams(router, pathname, invoiceFilters);
-    }, [invoiceFilters, router, pathname]);
-
-    const createDropdownMenu = (record: IInvoicePagination): MenuProps => {
-        const items: MenuProps["items"] = [
-            {
-                key: "1",
-                label: "Ações",
-                disabled: true,
-            },
-            {
-                type: "divider",
-            },
-            {
-                key: "2",
-                icon: <FontAwesomeIcon icon={faFilePen} />,
-                label: "Editar",
-                onClick: () => onOpenInvoiceDetail(record.id),
-            },
-        ];
-
-        return { items };
-    };
+    const { openPayoffBatchModal } = usePayoff();
 
     return (
         <>
             <Breadcrumb className={styles.breadcrumb}>
                 <Breadcrumb.Item>Kawori</Breadcrumb.Item>
                 <Breadcrumb.Item>Financeiro</Breadcrumb.Item>
+                <Breadcrumb.Item>Notas</Breadcrumb.Item>
                 <Breadcrumb.Item>Em aberto</Breadcrumb.Item>
             </Breadcrumb>
             <Layout>
@@ -115,112 +74,15 @@ function FinancialPage({ searchParams }) {
                         </Button>
                     </div>
                 </div>
-                <Table
-                    scroll={{ x: "max-content" }}
-                    rowKey={"id"}
-                    pagination={{
-                        showSizeChanger: true,
-                        pageSize: invoicesData.page_size,
-                        current: invoicesData.current_page,
-                        total: invoicesData.total_pages * invoicesData.page_size,
-                        onChange: onChangePagination,
-                    }}
-                    columns={[
-                        {
-                            title: "Nome",
-                            dataIndex: "name",
-                            key: "name",
-                            filterDropdown: () => (
-                                <FilterDropdown applyFilter={() => {}}>
-                                    <Input
-                                        name="name__icontains"
-                                        style={{ width: 220 }}
-                                        onChange={(event) => handleChangeFilter(event)}
-                                        value={invoiceFilters?.name__icontains ?? ""}
-                                    />
-                                </FilterDropdown>
-                            ),
-                            filterIcon: (filtered: boolean) => (
-                                <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
-                            ),
-                        },
-                        {
-                            title: "Valor",
-                            dataIndex: "value",
-                            key: "value",
-                            render: (value) => formatMoney(value),
-                        },
-                        {
-                            title: "Baixado",
-                            dataIndex: "value_closed",
-                            key: "value_closed",
-                            render: (value) => formatMoney(value),
-                        },
-                        {
-                            title: "Em aberto",
-                            dataIndex: "value_open",
-                            key: "value_open",
-                            render: (value) => formatMoney(value),
-                        },
-                        {
-                            title: "Parcelas",
-                            dataIndex: "installments",
-                            key: "installments",
-                        },
-                        {
-                            title: "Proximo pagamento",
-                            dataIndex: "next_payment",
-                            key: "next_payment",
-                            render: (value) => formatterDate(value),
-                        },
-                        {
-                            title: "Tags",
-                            dataIndex: "tags",
-                            key: "tags",
-                            render: (_, { tags }: IInvoicePagination) =>
-                                tags.map((tag) => (
-                                    <Tag color={tag.color} key={`invoice-tags-${tag.id}`}>
-                                        {tag.name}
-                                    </Tag>
-                                )),
-                        },
-                        {
-                            title: "Ações",
-                            dataIndex: "id",
-                            key: "id",
-                            render: (_, record) => (
-                                <Dropdown menu={createDropdownMenu(record)}>
-                                    <a onClick={(e) => e.preventDefault()}>
-                                        <Space>
-                                            <FontAwesomeIcon icon={faEllipsis} />
-                                        </Space>
-                                    </a>
-                                </Dropdown>
-                            ),
-                        },
-                    ]}
-                    dataSource={invoicesData.data}
-                    loading={isLoading}
-                    summary={(invoiceData) => <TableSummary invoiceData={invoiceData} />}
-                    expandable={{
-                        expandedRowRender: (record) => <InvoicePayments invoice={record} />,
-                        rowExpandable: (record) => {
-                            return record?.installments > 0;
-                        },
-                    }}
+                <InvoicesTable
+                    data={invoicesData}
+                    isLoading={isLoading}
+                    filters={invoiceFilters}
+                    handleChangeFilter={handleChangeFilter}
+                    onChangePagination={onChangePagination}
+                    onOpenInvoiceDetail={onOpenInvoiceDetail}
                 />
             </Layout>
-            <ModalPayoff
-                visible={modalBatchVisible}
-                onCancel={closePayoffBatchModal}
-                onPayoff={processPayOffBatch}
-                data={paymentsToProcess}
-                percent={paymentPayoffBatchProgress}
-                progressText={paymentPayoffBatchProgressText()}
-                completed={processPayOffBatchCompleted}
-                processing={processingBatch}
-            />
-
             <InvoiceDrawer
                 open={invoiceDetailVisible}
                 onClose={onCloseInvoiceDetail}
@@ -233,34 +95,5 @@ function FinancialPage({ searchParams }) {
         </>
     );
 }
-
-function TableSummary({ invoiceData }: { invoiceData: readonly IInvoicePagination[] }) {
-    let total = 0;
-    let totalOpen = 0;
-    let totalClosed = 0;
-    invoiceData.forEach((invoice) => {
-        total = total + invoice.value;
-        totalOpen = totalOpen + invoice.value_open;
-        totalClosed = totalClosed + invoice.value_closed;
-    });
-
-    return (
-        <>
-            <Table.Summary.Row>
-                <Table.Summary.Cell index={0}></Table.Summary.Cell>
-                <Table.Summary.Cell index={1}>Total</Table.Summary.Cell>
-                <Table.Summary.Cell index={2}>{formatMoney(total)}</Table.Summary.Cell>
-                <Table.Summary.Cell index={3}>{formatMoney(totalOpen)}</Table.Summary.Cell>
-                <Table.Summary.Cell index={4}>{formatMoney(totalClosed)}</Table.Summary.Cell>
-            </Table.Summary.Row>
-        </>
-    );
-}
-
-FinancialPage.auth = {
-    role: "admin",
-    loading: <LoadingPage />,
-    unauthorized: "/signin",
-};
 
 export default FinancialPage;

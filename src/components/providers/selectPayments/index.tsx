@@ -42,6 +42,6 @@ export const SelectPaymentsProvider: React.FC<{ children: React.ReactNode }> = (
 
 export const useSelectPayments = (): SelectPaymentsContextValue => {
     const ctx = useContext(SelectPaymentsContext);
-    if (!ctx) throw new Error("usePayments must be used within PaymentsProvider");
+    if (!ctx) throw new Error("useSelectPayments must be used within SelectPaymentsProvider");
     return ctx;
 };
