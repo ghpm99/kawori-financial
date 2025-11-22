@@ -1,21 +1,7 @@
 import { useEffect, useState } from "react";
 
 import type { SelectProps } from "antd";
-import {
-    Button,
-    Col,
-    DatePicker,
-    Drawer,
-    Form,
-    Input,
-    InputNumber,
-    Row,
-    Select,
-    Space,
-    Switch,
-    Tag,
-    Typography,
-} from "antd";
+import { Button, Col, DatePicker, Drawer, Form, Input, InputNumber, Row, Select, Space, Switch, Tag } from "antd";
 import dayjs from "dayjs";
 
 import { InvoicePayments } from "../payments";
@@ -26,11 +12,11 @@ interface InvoiceDrawerProps {
     invoiceDetail?: IInvoiceDetail;
     isLoading?: boolean;
     onUpdateInvoiceDetail: (values: IInvoiceDetail) => void;
+    onCreateNewInvoice: (values: IInvoiceDetail) => void;
     tags_data: ITags[];
     isLoadingTags: boolean;
 }
 
-const { Paragraph } = Typography;
 const { Option } = Select;
 type TagRender = SelectProps["tagRender"];
 
@@ -40,11 +26,14 @@ const InvoiceDrawer = ({
     invoiceDetail,
     isLoading,
     onUpdateInvoiceDetail,
+    onCreateNewInvoice,
     tags_data = [],
     isLoadingTags,
 }: InvoiceDrawerProps) => {
     const [form] = Form.useForm();
     const isEdit = Boolean(invoiceDetail && invoiceDetail.id);
+
+    console.log("isEdit", isEdit);
 
     const tags = tags_data.map((tag) => ({
         ...tag,
@@ -53,7 +42,6 @@ const InvoiceDrawer = ({
     }));
 
     const [tagSelection, setTagSelection] = useState<ITags[]>([]);
-    console.log("tagSelection", tagSelection);
 
     const hasAlreadySelectedBudget =
         tags.filter((tag) => tagSelection.map((tag) => tag.name).includes(tag.name) && tag.is_budget).length > 0;
@@ -115,7 +103,7 @@ const InvoiceDrawer = ({
         return Number(digits);
     };
 
-    const onSaveEditTagDetail = (values: IInvoiceDetail) => {
+    const onSaveEditInvoice = (values: IInvoiceDetail) => {
         const payload = {
             ...values,
             value: typeof values.value === "number" ? Number((values.value / 100).toFixed(2)) : 0,
@@ -124,21 +112,21 @@ const InvoiceDrawer = ({
         onUpdateInvoiceDetail(payload);
     };
 
-    const onSaveNewTagDetail = (values: IInvoiceDetail) => {
+    const onSaveNewInvoice = (values: IInvoiceDetail) => {
         const payload = {
             ...values,
             value: typeof values.value === "number" ? Number((values.value / 100).toFixed(2)) : 0,
             date: values.date ? dayjs(values.date).format("YYYY-MM-DD") : null,
             tags: tagSelection,
         };
-        onUpdateInvoiceDetail(payload);
+        onCreateNewInvoice(payload);
     };
 
     const onFinish = (values: IInvoiceDetail) => {
-        if (!isEdit) {
-            onSaveEditTagDetail(values);
+        if (isEdit) {
+            onSaveEditInvoice(values);
         } else {
-            onSaveNewTagDetail(values);
+            onSaveNewInvoice(values);
         }
         onClose();
     };
@@ -148,7 +136,6 @@ const InvoiceDrawer = ({
     };
 
     const handleChangeTags = (value) => {
-        console.log(value);
         const tagsList = value.map((tagId) => {
             return tags.find((tag) => tag.name === tagId)!;
         });
@@ -234,7 +221,7 @@ const InvoiceDrawer = ({
                             label="Dia de lançamento"
                             rules={[{ required: true, message: "Selecione a data da nota" }]}
                         >
-                            <DatePicker style={{ width: "100%" }} format={"DD/MM/YYYY"} disabled={isEdit} />
+                            <DatePicker style={{ width: "100%" }} format={"DD/MM/YYYY"} />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -243,7 +230,7 @@ const InvoiceDrawer = ({
                             label="Dia de pagamento"
                             rules={[{ required: true, message: "Selecione a data do pagamento" }]}
                         >
-                            <DatePicker style={{ width: "100%" }} format={"DD/MM/YYYY"} />
+                            <DatePicker style={{ width: "100%" }} format={"DD/MM/YYYY"} disabled={isEdit} />
                         </Form.Item>
                     </Col>
                 </Row>
@@ -254,7 +241,7 @@ const InvoiceDrawer = ({
                             label="Parcelas"
                             rules={[{ required: true, message: "Please select an owner" }]}
                         >
-                            <InputNumber step={1} precision={0} style={{ width: "100%" }} />
+                            <InputNumber step={1} precision={0} style={{ width: "100%" }} disabled={isEdit} />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -276,6 +263,7 @@ const InvoiceDrawer = ({
                                 formatter={formatter}
                                 parser={parser}
                                 style={{ width: "100%" }}
+                                disabled={isEdit}
                             />
                         </Form.Item>
                     </Col>

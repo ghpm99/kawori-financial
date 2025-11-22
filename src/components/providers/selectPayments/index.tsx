@@ -2,12 +2,14 @@ import { createContext, useContext, useState } from "react";
 
 export type SelectedRowType = {
     id: number;
+    name: string;
     selected: boolean;
 };
 
 type SelectPaymentsContextValue = {
     selectedRow: SelectedRowType[];
     updateSelectedRows: (keys: SelectedRowType[]) => void;
+    clearSelection: () => void;
 };
 
 const SelectPaymentsContext = createContext<SelectPaymentsContextValue | undefined>(undefined);
@@ -28,11 +30,16 @@ export const SelectPaymentsProvider: React.FC<{ children: React.ReactNode }> = (
         setSelectedRow([...updatedRows, ...addedRows]);
     };
 
+    const clearSelection = () => {
+        setSelectedRow([]);
+    };
+
     return (
         <SelectPaymentsContext.Provider
             value={{
                 selectedRow,
                 updateSelectedRows,
+                clearSelection,
             }}
         >
             {children}

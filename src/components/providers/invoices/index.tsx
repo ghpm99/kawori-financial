@@ -1,15 +1,18 @@
 import { createContext, useCallback, useContext, useEffect, useReducer, useState } from "react";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { QueryObserverResult, RefetchOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { message } from "antd";
 
 import {
     fetchAllInvoiceService,
     fetchDetailInvoicePaymentsService,
     fetchDetailInvoiceService,
+    includeNewInvoiceService,
+    saveInvoiceService,
 } from "@/services/financial";
 import { usePathname, useRouter } from "next/navigation";
 import { updateSearchParams } from "@/util";
+import axios, { AxiosError } from "axios";
 
 const messageKey = "invoice_pagination_message";
 
@@ -28,8 +31,10 @@ type InvoicesContextValue = {
     invoiceDetail: IInvoiceDetail;
     isLoadingInvoiceDetail: boolean;
     onUpdateInvoiceDetail: (values: IInvoiceDetail) => void;
+    onCreateNewInvoice: (values: IInvoiceDetail) => void;
     invoicePaymentsData: PaymentsPage;
     isLoadInginvoicePaymentsData: boolean;
+    refetchInvoices: (options?: RefetchOptions) => Promise<QueryObserverResult<InvoicesPage, Error>>;
 };
 
 const InvoicesContext = createContext<InvoicesContextValue | undefined>(undefined);
@@ -92,6 +97,7 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode; customDefau
     children,
     customDefaultFilters = {},
 }) => {
+    const queryClient = useQueryClient();
     const router = useRouter();
     const pathname = usePathname();
     const [isInitialized, setIsInitialized] = useState(false);
@@ -155,10 +161,46 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode; customDefau
     const { mutate: mutateUpdateInvoiceDetail } = useMutation({
         mutationKey: ["updateInvoiceDetail", invoiceDetailId],
         mutationFn: async (data: IInvoiceDetail) => {
-            console.log("Updating invoice detail", data);
-            return { msg: "Sucesso" };
+            const response = await saveInvoiceService({
+                ...data,
+                tags: data.tags.map((tag) => tag.id),
+            });
+            return response.msg;
         },
-        onSuccess: ({ msg }) => {
+        onSuccess: (msg) => {
+            queryClient.invalidateQueries({ queryKey: ["invoiceDetail"] });
+            refetchInvoices();
+            onCloseInvoiceDetail();
+            message.success({
+                content: msg,
+                key: messageKey,
+            });
+        },
+        onError: (error) => {
+            let msgError = `Erro ao atualizar nota: ${error.message}`;
+            if (axios.isAxiosError(error)) {
+                msgError = ((error as AxiosError).response.data as CommonApiResponse).msg ?? "Erro ao atualizar nota";
+            }
+            message.error({
+                content: msgError,
+                key: messageKey,
+            });
+        },
+    });
+
+    const { mutate: mutateCreateNewInvoice } = useMutation({
+        mutationKey: ["createNewInvoice"],
+        mutationFn: async (data: IInvoiceDetail) => {
+            const response = await includeNewInvoiceService({
+                ...data,
+                payment_date: data.next_payment,
+                fixed: false,
+                tags: data.tags.map((tag) => tag.id),
+            });
+
+            return response.msg;
+        },
+        onSuccess: (msg) => {
             refetchInvoices();
             onCloseInvoiceDetail();
             message.success({
@@ -167,8 +209,12 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode; customDefau
             });
         },
         onError: (error: Error) => {
+            let msgError = `Erro ao criar nota: ${error.message}`;
+            if (axios.isAxiosError(error)) {
+                msgError = ((error as AxiosError).response.data as CommonApiResponse).msg ?? "Erro ao criar nota";
+            }
             message.error({
-                content: `Erro ao atualizar nota: ${error.message}`,
+                content: msgError,
                 key: messageKey,
             });
         },
@@ -196,7 +242,7 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode; customDefau
         updateSearchParams(router, pathname, localFilters);
     }, [isInitialized, localFilters, router, pathname]);
 
-    const updateFiltersBySearchParams = (searchParams: any) => {
+    const updateFiltersBySearchParams = (searchParams) => {
         if (!searchParams || Object.keys(searchParams).length === 0) {
             setIsInitialized(true);
             return;
@@ -234,10 +280,19 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode; customDefau
         mutateUpdateInvoiceDetail(values);
     };
 
+    const onCreateNewInvoice = (values: IInvoiceDetail) => {
+        message.loading({
+            key: messageKey,
+            content: "Processando",
+        });
+        mutateCreateNewInvoice(values);
+    };
+
     return (
         <InvoicesContext.Provider
             value={{
                 invoicesData: data ?? defaultInvoicesPage,
+                refetchInvoices,
                 isLoading,
                 invoiceFilters: localFilters,
                 cleanFilter,
@@ -251,6 +306,7 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode; customDefau
                 invoiceDetail,
                 isLoadingInvoiceDetail,
                 onUpdateInvoiceDetail,
+                onCreateNewInvoice,
                 invoicePaymentsData,
                 isLoadInginvoicePaymentsData,
             }}

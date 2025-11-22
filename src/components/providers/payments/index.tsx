@@ -2,7 +2,7 @@
 
 import React, { createContext, useCallback, useContext, useReducer, useState } from "react";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { QueryObserverResult, RefetchOptions, useMutation, useQuery } from "@tanstack/react-query";
 import { message } from "antd";
 import dayjs from "dayjs";
 
@@ -13,14 +13,10 @@ import {
     savePaymentDetailService,
 } from "@/services/financial";
 
-export type SelectedRowType = {
-    id: number;
-    selected: boolean;
-};
-
 type PaymentsContextValue = {
     paymentFilters: IPaymentFilters;
     paymentsData: PaymentsPage;
+    refetchPayments: (options?: RefetchOptions) => Promise<QueryObserverResult<PaymentsPage, Error>>;
     isLoading: boolean;
     cleanFilter: () => void;
     handleChangeFilter: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -261,6 +257,7 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 updateFiltersBySearchParams,
                 onChangePagination,
                 paymentsData: data ?? defaultPaymentsPage,
+                refetchPayments,
                 paymentDetailVisible,
                 onClosePaymentDetail,
                 onOpenPaymentDetail,

@@ -49,12 +49,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { mutateAsync, isPending: isLoging } = useMutation<AxiosResponse<ISigninResponse>, Error, ISigninArgs>({
         mutationFn: signinService,
         onSuccess: (res) => {
-            // ajusta conforme o shape do retorno do seu serviço
-            console.log("Login successful:", res.data);
             const expiry = res.data?.refresh_token_expiration;
             if (expiry) localStorage.setItem(LOCAL_STORE_ITEM_NAME, expiry);
             setIsAuthenticated(true);
-            console.log("Token expiry set to:", expiry);
+
             queryClient.invalidateQueries({ queryKey: ["verifyToken"] });
         },
         onError: (error: AxiosError) => {

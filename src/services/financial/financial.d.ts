@@ -57,9 +57,7 @@ interface INewContractRequest {
 }
 
 interface INewInvoiceRequest {
-    idContract: number;
     status: number;
-    type: number;
     name: string;
     date: string;
     installments: number;
@@ -67,9 +65,16 @@ interface INewInvoiceRequest {
     fixed: boolean;
     active: boolean;
     value: number;
-    tags?: number[];
+    tags: number[];
 }
 
+interface ISaveInvoiceRequest {
+    id: number;
+    name: string;
+    date: string;
+    active: boolean;
+    tags: number[];
+}
 interface IMergeContractRequest {
     id: number;
     contracts: number[];

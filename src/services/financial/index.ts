@@ -100,7 +100,7 @@ export async function fetchDetailContractInvoicesService(id: number, filters: II
 }
 
 export async function includeNewInvoiceService(data: INewInvoiceRequest) {
-    const response = await apiDjango.post(`/financial/contract/${data.idContract}/invoice/`, data);
+    const response = await apiDjango.post<CommonApiResponse>(`/financial/invoice/new/`, data);
     return response.data;
 }
 
@@ -114,6 +114,11 @@ export async function fetchDetailInvoicePaymentsService(id: number, filters: IPa
         params: filters,
     });
     return response.data;
+}
+
+export async function saveInvoiceTagsService(idInvoice: number, tags: number[]) {
+    const response = await apiDjango.post(`/financial/invoice/${idInvoice}/tags`, tags);
+    return response;
 }
 
 export async function mergeContractService(data: IMergeContractRequest) {
@@ -137,13 +142,13 @@ export async function fetchDetailTagService(id: number) {
 }
 
 export async function saveTagService(tag: ITag) {
-    const response = await apiDjango.post<{ msg: string }>(`/financial/tag/${tag.id}/save`, tag);
+    const response = await apiDjango.post<CommonApiResponse>(`/financial/tag/${tag.id}/save`, tag);
     return response;
 }
 
-export async function saveInvoiceTagsService(idInvoice: number, tags: number[]) {
-    const response = await apiDjango.post(`/financial/invoice/${idInvoice}/tags`, tags);
-    return response;
+export async function saveInvoiceService(invoice: ISaveInvoiceRequest) {
+    const response = await apiDjango.post<CommonApiResponse>(`/financial/invoice/${invoice.id}/save/`, invoice);
+    return response.data;
 }
 
 export async function updateAllContractsValue() {

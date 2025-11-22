@@ -1,7 +1,7 @@
 "use client";
 
-import { ClearOutlined, FileAddOutlined, ToTopOutlined } from "@ant-design/icons";
-import { Breadcrumb, Button, Layout, Typography } from "antd";
+import { ClearOutlined, EllipsisOutlined, FileAddOutlined, ToTopOutlined } from "@ant-design/icons";
+import { Breadcrumb, Button, Dropdown, Layout, MenuProps, Space, Typography } from "antd";
 
 import InvoiceDrawer from "@/components/invoices/invoiceDrawer";
 import InvoicesTable from "@/components/invoices/invoicesTable";
@@ -19,6 +19,7 @@ function FinancialPage({ searchParams }) {
     const { data: tags, loading: isLoadingTags } = useTags();
     const {
         invoicesData,
+        refetchInvoices,
         isLoading,
         onChangePagination,
         invoiceFilters,
@@ -30,6 +31,7 @@ function FinancialPage({ searchParams }) {
         invoiceDetail,
         isLoadingInvoiceDetail,
         onUpdateInvoiceDetail,
+        onCreateNewInvoice,
         updateFiltersBySearchParams,
     } = useInvoices();
 
@@ -39,7 +41,23 @@ function FinancialPage({ searchParams }) {
 
     const { selectedRow } = useSelectPayments();
 
-    const { openPayoffBatchModal } = usePayoff();
+    const { openPayoffBatchModal, setCallback } = usePayoff();
+
+    const onMenuClick: MenuProps["onClick"] = ({ key }) => {
+        switch (key) {
+            case "cleanFilter":
+                cleanFilter();
+                break;
+            case "payoffPayment":
+                setCallback(() => {
+                    refetchInvoices();
+                });
+                openPayoffBatchModal();
+                break;
+            default:
+                break;
+        }
+    };
 
     return (
         <>
@@ -55,23 +73,32 @@ function FinancialPage({ searchParams }) {
                         Valores em aberto
                     </Title>
                     <div>
-                        <Button
-                            icon={<FileAddOutlined />}
-                            type="primary"
-                            onClick={() => onOpenInvoiceDetail(undefined)}
-                        >
-                            Adicionar nota
-                        </Button>
-                        <Button
-                            icon={<ToTopOutlined />}
-                            onClick={openPayoffBatchModal}
-                            disabled={selectedRow.filter((item) => item.selected).length === 0}
-                        >
-                            Baixar pagamentos
-                        </Button>
-                        <Button icon={<ClearOutlined />} onClick={cleanFilter}>
-                            Limpar filtros
-                        </Button>
+                        <Space.Compact>
+                            <Button
+                                icon={<FileAddOutlined />}
+                                type="primary"
+                                onClick={() => onOpenInvoiceDetail(undefined)}
+                            >
+                                Adicionar nota
+                            </Button>
+                            <Dropdown
+                                menu={{
+                                    items: [
+                                        { key: "cleanFilter", label: "Limpar filtros", icon: <ClearOutlined /> },
+                                        {
+                                            key: "payoffPayment",
+                                            label: "Baixar pagamentos",
+                                            icon: <ToTopOutlined />,
+                                            disabled: selectedRow.filter((item) => item.selected).length === 0,
+                                        },
+                                    ],
+                                    onClick: onMenuClick,
+                                }}
+                                placement="bottomRight"
+                            >
+                                <Button icon={<EllipsisOutlined />} />
+                            </Dropdown>
+                        </Space.Compact>
                     </div>
                 </div>
                 <InvoicesTable
@@ -89,6 +116,7 @@ function FinancialPage({ searchParams }) {
                 invoiceDetail={invoiceDetail}
                 isLoading={isLoadingInvoiceDetail}
                 onUpdateInvoiceDetail={onUpdateInvoiceDetail}
+                onCreateNewInvoice={onCreateNewInvoice}
                 tags_data={tags}
                 isLoadingTags={isLoadingTags}
             />

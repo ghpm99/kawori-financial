@@ -10,7 +10,7 @@ import Link from "next/link";
 import { formatMoney, formatterDate } from "@/util/index";
 
 import FilterDropdown from "@/components/common/filterDropdown/Index";
-import { SelectedRowType } from "@/components/providers/payments";
+import { SelectedRowType } from "@/components/providers/selectPayments";
 
 const { RangePicker } = DatePicker;
 
@@ -287,6 +287,7 @@ const PaymentsTable = ({
                         (item) =>
                             ({
                                 id: item.id,
+                                name: item.name,
                                 selected: selectedRowKeys.includes(item.id),
                             }) as SelectedRowType,
                     );

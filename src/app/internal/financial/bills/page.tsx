@@ -22,6 +22,7 @@ function BillsPage({ searchParams }) {
     const {
         paymentFilters,
         paymentsData,
+        refetchPayments,
         isLoading,
         onChangePagination,
         handleChangeFilter,
@@ -29,7 +30,6 @@ function BillsPage({ searchParams }) {
         handleSelectFilter,
         updateFiltersBySearchParams,
         cleanFilter,
-
         paymentDetailVisible,
         onClosePaymentDetail,
         onOpenPaymentDetail,
@@ -41,14 +41,13 @@ function BillsPage({ searchParams }) {
     const { selectedRow, updateSelectedRows } = useSelectPayments();
 
     const {
+        setCallback,
         modalBatchVisible,
         openPayoffBatchModal,
         closePayoffBatchModal,
         paymentsToProcess,
         paymentPayoffBatchProgress,
         paymentPayoffBatchProgressText,
-        setPaymentsToProcess,
-
         processPayOffBatch,
         payOffPayment,
         processPayOffBatchCompleted,
@@ -66,16 +65,6 @@ function BillsPage({ searchParams }) {
         updateSearchParams(router, pathname, paymentFilters);
     }, [paymentFilters, router, pathname]);
 
-    const openPayoffModal = () => {
-        openPayoffBatchModal();
-        const dataSource: PayoffPayment[] = selectedRow.map((id) => ({
-            id: parseInt(id.toString()),
-            description: "Aguardando",
-            status: "pending",
-        }));
-        setPaymentsToProcess(dataSource);
-    };
-
     return (
         <>
             <Breadcrumb className={styles.breadcrumb}>
@@ -89,7 +78,16 @@ function BillsPage({ searchParams }) {
                         Pagamentos
                     </Title>
                     <div>
-                        <Button icon={<ToTopOutlined />} onClick={openPayoffModal} disabled={selectedRow.length === 0}>
+                        <Button
+                            icon={<ToTopOutlined />}
+                            onClick={() => {
+                                setCallback(() => {
+                                    refetchPayments();
+                                });
+                                openPayoffBatchModal();
+                            }}
+                            disabled={selectedRow.length === 0}
+                        >
                             Baixar pagamentos
                         </Button>
                         <Button icon={<ClearOutlined />} onClick={cleanFilter}>

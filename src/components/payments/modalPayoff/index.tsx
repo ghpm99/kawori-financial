@@ -17,6 +17,7 @@ interface IModalPayoffProps {
     onCancel: () => void;
     onPayoff: () => void;
     percent: number;
+    percentFailed: number;
     progressText: string;
     data: PayoffPayment[];
     completed: boolean;
@@ -28,21 +29,21 @@ const ModalPayoff = ({
     onCancel,
     onPayoff,
     percent,
+    percentFailed,
     progressText,
     data,
     completed,
     processing,
 }: IModalPayoffProps) => {
-    const statusIcon = (status: number) => {
-        if (status === 0) {
-            return <LoadingOutlined />;
-        } else if (status === 1) {
-            return <CheckCircleOutlined />;
-        } else if (status === 2) {
-            return <ExclamationCircleOutlined />;
-        } else {
-            return <CloseCircleOutlined />;
-        }
+    const statusIcon = (status: PayoffPayment["status"]) => {
+        const icons = {
+            pending: <LoadingOutlined style={{ color: "#1677ff" }} />, // azul
+            completed: <CheckCircleOutlined style={{ color: "#52c41a" }} />, // verde
+            failed: <ExclamationCircleOutlined style={{ color: "#faad14" }} />, // laranja
+            cancelled: <CloseCircleOutlined style={{ color: "#ff4d4f" }} />, // vermelho
+        };
+
+        return icons[status] ?? <CloseCircleOutlined style={{ color: "#ff4d4f" }} />;
     };
 
     const footerButtons = () => {
@@ -68,10 +69,22 @@ const ModalPayoff = ({
                 <Progress
                     type="circle"
                     percent={percent}
-                    // success={{ percent: percentProgress.success }}
+                    strokeColor="#52c41a" // verde
+                    success={{
+                        percent: percentFailed,
+                        strokeColor: "#ff4d4f", // vermelho
+                    }}
                 />
                 {progressText}
             </div>
+            <Table
+                columns={[
+                    { title: "Pagamento", dataIndex: "name", key: "name" },
+                    { title: "Descrição", dataIndex: "description", key: "description" },
+                    { title: "Status", dataIndex: "status", key: "status", render: (value) => statusIcon(value) },
+                ]}
+                dataSource={data}
+            />
         </Modal>
     );
 };
