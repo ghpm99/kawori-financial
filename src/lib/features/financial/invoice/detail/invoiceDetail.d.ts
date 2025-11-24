@@ -3,29 +3,3 @@ interface IInvoiceDetailStore {
     payments: IInvoicePaymentsDetail;
     loading: boolean;
 }
-
-interface IInvoiceDetail {
-    id: number;
-    status: number;
-    name: string;
-    installments: number;
-    value: number;
-    value_open: number;
-    value_closed: number;
-    date: string;
-    next_payment: string;
-    tags: ITags[];
-    active: boolean;
-}
-
-interface IInvoicePaymentsDetail {
-    data: IPaymentPagination[];
-    loading: boolean;
-    pagination: {
-        currentPage: number;
-        hasNext: boolean;
-        hasPrevious: boolean;
-        totalPages: number;
-    };
-    filters: IPaymentFilters;
-}

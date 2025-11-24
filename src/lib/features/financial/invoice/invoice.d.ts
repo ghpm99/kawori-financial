@@ -11,19 +11,6 @@ interface IInvoiceStore {
     filters: IInvoiceFilters;
 }
 
-interface IInvoicePagination {
-    id: number;
-    status: number;
-    name: string;
-    installments: number;
-    value: number;
-    value_open: number;
-    value_closed: number;
-    date: string;
-    next_payment: string;
-    tags: ITags[];
-}
-
 interface IModalInvoice {
     newPayment: {
         visible: boolean;
@@ -41,16 +28,3 @@ type PayloadSetFilterInvoiceAction = {
     name: string;
     value: any;
 };
-
-interface InvoicesPage {
-    current_page: number;
-    total_pages: number;
-    page_size: number;
-    has_previous: boolean;
-    has_next: boolean;
-    data: IInvoicePagination[];
-}
-
-interface InvoicesApiResponse {
-    data: InvoicesPage;
-}
