@@ -33,7 +33,7 @@ type PayoffContextValue = {
     payOffPayment: (id: number) => void;
     processPayOffBatchCompleted: boolean;
     processingBatch: boolean;
-    setCallback: (cb: (() => void) | null) => void;
+    setCallback: (cb: () => void) => void;
     clearCallback: () => void;
     runCallback: () => void;
 };

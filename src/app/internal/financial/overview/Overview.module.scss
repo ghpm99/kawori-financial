@@ -1,0 +1,45 @@
+.breadcrumb {
+    margin: 16px;
+}
+
+.container {
+    min-height: 100vh;
+}
+
+.header {
+    padding: 0;
+}
+
+.title {
+    margin: 8px;
+}
+
+.form {
+    margin: 4px;
+    padding: 4px;
+}
+
+.header_command {
+    margin: 2px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.form_label:first-child {
+    width: 140px;
+}
+
+.charts-container {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 1024px;
+}
+
+.table {
+    width: 100%;
+    max-width: 1024px !important;
+    :global(.ant-table-content) {
+        overflow-x: auto;
+    }
+}

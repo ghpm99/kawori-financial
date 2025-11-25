@@ -7,22 +7,33 @@ import { fetchDetailTagService, fetchTagsService, saveTagService } from "@/servi
 
 const messageKey = "tag_pagination_message";
 
+export interface ITags {
+    id: number;
+    name: string;
+    color: string;
+    total_payments: number;
+    total_value: number;
+    total_open: number;
+    total_closed: number;
+    is_budget: boolean;
+}
+
 type TagsContextValue = {
     data: ITags[];
     loading: boolean;
     openDrawer: boolean;
     handleOnOpenDrawer: (id?: number) => void;
     handleOnCloseDrawer: () => void;
-    tagDetails: ITag;
+    tagDetails: ITags;
     isLoadingTagDetails: boolean;
-    onUpdateTagDetail: (values: ITag) => void;
+    onUpdateTagDetail: (values: ITags) => void;
 };
 
 const TagsContext = createContext<TagsContextValue | undefined>(undefined);
 
 export const TagsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [openDrawer, setOpenDrawer] = useState(false);
-    const [detailTagId, setDetailTagId] = useState(undefined);
+    const [detailTagId, setDetailTagId] = useState<number | undefined>(undefined);
 
     const { data, isLoading, refetch } = useQuery({
         queryKey: ["tags"],
@@ -42,7 +53,7 @@ export const TagsProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     const { mutate } = useMutation({
-        mutationFn: async (tag: ITag) => {
+        mutationFn: async (tag: ITags) => {
             const response = await saveTagService(tag);
             return response.data;
         },
@@ -64,7 +75,7 @@ export const TagsProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setOpenDrawer(false);
     };
 
-    const onUpdateTagDetail = (values: ITag) => {
+    const onUpdateTagDetail = (values: ITags) => {
         mutate(values);
     };
     return (

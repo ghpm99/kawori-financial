@@ -28,7 +28,7 @@ export interface IUserData {
 }
 
 type UserContextType = {
-    user: IUserData | null;
+    user?: IUserData;
     groups?: string[];
     loading: boolean;
     error: Error | null;
@@ -67,7 +67,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const value = useMemo<UserContextType>(
         () => ({
-            user: localUser ?? (userData ? userData.data : null),
+            user: localUser ?? (userData ? userData.data : undefined),
             groups: userGroupsData ? userGroupsData.data.data : [],
             loading: isLoading,
             error: error ?? null,

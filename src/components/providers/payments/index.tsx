@@ -13,6 +13,73 @@ import {
     savePaymentDetailService,
 } from "@/services/financial";
 
+export interface IPaymentPagination {
+    id: number;
+    status: number;
+    type: number;
+    name: string;
+    date: string;
+    installments: number;
+    payment_date: string;
+    fixed: boolean;
+    value: number;
+}
+export interface IPaymentDetail {
+    id: number;
+    status: number;
+    type: number;
+    name: string;
+    date: string;
+    installments: number;
+    payment_date: string;
+    fixed: boolean;
+    active: boolean;
+    value: number;
+    invoice: number;
+    invoice_name: string;
+    contract: number;
+    contract_name: string;
+}
+
+export interface IPaymentFilters {
+    page: number;
+    page_size: number;
+    status?: "all" | "open" | "done";
+    type?: number;
+    name__icontains?: string;
+    date__gte?: string;
+    date__lte?: string;
+    installments?: number;
+    payment_date__gte?: string;
+    payment_date__lte?: string;
+    fixed?: boolean;
+    active?: boolean;
+    invoice?: string;
+    invoice_id?: number;
+}
+export interface PaymentItem {
+    id: number;
+    status: number;
+    type: number;
+    name: string;
+    date: string;
+    installments: number;
+    payment_date: string;
+    fixed: boolean;
+    value: number;
+    invoice_id: number;
+    invoice_name: string;
+}
+
+export interface PaymentsPage {
+    current_page: number;
+    total_pages: number;
+    page_size: number;
+    has_previous: boolean;
+    has_next: boolean;
+    data: PaymentItem[];
+}
+
 type PaymentsContextValue = {
     paymentFilters: IPaymentFilters;
     paymentsData: PaymentsPage;
@@ -104,7 +171,7 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     const [localFilters, dispatchFilters] = useReducer(paymentFiltersReducer, undefined, initFilters);
     const [paymentDetailVisible, setPaymentDetailVisible] = useState<boolean>(false);
-    const [paymentDetailId, setPaymentDetailId] = useState<number>(undefined);
+    const [paymentDetailId, setPaymentDetailId] = useState<number | undefined>(undefined);
 
     const {
         data,

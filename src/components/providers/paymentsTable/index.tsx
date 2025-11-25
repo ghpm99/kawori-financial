@@ -11,6 +11,7 @@ import {
     fetchDetailPaymentService,
     savePaymentDetailService,
 } from "@/services/financial";
+import { IPaymentDetail, IPaymentFilters, PaymentsPage } from "../payments";
 
 type PaymentsTableContextValue = {
     paymentsData: PaymentsPage;
@@ -102,7 +103,7 @@ export const PaymentsTableProvider: React.FC<{ children: React.ReactNode; invoic
     const [selectedRow, setSelectedRow] = useState<React.Key[]>([]);
     const [localFilters, dispatchFilters] = useReducer(paymentFiltersReducer, defaultFilters);
     const [paymentDetailVisible, setPaymentDetailVisible] = useState<boolean>(false);
-    const [paymentDetailId, setPaymentDetailId] = useState<number>(undefined);
+    const [paymentDetailId, setPaymentDetailId] = useState<number | undefined>(undefined);
 
     const {
         data,

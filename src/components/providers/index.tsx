@@ -1,13 +1,10 @@
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import StoreProvider from "@/app/storeProvider";
-
-import ThemeProvider from "@/components/themeProvider";
-
 import AuthProvider from "./auth";
 import { LayoutProvider } from "./layout";
 import UserProvider from "./user";
+import ThemeProvider from "./themeProvider";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -18,18 +15,16 @@ const queryClient = new QueryClient({
     },
 });
 
-const AppProviders = ({ children }) => (
+const AppProviders = ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-            <StoreProvider>
-                <AntdRegistry>
-                    <AuthProvider>
-                        <UserProvider>
-                            <LayoutProvider>{children}</LayoutProvider>
-                        </UserProvider>
-                    </AuthProvider>
-                </AntdRegistry>
-            </StoreProvider>
+            <AntdRegistry>
+                <AuthProvider>
+                    <UserProvider>
+                        <LayoutProvider>{children}</LayoutProvider>
+                    </UserProvider>
+                </AuthProvider>
+            </AntdRegistry>
         </ThemeProvider>
     </QueryClientProvider>
 );

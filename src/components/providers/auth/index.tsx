@@ -55,7 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             queryClient.invalidateQueries({ queryKey: ["verifyToken"] });
         },
-        onError: (error: AxiosError) => {
+        onError: (error) => {
             const errorMessage = (error?.response?.data as { msg: string })?.msg;
             if (errorMessage) {
                 setErrorMessage(errorMessage);

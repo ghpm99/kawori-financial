@@ -13,8 +13,66 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import { updateSearchParams } from "@/util";
 import axios, { AxiosError } from "axios";
+import { ITags } from "../tags";
 
 const messageKey = "invoice_pagination_message";
+
+interface PaymentsPage {
+    current_page: number;
+    total_pages: number;
+    page_size: number;
+    has_previous: boolean;
+    has_next: boolean;
+    data: PaymentItem[];
+}
+
+interface IInvoiceDetail {
+    id: number;
+    status: number;
+    name: string;
+    installments: number;
+    value: number;
+    value_open: number;
+    value_closed: number;
+    date: string;
+    next_payment: string;
+    tags: ITags[];
+    active: boolean;
+}
+
+interface IInvoiceFilters {
+    page: number;
+    page_size: number;
+    status?: string;
+    name__icontains?: string;
+    installments?: number;
+    date__gte?: string;
+    date__lte?: string;
+    type?: number;
+    fixed?: boolean;
+}
+
+interface IInvoicePagination {
+    id: number;
+    status: number;
+    name: string;
+    installments: number;
+    value: number;
+    value_open: number;
+    value_closed: number;
+    date: string;
+    next_payment: string;
+    tags: ITags[];
+}
+
+interface InvoicesPage {
+    current_page: number;
+    total_pages: number;
+    page_size: number;
+    has_previous: boolean;
+    has_next: boolean;
+    data: IInvoicePagination[];
+}
 
 type InvoicesContextValue = {
     invoicesData: InvoicesPage;
@@ -106,7 +164,7 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode; customDefau
         ...customDefaultFilters,
     });
     const [invoiceDetailVisible, setInvoiceDetailVisible] = useState<boolean>(false);
-    const [invoiceDetailId, setInvoiceDetailId] = useState<number>(undefined);
+    const [invoiceDetailId, setInvoiceDetailId] = useState<number | undefined>(undefined);
 
     const {
         data,
@@ -179,7 +237,7 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode; customDefau
         onError: (error) => {
             let msgError = `Erro ao atualizar nota: ${error.message}`;
             if (axios.isAxiosError(error)) {
-                msgError = ((error as AxiosError).response.data as CommonApiResponse).msg ?? "Erro ao atualizar nota";
+                msgError = ((error as AxiosError)?.response?.data as CommonApiResponse).msg ?? "Erro ao atualizar nota";
             }
             message.error({
                 content: msgError,
@@ -211,7 +269,7 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode; customDefau
         onError: (error: Error) => {
             let msgError = `Erro ao criar nota: ${error.message}`;
             if (axios.isAxiosError(error)) {
-                msgError = ((error as AxiosError).response.data as CommonApiResponse).msg ?? "Erro ao criar nota";
+                msgError = ((error as AxiosError).response?.data as CommonApiResponse).msg ?? "Erro ao criar nota";
             }
             message.error({
                 content: msgError,
