@@ -60,11 +60,6 @@ export const formatterMonthYearDate = (dateString: string) => {
     return dayjs(dateString).format("MM/YYYY");
 };
 
-export type AssetsClassData = {
-    awakeningImage?: string;
-    successionImage?: string;
-};
-
 export const normalizeString = (className: string): string => {
     return className.replace(" ", "-").toLowerCase();
 };

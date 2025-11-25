@@ -6,20 +6,16 @@ import { Button } from "antd";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-import { signoutThunk } from "@/lib/features/auth";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import LogoKawori from "assets/kaori_logo6.png";
 
 import { useAuth } from "@/components/providers/auth";
-import { useTheme } from "@/components/themeProvider/themeContext";
 
 import styles from "./signout.module.scss";
+import { useTheme } from "@/components/providers/themeProvider/themeContext";
 
 export default function Signout() {
-    const dispatch = useAppDispatch();
     const navigate = useRouter();
-    const { signOut } = useAuth();
-    const loadingStore = useAppSelector((state) => state.loading);
+    const { signOut, loading } = useAuth();
     const {
         state: { theme },
     } = useTheme();
@@ -27,15 +23,9 @@ export default function Signout() {
     useEffect(() => {
         signOut();
     }, [signOut]);
-    const loading = loadingStore.effects["auth/signout"] !== "idle";
-
-    useEffect(() => {
-        dispatch(signoutThunk());
-    }, [dispatch]);
 
     useEffect(() => {
         if (loading) return;
-
         navigate.push("/");
     }, [loading, navigate]);
 

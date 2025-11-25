@@ -4,18 +4,17 @@ import React from "react";
 
 import { Layout } from "antd";
 
-import { useAppSelector } from "@/lib/hooks";
-
 import MenuHeader from "@/components/menuHeader";
 import { useAuth } from "@/components/providers/auth";
 
 import styles from "./landing.module.scss";
+import { useUser } from "@/components/providers/user";
 
 const { Footer } = Layout;
 
 const LandingLayout = ({ children }: { children: React.ReactNode }) => {
     const { isAuthenticated, signOut } = useAuth();
-    const { user } = useAppSelector((state) => state.auth);
+    const { user } = useUser();
 
     return (
         <div className={styles["container"]}>
