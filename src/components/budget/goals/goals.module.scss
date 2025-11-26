@@ -1,0 +1,19 @@
+.container {
+    max-width: 850px;
+}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 50px;
+}
+
+.button-group {
+    display: flex;
+    gap: 8px;
+}
+
+.alert {
+    margin-bottom: 16px;
+}

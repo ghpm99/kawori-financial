@@ -8,17 +8,15 @@ import MenuHeader from "@/components/menuHeader";
 import { useAuth } from "@/components/providers/auth";
 
 import styles from "./landing.module.scss";
-import { useUser } from "@/components/providers/user";
 
 const { Footer } = Layout;
 
 const LandingLayout = ({ children }: { children: React.ReactNode }) => {
     const { isAuthenticated, signOut } = useAuth();
-    const { user } = useUser();
 
     return (
         <div className={styles["container"]}>
-            <MenuHeader isAuthenticated={isAuthenticated} user={user} signOut={signOut} />
+            <MenuHeader isAuthenticated={isAuthenticated} signOut={signOut} />
             <div className={styles["body"]}>
                 <div className={styles["internal-page"]}>{children}</div>
             </div>
