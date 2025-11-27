@@ -97,3 +97,10 @@ export const getStringValue = (value: string | string[] | undefined): string | u
     }
     return value;
 };
+
+export const getNumberValue = (value: string | string[] | undefined): number | undefined => {
+    const strValue = getStringValue(value);
+    if (!strValue) return undefined;
+    const num = Number(strValue);
+    return isNaN(num) ? undefined : num;
+};

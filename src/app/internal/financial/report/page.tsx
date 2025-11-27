@@ -78,7 +78,7 @@ function ReportPage() {
     const {
         state: { theme },
     } = useTheme();
-    console.log(month);
+
     return (
         <>
             <Breadcrumb

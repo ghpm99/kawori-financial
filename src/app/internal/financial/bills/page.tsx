@@ -58,8 +58,10 @@ function BillsPage({ searchParams }: { searchParams: { [key: string]: string | s
     const pathname = usePathname();
 
     useEffect(() => {
-        updateFiltersBySearchParams(searchParams);
-    }, [searchParams, updateFiltersBySearchParams]);
+        Promise.resolve(searchParams).then((params) => {
+            updateFiltersBySearchParams(params);
+        });
+    }, []);
 
     useEffect(() => {
         updateSearchParams(router, pathname, paymentFilters);

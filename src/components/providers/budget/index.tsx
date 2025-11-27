@@ -54,6 +54,7 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             const response = await fetchAllBudgetService(periodDate);
             const budgets = response.data;
             setBudgetsState(budgets);
+            return budgets;
         },
     });
 

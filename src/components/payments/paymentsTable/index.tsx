@@ -9,9 +9,9 @@ import Link from "next/link";
 
 import { formatMoney, formatterDate } from "@/util/index";
 
-import FilterDropdown from "@/components/common/filterDropdown/Index";
 import { SelectedRowType } from "@/components/providers/selectPayments";
 import { IPaymentFilters, IPaymentPagination, PaymentItem, PaymentsPage } from "@/components/providers/payments";
+import FilterDropdown from "@/components/filterDropdown/Index";
 
 const { RangePicker } = DatePicker;
 

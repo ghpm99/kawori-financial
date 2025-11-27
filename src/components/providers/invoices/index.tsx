@@ -10,7 +10,7 @@ import {
     includeNewInvoiceService,
     saveInvoiceService,
 } from "@/services/financial/invoices";
-import { getStringValue, updateSearchParams } from "@/util";
+import { getNumberValue, getStringValue, updateSearchParams } from "@/util";
 import { AxiosError } from "axios";
 import { usePathname, useRouter } from "next/navigation";
 import { PaymentsPage } from "../payments";
@@ -286,13 +286,13 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode; customDefau
             return;
         }
         const filters: IInvoiceFilters = {
-            page: Number(getStringValue(searchParams.page)),
-            page_size: Number(getStringValue(searchParams.page_size)),
+            page: getNumberValue(searchParams.page) || 1,
+            page_size: getNumberValue(searchParams.page_size) || 10,
 
             date__gte: getStringValue(searchParams.date__gte),
             date__lte: getStringValue(searchParams.date__lte),
 
-            installments: Number(getStringValue(searchParams.installments)),
+            installments: getNumberValue(searchParams.installments),
             name__icontains: getStringValue(searchParams.name__icontains),
 
             status: getStringValue(searchParams.status),

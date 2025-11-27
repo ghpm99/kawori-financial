@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/nextjs";
 import axios, { AxiosError, AxiosResponse, HttpStatusCode } from "axios";
+import { refreshTokenAsync } from "./auth";
 
 export const apiDjango = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL + "/",
@@ -22,14 +23,23 @@ export const errorInterceptor = async (error: AxiosError) => {
     }
 
     if (response?.status === HttpStatusCode.Unauthorized) {
-        if (typeof window !== "undefined") {
-            window.dispatchEvent(new CustomEvent("tokenRefreshFailed"));
+        try {
+            await refreshTokenAsync();
+        } catch (refreshError) {
+            sendEventTokenRefreshFailed();
+            return Promise.reject(refreshError);
         }
     }
 
     Sentry.captureException(error);
 
     return Promise.reject(error);
+};
+
+const sendEventTokenRefreshFailed = () => {
+    if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("tokenRefreshFailed"));
+    }
 };
 
 apiDjango.interceptors.response.use(responseInterceptor, errorInterceptor);

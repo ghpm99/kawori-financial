@@ -33,7 +33,7 @@ const UserDrawer = ({ user, open, onClose, onSignout }: IUserDrawerProps) => {
         <Drawer
             title={"Detalhes da conta"}
             placement={"right"}
-            width={500}
+            size={"default"}
             onClose={onClose}
             open={open}
             extra={

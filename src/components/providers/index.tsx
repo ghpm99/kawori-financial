@@ -1,16 +1,16 @@
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import AuthProvider from "./auth";
 import { LayoutProvider } from "./layout";
 import UserProvider from "./user";
 import ThemeProvider from "./themeProvider";
+import { AuthProvider } from "./auth";
 
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
-            refetchOnWindowFocus: false,
-            retry: false,
+            refetchOnWindowFocus: true,
+            retry: true,
         },
     },
 });

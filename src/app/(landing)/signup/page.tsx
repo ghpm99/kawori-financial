@@ -42,7 +42,7 @@ const SignupPage = () => {
 
     useEffect(() => {
         if (isAuthenticated) {
-            navigate.push("/internal/financial/overview");
+            navigate.push("/internal/financial/report");
         }
     }, [isAuthenticated, navigate]);
 

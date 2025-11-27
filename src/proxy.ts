@@ -1,4 +1,17 @@
-import { MiddlewareConfig, NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+
+export const config = {
+    matcher: [
+        /*
+         * Match all request paths except for the ones starting with:
+         * - api (API routes)
+         * - _next/static (static files)
+         * - _next/image (image optimization files)
+         * - favicon.ico, sitemap.xml, robots.txt (metadata files)
+         */
+        "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+    ],
+};
 
 const Routes = [
     { path: "/", private: false, whenAuthenticated: "next" },
@@ -12,7 +25,7 @@ const Routes = [
 
 const REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE = "/signout";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
     const path = getPrefixRequestPathname(request);
     const route = Routes.find((route) => route.path === path);
     const authenticated = !!request.cookies.get("lifetimetoken");
@@ -47,16 +60,3 @@ function getPrefixRequestPathname(request: NextRequest): string {
 
     return splitPath;
 }
-
-export const config: MiddlewareConfig = {
-    matcher: [
-        /*
-         * Match all request paths except for the ones starting with:
-         * - api (API routes)
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico, sitemap.xml, robots.txt (metadata files)
-         */
-        "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
-    ],
-};

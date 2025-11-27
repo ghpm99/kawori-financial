@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useMemo } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { message } from "antd";
 import { AxiosError } from "axios";
@@ -126,6 +126,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         return undefined;
     };
+
+    useEffect(() => {
+        const handleTokenRefreshFailed = () => {
+            router.push("/signout");
+        };
+
+        window.addEventListener("tokenRefreshFailed", handleTokenRefreshFailed);
+
+        return () => {
+            window.removeEventListener("tokenRefreshFailed", handleTokenRefreshFailed);
+        };
+    }, [router]);
 
     const value = useMemo(
         () => ({

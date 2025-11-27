@@ -35,8 +35,6 @@ const InvoiceDrawer = ({
     const [form] = Form.useForm();
     const isEdit = Boolean(invoiceDetail && invoiceDetail.id);
 
-    console.log("isEdit", isEdit);
-
     const tags = tags_data.map((tag) => ({
         ...tag,
         value: tag.name,

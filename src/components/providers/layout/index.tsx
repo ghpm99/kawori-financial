@@ -46,7 +46,7 @@ const menuItems: MenuItem[] = [
     {
         key: "overview",
         label: "Overview",
-        path: "/internal/financial/overview",
+        path: "/internal/financial/report",
         icon: <LineChartOutlined />,
         securePath: true,
         userGroup: "financial",
