@@ -110,16 +110,6 @@ function BillsPage({ searchParams }: { searchParams: { [key: string]: string | s
                     selectedRow={selectedRow}
                     updateSelectedRows={updateSelectedRows}
                 />
-                <ModalPayoff
-                    visible={modalBatchVisible}
-                    onCancel={closePayoffBatchModal}
-                    onPayoff={processPayOffBatch}
-                    data={paymentsToProcess}
-                    percent={paymentPayoffBatchProgress}
-                    progressText={paymentPayoffBatchProgressText()}
-                    completed={processPayOffBatchCompleted}
-                    processing={processingBatch}
-                />
                 <PaymentsDrawer
                     onClose={onClosePaymentDetail}
                     open={paymentDetailVisible}

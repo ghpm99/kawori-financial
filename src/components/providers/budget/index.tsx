@@ -31,7 +31,7 @@ type BudgetContextValue = {
     removeBudget: (id: number) => void;
     selectBudget: (id?: number) => void;
     clearSelection: () => void;
-    updateBudgetAllocationPercentage: (id: number, allocation_percentage: number) => void;
+    updateBudgetAllocationPercentage: (id: number, allocation_percentage: number | null) => void;
     feedbackMessage: FeedbackMessageType;
     enabledSave: boolean;
     saveBudgets: () => void;
@@ -63,7 +63,7 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             const response = await saveBudgetService(data);
             return response.msg;
         },
-        onSuccess: (msg) => {
+        onSuccess: (msg: string) => {
             message.success({
                 content: msg,
                 key: messageKey,
@@ -82,7 +82,7 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             const response = await resetBudgetService();
             return response.msg;
         },
-        onSuccess: (msg) => {
+        onSuccess: (msg: string) => {
             message.success({
                 content: msg,
                 key: messageKey,
@@ -133,7 +133,9 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         [budgets],
     );
 
-    const updateBudgetAllocationPercentage = useCallback((id: number, allocation_percentage: number) => {
+    const updateBudgetAllocationPercentage = useCallback((id: number, allocation_percentage: number | null) => {
+        if (!allocation_percentage) return;
+
         setBudgetsState((prev) => prev.map((b) => (b.id === id ? { ...b, allocation_percentage } : b)));
     }, []);
 

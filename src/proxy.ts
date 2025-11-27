@@ -23,7 +23,7 @@ const Routes = [
     { path: "/financial", private: true, whenAuthenticated: "next" },
 ] as const;
 
-const REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE = "/signout";
+const REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE = "/";
 
 export function proxy(request: NextRequest) {
     const path = getPrefixRequestPathname(request);

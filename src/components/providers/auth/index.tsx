@@ -39,13 +39,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const router = useRouter();
     const queryClient = useQueryClient();
 
-    const queryConfig = {
-        retry: 3,
-        retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000),
-        staleTime: 5 * 60 * 1000,
-        refetchOnWindowFocus: true,
-    };
-
     const {
         data: verifyTokenData,
         isLoading: isVerifying,
@@ -55,7 +48,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         queryKey: ["auth"],
         queryFn: verifyTokenService,
         enabled: verifyLocalStore(),
-        ...queryConfig,
     });
 
     const isAuthenticated = verifyTokenData?.data?.msg === "Token válido";
@@ -81,7 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         onSuccess: () => {
             localStorage.removeItem(LOCAL_STORE_ITEM_NAME);
             queryClient.clear();
-            router.push("/login");
+            router.push("/");
         },
     });
 
@@ -129,7 +121,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     useEffect(() => {
         const handleTokenRefreshFailed = () => {
-            router.push("/signout");
+            logout();
         };
 
         window.addEventListener("tokenRefreshFailed", handleTokenRefreshFailed);
@@ -137,7 +129,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return () => {
             window.removeEventListener("tokenRefreshFailed", handleTokenRefreshFailed);
         };
-    }, [router]);
+    }, [logout, router]);
 
     const value = useMemo(
         () => ({
