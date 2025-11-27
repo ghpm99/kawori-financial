@@ -37,7 +37,6 @@ export const formatMoney = (
                 : "")
         );
     } catch (e) {
-        // eslint-disable-next-line no-console
         console.error(e);
     }
     return amount;
@@ -81,12 +80,24 @@ export const updateSearchParams = (router: AppRouterInstance, pathname: string, 
     const current = new URLSearchParams();
 
     for (const filter in filters) {
-        if (!filters[filter] || filters[filter] === "") continue;
-        current.set(filter, filters[filter]);
+        const value = filters[filter as keyof typeof filters];
+        if (value === null || value === undefined || value === "") continue;
+        current.set(filter, String(value));
     }
 
     const search = current.toString();
     const query = search ? `?${search}` : "";
 
     router.push(`${pathname}${query}`);
+};
+
+export const getStringValue = (value: string | string[] | undefined): string | undefined => {
+    if (Array.isArray(value)) {
+        return value[0];
+    }
+    return value;
+};
+
+export const removeUndefinedFromEntries = <T extends Record<string, unknown>>(obj: T): T => {
+    return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v !== undefined)) as T;
 };

@@ -59,7 +59,7 @@ function BillsPage({ searchParams }: { searchParams: { [key: string]: string | s
 
     useEffect(() => {
         updateFiltersBySearchParams(searchParams);
-    }, [searchParams]);
+    }, [searchParams, updateFiltersBySearchParams]);
 
     useEffect(() => {
         updateSearchParams(router, pathname, paymentFilters);

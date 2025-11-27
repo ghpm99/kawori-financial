@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Button, Col, DatePicker, Drawer, Form, Input, Row, Space } from "antd";
 import dayjs from "dayjs";
 
-import { useTheme } from "../providers/themeProvider/themeContext";
 import { IUserData } from "../providers/user";
 
 export interface IUserDrawerProps {
@@ -19,13 +18,6 @@ const dateFormat = "DD/MM/YYYY hh:mm:ss";
 
 const UserDrawer = ({ user, open, onClose, onSignout }: IUserDrawerProps) => {
     const [confirmSignout, setConfirmSignout] = useState(false);
-    const {
-        state: { theme },
-    } = useTheme();
-
-    useEffect(() => {
-        setConfirmSignout(false);
-    }, [open]);
 
     const handleSignoutClick = () => {
         if (confirmSignout) {

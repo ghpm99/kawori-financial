@@ -1,0 +1,1 @@
+type CommonApiResponse = { msg: string };

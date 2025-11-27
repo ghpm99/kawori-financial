@@ -1,16 +1,14 @@
-import sleep from "timers";
-
 import { createContext, useContext, useMemo, useRef, useState } from "react";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { message } from "antd";
 
-import { payoffPaymentService } from "@/services/financial";
+import { payoffPaymentService } from "@/services/financial/payoff";
 
 import ModalPayoff from "@/components/payments/modalPayoff";
 
+import axios from "axios";
 import { useSelectPayments } from "../selectPayments";
-import axios, { AxiosError } from "axios";
 
 export type PayoffPayment = {
     id: number;
@@ -84,7 +82,7 @@ export const PayoffProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             const response = await payoffPaymentService(id);
             return response;
         },
-        onSuccess: ({ msg }, id) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["payments"] });
         },
     });

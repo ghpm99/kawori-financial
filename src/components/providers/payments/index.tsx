@@ -9,9 +9,10 @@ import dayjs from "dayjs";
 import {
     fetchAllPaymentService,
     fetchDetailPaymentService,
-    payoffPaymentService,
     savePaymentDetailService,
-} from "@/services/financial";
+} from "@/services/financial/payments";
+import { AxiosError } from "axios";
+import { getStringValue, removeUndefinedFromEntries } from "@/util";
 
 export interface IPaymentPagination {
     id: number;
@@ -90,13 +91,13 @@ type PaymentsContextValue = {
     handleDateRangedFilter: (name: string, dates: string[]) => void;
     handleSelectFilter: (name: keyof IPaymentFilters, value: string | number) => void;
     handleChangeAllFilters: (filters: IPaymentFilters) => void;
-    updateFiltersBySearchParams: (searchParams: any) => void;
+    updateFiltersBySearchParams: (searchParams: { [key: string]: string | string[] | undefined }) => void;
     onChangePagination: (page: number, pageSize: number) => void;
     paymentDetailVisible: boolean;
     onClosePaymentDetail: () => void;
     onOpenPaymentDetail: (paymentId?: number) => void;
     isLoadingPaymentDetail: boolean;
-    paymentDetail: IPaymentDetail | null;
+    paymentDetail: IPaymentDetail;
     onUpdatePaymentDetail: (values: IPaymentDetail) => void;
 };
 
@@ -105,7 +106,7 @@ const PaymentsContext = createContext<PaymentsContextValue | undefined>(undefine
 type FilterAction =
     | { type: "SET_ALL"; payload: IPaymentFilters }
     | { type: "RESET" }
-    | { type: "SET_FIELD"; payload: { name: keyof IPaymentFilters; value: any } }
+    | { type: "SET_FIELD"; payload: { name: keyof IPaymentFilters; value: string | number | null } }
     | { type: "SET_PAGINATION"; payload: { page: number; page_size: number } };
 
 const defaultFilters: IPaymentFilters = {
@@ -212,7 +213,7 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const { mutate: mutateUpdatePaymentDetail } = useMutation({
         mutationKey: ["updatePaymentDetail", paymentDetailId],
         mutationFn: async (data: IPaymentDetail) => {
-            const response = await savePaymentDetailService(paymentDetailId, {
+            const response = await savePaymentDetailService(paymentDetailId!, {
                 type: data.type,
                 active: data.active,
                 name: data.name,
@@ -230,9 +231,9 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 key: messageKey,
             });
         },
-        onError: (error: Error) => {
+        onError: (error: AxiosError) => {
             message.error({
-                content: `Erro ao atualizar pagamento: ${error.message}`,
+                content: (error?.response?.data as CommonApiResponse).msg ?? "Erro ao atualizar pagamento",
                 key: messageKey,
             });
         },
@@ -273,26 +274,35 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         dispatchFilters({ type: "SET_ALL", payload: filters });
     };
 
-    const updateFiltersBySearchParams = (searchParams: any) => {
+    const updateFiltersBySearchParams = (searchParams: { [key: string]: string | string[] | undefined }) => {
         if (!searchParams || Object.keys(searchParams).length === 0) {
             return;
         }
+
         const filters: IPaymentFilters = {
-            page: searchParams.page,
-            page_size: searchParams.page_size,
-            active: searchParams.active,
-            invoice: searchParams.invoice,
-            date__gte: searchParams.date__gte,
-            date__lte: searchParams.date__lte,
-            fixed: searchParams.fixed,
-            installments: searchParams.installments,
-            name__icontains: searchParams.name__icontains,
-            payment_date__gte: searchParams.payment_date__gte,
-            payment_date__lte: searchParams.payment_date__lte,
-            status: searchParams.status,
-            type: searchParams.type,
+            page: Number(getStringValue(searchParams.page)) || 1,
+            page_size: Number(getStringValue(searchParams.page_size)) || 10,
+            active: getStringValue(searchParams.active) === "true",
+            invoice: getStringValue(searchParams.invoice),
+            date__gte: getStringValue(searchParams.date__gte),
+            date__lte: getStringValue(searchParams.date__lte),
+            fixed: getStringValue(searchParams.fixed) === "true",
+            installments: Number(getStringValue(searchParams.installments)) || undefined,
+            name__icontains: getStringValue(searchParams.name__icontains),
+            payment_date__gte: getStringValue(searchParams.payment_date__gte),
+            payment_date__lte: getStringValue(searchParams.payment_date__lte),
+            status: getStringValue(searchParams.status) as "all" | "open" | "done" | undefined,
+            type: Number(getStringValue(searchParams.type)) || undefined,
         };
-        handleChangeAllFilters(filters);
+
+        const cleanedFilters = {
+            ...defaultFilters,
+            ...(Object.fromEntries(
+                Object.entries(filters).filter(([_, v]) => v !== undefined),
+            ) as Partial<IPaymentFilters>),
+        };
+
+        handleChangeAllFilters(cleanedFilters);
     };
 
     const onClosePaymentDetail = () => {

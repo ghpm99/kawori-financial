@@ -15,7 +15,7 @@ import { useEffect } from "react";
 
 const { Title } = Typography;
 
-function FinancialPage({ searchParams }) {
+function FinancialPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
     const { data: tags, loading: isLoadingTags } = useTags();
     const {
         invoicesData,

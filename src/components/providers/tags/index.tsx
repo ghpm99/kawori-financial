@@ -3,7 +3,7 @@ import { createContext, useContext, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { message } from "antd";
 
-import { fetchDetailTagService, fetchTagsService, saveTagService } from "@/services/financial";
+import { fetchDetailTagService, fetchTagsService, saveTagService } from "@/services/financial/tag";
 
 const messageKey = "tag_pagination_message";
 
@@ -47,7 +47,7 @@ export const TagsProvider: React.FC<{ children: React.ReactNode }> = ({ children
         queryKey: ["tags-details", detailTagId],
         enabled: !!detailTagId,
         queryFn: async () => {
-            const response = await fetchDetailTagService(detailTagId);
+            const response = await fetchDetailTagService(detailTagId!);
             return response.data;
         },
     });
@@ -81,12 +81,12 @@ export const TagsProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return (
         <TagsContext.Provider
             value={{
-                data,
+                data: data || [],
                 loading: isLoading,
                 openDrawer,
                 handleOnOpenDrawer,
                 handleOnCloseDrawer,
-                tagDetails,
+                tagDetails: tagDetails || ({} as ITags),
                 isLoadingTagDetails,
                 onUpdateTagDetail,
             }}
