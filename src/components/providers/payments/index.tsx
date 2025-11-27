@@ -11,8 +11,8 @@ import {
     fetchDetailPaymentService,
     savePaymentDetailService,
 } from "@/services/financial/payments";
+import { getStringValue } from "@/util";
 import { AxiosError } from "axios";
-import { getStringValue, removeUndefinedFromEntries } from "@/util";
 
 export interface IPaymentPagination {
     id: number;

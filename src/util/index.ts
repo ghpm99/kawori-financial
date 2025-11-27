@@ -97,7 +97,3 @@ export const getStringValue = (value: string | string[] | undefined): string | u
     }
     return value;
 };
-
-export const removeUndefinedFromEntries = <T extends Record<string, unknown>>(obj: T): T => {
-    return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v !== undefined)) as T;
-};

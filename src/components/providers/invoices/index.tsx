@@ -10,7 +10,7 @@ import {
     includeNewInvoiceService,
     saveInvoiceService,
 } from "@/services/financial/invoices";
-import { getStringValue, removeUndefinedFromEntries, updateSearchParams } from "@/util";
+import { getStringValue, updateSearchParams } from "@/util";
 import { AxiosError } from "axios";
 import { usePathname, useRouter } from "next/navigation";
 import { PaymentsPage } from "../payments";
