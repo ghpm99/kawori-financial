@@ -54,19 +54,23 @@ const TagDrawer = ({ open, onClose, tagDetails, isLoading, onUpdateTagDetail }: 
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item label="Id" name="id" hidden>
-                            <Input placeholder="Digite o nome" data-testid="tag-name" />
+                            <Input placeholder="Digite o nome" data-testid="tag-id" />
                         </Form.Item>
                         <Form.Item
                             label="Nome"
                             name="name"
                             rules={[{ required: true, message: "Entre com o nome da tag" }]}
                         >
-                            <Input placeholder="Digite o nome" data-testid="tag-name" />
+                            <Input
+                                placeholder="Digite o nome"
+                                data-testid="tag-name"
+                                disabled={tagDetails?.is_budget}
+                            />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
                         <Form.Item label="Cor" name="color">
-                            <input type="color" data-testid="tag-color" />
+                            <input type="color" data-testid="tag-color" disabled={tagDetails?.is_budget} />
                         </Form.Item>
                     </Col>
                 </Row>
