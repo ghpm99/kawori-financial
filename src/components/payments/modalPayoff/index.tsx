@@ -1,12 +1,10 @@
-import { useState } from "react";
-
 import {
     CheckCircleOutlined,
     CloseCircleOutlined,
     ExclamationCircleOutlined,
     LoadingOutlined,
 } from "@ant-design/icons";
-import { Button, Layout, Modal, Progress, Spin, Table } from "antd";
+import { Button, Modal, Progress, Table } from "antd";
 
 import { PayoffPayment } from "@/components/providers/payoff";
 

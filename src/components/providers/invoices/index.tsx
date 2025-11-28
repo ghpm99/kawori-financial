@@ -9,12 +9,62 @@ import {
     fetchDetailInvoiceService,
     includeNewInvoiceService,
     saveInvoiceService,
-} from "@/services/financial";
+} from "@/services/financial/invoices";
+import { getNumberValue, getStringValue, updateSearchParams } from "@/util";
+import { AxiosError } from "axios";
 import { usePathname, useRouter } from "next/navigation";
-import { updateSearchParams } from "@/util";
-import axios, { AxiosError } from "axios";
+import { PaymentsPage } from "../payments";
+import { ITags } from "../tags";
 
 const messageKey = "invoice_pagination_message";
+
+export interface IInvoiceDetail {
+    id: number;
+    status: number;
+    name: string;
+    installments: number;
+    value: number;
+    value_open: number;
+    value_closed: number;
+    date: string;
+    next_payment: string;
+    tags: ITags[];
+    active: boolean;
+}
+
+export interface IInvoiceFilters {
+    page: number;
+    page_size: number;
+    status?: string;
+    name__icontains?: string;
+    installments?: number;
+    date__gte?: string;
+    date__lte?: string;
+    type?: number;
+    fixed?: boolean;
+}
+
+export interface IInvoicePagination {
+    id: number;
+    status: number;
+    name: string;
+    installments: number;
+    value: number;
+    value_open: number;
+    value_closed: number;
+    date: string;
+    next_payment: string;
+    tags: ITags[];
+}
+
+export interface InvoicesPage {
+    current_page: number;
+    total_pages: number;
+    page_size: number;
+    has_previous: boolean;
+    has_next: boolean;
+    data: IInvoicePagination[];
+}
 
 type InvoicesContextValue = {
     invoicesData: InvoicesPage;
@@ -23,16 +73,16 @@ type InvoicesContextValue = {
     cleanFilter: () => void;
     handleChangeFilter: (e: React.ChangeEvent<HTMLInputElement>) => void;
     handleChangeAllFilters: (filters: IInvoiceFilters) => void;
-    updateFiltersBySearchParams: (searchParams: any) => void;
+    updateFiltersBySearchParams: (searchParams: { [key: string]: string | string[] | undefined }) => void;
     onChangePagination: (page: number, pageSize: number) => void;
     onOpenInvoiceDetail: (invoiceId?: number) => void;
     onCloseInvoiceDetail: () => void;
     invoiceDetailVisible: boolean;
-    invoiceDetail: IInvoiceDetail;
+    invoiceDetail?: IInvoiceDetail;
     isLoadingInvoiceDetail: boolean;
     onUpdateInvoiceDetail: (values: IInvoiceDetail) => void;
     onCreateNewInvoice: (values: IInvoiceDetail) => void;
-    invoicePaymentsData: PaymentsPage;
+    invoicePaymentsData?: PaymentsPage;
     isLoadInginvoicePaymentsData: boolean;
     refetchInvoices: (options?: RefetchOptions) => Promise<QueryObserverResult<InvoicesPage, Error>>;
 };
@@ -42,7 +92,7 @@ const InvoicesContext = createContext<InvoicesContextValue | undefined>(undefine
 type FilterAction =
     | { type: "SET_ALL"; payload: IInvoiceFilters }
     | { type: "RESET" }
-    | { type: "SET_FIELD"; payload: { name: keyof IInvoiceFilters; value: any } }
+    | { type: "SET_FIELD"; payload: { name: keyof IInvoiceFilters; value: string | number } }
     | { type: "SET_PAGINATION"; payload: { page: number; page_size: number } };
 
 const defaultFilters: IInvoiceFilters = {
@@ -106,7 +156,7 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode; customDefau
         ...customDefaultFilters,
     });
     const [invoiceDetailVisible, setInvoiceDetailVisible] = useState<boolean>(false);
-    const [invoiceDetailId, setInvoiceDetailId] = useState<number>(undefined);
+    const [invoiceDetailId, setInvoiceDetailId] = useState<number | undefined>(undefined);
 
     const {
         data,
@@ -130,11 +180,7 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode; customDefau
         },
     });
 
-    const {
-        data: invoiceDetail,
-        refetch: refetchInvoiceDetail,
-        isLoading: isLoadingInvoiceDetail,
-    } = useQuery({
+    const { data: invoiceDetail, isLoading: isLoadingInvoiceDetail } = useQuery({
         enabled: !!invoiceDetailId,
         queryKey: ["invoiceDetail", invoiceDetailId],
         queryFn: async () => {
@@ -176,13 +222,9 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode; customDefau
                 key: messageKey,
             });
         },
-        onError: (error) => {
-            let msgError = `Erro ao atualizar nota: ${error.message}`;
-            if (axios.isAxiosError(error)) {
-                msgError = ((error as AxiosError).response.data as CommonApiResponse).msg ?? "Erro ao atualizar nota";
-            }
+        onError: (error: AxiosError) => {
             message.error({
-                content: msgError,
+                content: (error?.response?.data as CommonApiResponse).msg ?? "Erro ao atualizar nota",
                 key: messageKey,
             });
         },
@@ -208,13 +250,9 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode; customDefau
                 key: messageKey,
             });
         },
-        onError: (error: Error) => {
-            let msgError = `Erro ao criar nota: ${error.message}`;
-            if (axios.isAxiosError(error)) {
-                msgError = ((error as AxiosError).response.data as CommonApiResponse).msg ?? "Erro ao criar nota";
-            }
+        onError: (error: AxiosError) => {
             message.error({
-                content: msgError,
+                content: (error.response?.data as CommonApiResponse).msg ?? "Erro ao criar nota",
                 key: messageKey,
             });
         },
@@ -242,24 +280,32 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode; customDefau
         updateSearchParams(router, pathname, localFilters);
     }, [isInitialized, localFilters, router, pathname]);
 
-    const updateFiltersBySearchParams = (searchParams) => {
+    const updateFiltersBySearchParams = (searchParams: { [key: string]: string | string[] | undefined }) => {
         if (!searchParams || Object.keys(searchParams).length === 0) {
             setIsInitialized(true);
             return;
         }
         const filters: IInvoiceFilters = {
-            page: searchParams.page,
-            page_size: searchParams.page_size,
+            page: getNumberValue(searchParams.page) || 1,
+            page_size: getNumberValue(searchParams.page_size) || 10,
 
-            date__gte: searchParams.date__gte,
-            date__lte: searchParams.date__lte,
+            date__gte: getStringValue(searchParams.date__gte),
+            date__lte: getStringValue(searchParams.date__lte),
 
-            installments: searchParams.installments,
-            name__icontains: searchParams.name__icontains,
+            installments: getNumberValue(searchParams.installments),
+            name__icontains: getStringValue(searchParams.name__icontains),
 
-            status: searchParams.status,
+            status: getStringValue(searchParams.status),
         };
-        handleChangeAllFilters(filters);
+
+        const cleanedFilters = {
+            ...defaultFilters,
+            ...(Object.fromEntries(
+                Object.entries(filters).filter(([_, v]) => v !== undefined),
+            ) as Partial<IInvoiceFilters>),
+        };
+
+        handleChangeAllFilters(cleanedFilters);
         setIsInitialized(true);
     };
 

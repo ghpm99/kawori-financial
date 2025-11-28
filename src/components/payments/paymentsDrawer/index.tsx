@@ -1,19 +1,7 @@
 import { useEffect } from "react";
 
-import {
-    Button,
-    Col,
-    DatePicker,
-    Drawer,
-    Form,
-    Input,
-    InputNumber,
-    Row,
-    Select,
-    Space,
-    Switch,
-    Typography,
-} from "antd";
+import { IPaymentDetail } from "@/components/providers/payments";
+import { Button, Col, DatePicker, Drawer, Form, Input, InputNumber, Row, Select, Space, Switch } from "antd";
 import dayjs from "dayjs";
 
 interface PaymentsDrawerProps {
@@ -24,7 +12,6 @@ interface PaymentsDrawerProps {
     onUpdatePaymentDetail: (values: IPaymentDetail) => void;
 }
 
-const { Paragraph } = Typography;
 const { Option } = Select;
 
 const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading, onUpdatePaymentDetail }: PaymentsDrawerProps) => {
@@ -54,19 +41,21 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading, onUpdatePayme
         }).format(floatValue);
     };
 
-    const parser = (value: string): number => {
+    const parser = (value: string | undefined): number => {
         if (!value) return 0;
         const digits = String(value).replace(/\D+/g, "");
         if (!digits) return 0;
         return Number(digits);
     };
 
-    const onFinish = (values: any) => {
+    const onFinish = (values: IPaymentDetail) => {
         const payload = {
             ...values,
             value: typeof values.value === "number" ? Number((values.value / 100).toFixed(2)) : 0,
-            date: values.date ? dayjs(values.date).format("YYYY-MM-DD") : null,
-            payment_date: values.payment_date ? dayjs(values.payment_date).format("YYYY-MM-DD") : null,
+            date: values.date ? dayjs(values.date).format("YYYY-MM-DD") : new Date().toISOString().split("T")[0],
+            payment_date: values.payment_date
+                ? dayjs(values.payment_date).format("YYYY-MM-DD")
+                : new Date().toISOString().split("T")[0],
         };
         onClose();
         onUpdatePaymentDetail(payload);
@@ -96,7 +85,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading, onUpdatePayme
                 </Space>
             }
         >
-            <Form form={form} layout="vertical" hideRequiredMark variant="underlined" onFinish={onFinish}>
+            <Form form={form} layout="vertical" variant="underlined" onFinish={onFinish}>
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item name="id" label="ID">

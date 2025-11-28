@@ -6,11 +6,15 @@
 import * as Sentry from "@sentry/nextjs";
 
 Sentry.init({
-    dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  dsn: "https://c65243da44ee073da47bb288ec8db6ce@o1312149.ingest.us.sentry.io/4510422934028288",
 
-    // Adjust this value in production, or use tracesSampler for greater control
-    tracesSampleRate: 1,
+  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
+  tracesSampleRate: 1,
 
-    // Setting this option to true will print useful information to the console while you're setting up Sentry.
-    debug: false,
+  // Enable logs to be sent to Sentry
+  enableLogs: true,
+
+  // Enable sending user PII (Personally Identifiable Information)
+  // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii
+  sendDefaultPii: true,
 });

@@ -1,6 +1,6 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo } from "react";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
 
 import { userDetailService, userGroupsService } from "@/services/user";
@@ -28,7 +28,7 @@ export interface IUserData {
 }
 
 type UserContextType = {
-    user: IUserData | null;
+    user?: IUserData;
     groups?: string[];
     loading: boolean;
     error: Error | null;
@@ -38,8 +38,6 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { isAuthenticated } = useAuth();
-    const queryClient = useQueryClient();
-    const [localUser, setLocalUser] = useState<IUserData | null>(null);
 
     const {
         data: userData,
@@ -67,12 +65,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const value = useMemo<UserContextType>(
         () => ({
-            user: localUser ?? (userData ? userData.data : null),
+            user: userData ? userData.data : undefined,
             groups: userGroupsData ? userGroupsData.data.data : [],
             loading: isLoading,
             error: error ?? null,
         }),
-        [localUser, userData, userGroupsData, isLoading, error],
+        [userData, userGroupsData, isLoading, error],
     );
 
     return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

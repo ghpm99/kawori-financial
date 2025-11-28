@@ -1,21 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-import { Button, Col, DatePicker, Drawer, Form, Input, Row, Select, Space, Typography } from "antd";
+import { Button, Col, DatePicker, Drawer, Form, Input, Row, Space } from "antd";
 import dayjs from "dayjs";
 
-import { IUser } from "@/lib/features/auth";
-
-import { useTheme } from "@/components/themeProvider/themeContext";
-
-import styles from "./User.module.scss";
-
-const { Title, Paragraph } = Typography;
-const { Option } = Select;
+import { IUserData } from "../providers/user";
 
 export interface IUserDrawerProps {
-    user: IUser;
+    user: IUserData;
     open: boolean;
     onClose: () => void;
     onSignout?: () => void;
@@ -25,13 +18,6 @@ const dateFormat = "DD/MM/YYYY hh:mm:ss";
 
 const UserDrawer = ({ user, open, onClose, onSignout }: IUserDrawerProps) => {
     const [confirmSignout, setConfirmSignout] = useState(false);
-    const {
-        state: { theme },
-    } = useTheme();
-
-    useEffect(() => {
-        setConfirmSignout(false);
-    }, [open]);
 
     const handleSignoutClick = () => {
         if (confirmSignout) {
@@ -47,7 +33,7 @@ const UserDrawer = ({ user, open, onClose, onSignout }: IUserDrawerProps) => {
         <Drawer
             title={"Detalhes da conta"}
             placement={"right"}
-            width={500}
+            size={"default"}
             onClose={onClose}
             open={open}
             extra={
@@ -63,7 +49,7 @@ const UserDrawer = ({ user, open, onClose, onSignout }: IUserDrawerProps) => {
                 </Space>
             }
         >
-            <Form layout="vertical" hideRequiredMark variant="underlined">
+            <Form layout="vertical" variant="underlined">
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item

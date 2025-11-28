@@ -15,7 +15,7 @@ import { useEffect } from "react";
 
 const { Title } = Typography;
 
-function FinancialPage({ searchParams }) {
+function FinancialPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
     const { data: tags, loading: isLoadingTags } = useTags();
     const {
         invoicesData,
@@ -36,7 +36,9 @@ function FinancialPage({ searchParams }) {
     } = useInvoices();
 
     useEffect(() => {
-        updateFiltersBySearchParams(searchParams);
+        Promise.resolve(searchParams).then((params) => {
+            updateFiltersBySearchParams(params);
+        });
     }, []);
 
     const { selectedRow } = useSelectPayments();

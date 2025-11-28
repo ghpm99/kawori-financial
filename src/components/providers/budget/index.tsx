@@ -1,11 +1,11 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 
+import { fetchAllBudgetService, resetBudgetService, saveBudgetService } from "@/services/financial/budget";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AlertProps, message } from "antd";
 import { AxiosError } from "axios";
 import dayjs, { Dayjs } from "dayjs";
 
-import { fetchAllBudgetService, resetBudgetService, saveBudgetService } from "@/services/financial";
 const messageKey = "budget_message";
 export interface IBudget {
     id: number;
@@ -31,7 +31,7 @@ type BudgetContextValue = {
     removeBudget: (id: number) => void;
     selectBudget: (id?: number) => void;
     clearSelection: () => void;
-    updateBudgetAllocationPercentage: (id: number, allocation_percentage: number) => void;
+    updateBudgetAllocationPercentage: (id: number, allocation_percentage: number | null) => void;
     feedbackMessage: FeedbackMessageType;
     enabledSave: boolean;
     saveBudgets: () => void;
@@ -47,18 +47,14 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const [selectedId, setSelectedId] = useState<number | undefined>(undefined);
     const [periodFilter, setPeriodFilter] = useState<Dayjs>(dayjs());
 
-    const [enabledSave, setEnabledSave] = useState(false);
-    const [feedbackMessage, setfeedbackMessage] = useState<FeedbackMessageType>({
-        msg: "",
-        type: "info",
-    });
-
-    const { data, isLoading, refetch } = useQuery({
+    const { data, isLoading } = useQuery({
         queryKey: ["budgets", periodFilter],
         queryFn: async () => {
             const periodDate = periodFilter.format("MM/YYYY");
             const response = await fetchAllBudgetService(periodDate);
-            return response.data;
+            const budgets = response.data;
+            setBudgetsState(budgets);
+            return budgets;
         },
     });
 
@@ -67,8 +63,7 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             const response = await saveBudgetService(data);
             return response.msg;
         },
-        onSuccess: (msg) => {
-            refetch();
+        onSuccess: (msg: string) => {
             message.success({
                 content: msg,
                 key: messageKey,
@@ -83,12 +78,11 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     });
 
     const { mutate: resetBudgetsMutate } = useMutation({
-        mutationFn: async (period: string) => {
+        mutationFn: async () => {
             const response = await resetBudgetService();
             return response.msg;
         },
-        onSuccess: (msg) => {
-            refetch();
+        onSuccess: (msg: string) => {
             message.success({
                 content: msg,
                 key: messageKey,
@@ -102,13 +96,7 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         },
     });
 
-    useEffect(() => {
-        if (data) {
-            setBudgetsState(data);
-        }
-    }, [data]);
-
-    const changePeriodFilter = useCallback((date: Dayjs, dateString: string) => {
+    const changePeriodFilter = useCallback((date: Dayjs) => {
         setPeriodFilter(date);
     }, []);
 
@@ -145,34 +133,45 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         [budgets],
     );
 
-    const updateBudgetAllocationPercentage = useCallback((id: number, allocation_percentage: number) => {
+    const updateBudgetAllocationPercentage = useCallback((id: number, allocation_percentage: number | null) => {
+        if (!allocation_percentage) return;
+
         setBudgetsState((prev) => prev.map((b) => (b.id === id ? { ...b, allocation_percentage } : b)));
     }, []);
 
-    useEffect(() => {
-        setEnabledSave(false);
+    const { shouldEnableSave, feedback } = useMemo((): { shouldEnableSave: boolean; feedback: FeedbackMessageType } => {
         if (totalAmount > 100) {
-            setfeedbackMessage({ msg: "A soma dos orçamentos não pode exceder 100%.", type: "error" });
+            return {
+                shouldEnableSave: false,
+                feedback: { msg: "A soma dos orçamentos não pode exceder 100%.", type: "error" },
+            };
         } else if (totalAmount < 100) {
-            setfeedbackMessage({ msg: "A soma dos orçamentos está abaixo de 100%.", type: "warning" });
+            return {
+                shouldEnableSave: false,
+                feedback: { msg: "A soma dos orçamentos está abaixo de 100%.", type: "warning" },
+            };
         } else {
-            setfeedbackMessage({ msg: "Utilize o botao salvar para atualizar as metas", type: "info" });
-            setEnabledSave(true);
+            return {
+                shouldEnableSave: true,
+                feedback: { msg: "Utilize o botão salvar para atualizar as metas", type: "info" },
+            };
         }
     }, [totalAmount]);
 
     const saveBudgets = useCallback(() => {
-        saveBudgetsMutate(budgets);
-    }, [budgets, saveBudgetsMutate]);
+        if (shouldEnableSave) {
+            saveBudgetsMutate(budgets);
+        }
+    }, [budgets, saveBudgetsMutate, shouldEnableSave]);
 
     const resetBudgets = useCallback(() => {
-        resetBudgetsMutate(periodFilter);
-    }, [periodFilter, resetBudgetsMutate]);
+        resetBudgetsMutate();
+    }, [resetBudgetsMutate]);
 
     const value: BudgetContextValue = useMemo(
         () => ({
-            budgets,
-            data,
+            budgets: budgets ?? [],
+            data: data ?? [],
             selectedBudget,
             isLoading,
             totalAmount,
@@ -183,8 +182,8 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             selectBudget,
             clearSelection,
             updateBudgetAllocationPercentage,
-            feedbackMessage,
-            enabledSave,
+            feedbackMessage: feedback,
+            enabledSave: shouldEnableSave,
             saveBudgets,
             changePeriodFilter,
             periodFilter,
@@ -203,8 +202,8 @@ export const BudgetProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             selectBudget,
             clearSelection,
             updateBudgetAllocationPercentage,
-            feedbackMessage,
-            enabledSave,
+            feedback,
+            shouldEnableSave,
             saveBudgets,
             changePeriodFilter,
             periodFilter,

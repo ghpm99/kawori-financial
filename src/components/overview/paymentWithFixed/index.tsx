@@ -4,6 +4,7 @@ import { Theme } from "@/styles/theme";
 import { formatterMonthYearDate } from "@/util/index";
 
 import styles from "./paymentWithFixed.module.scss";
+import { IPaymentCharts } from "@/components/providers/report";
 
 export default function PaymentWithFixed({ data, theme }: { data: IPaymentCharts[]; theme: Theme }) {
     const options = {

@@ -6,12 +6,9 @@ import { Button, Card, ConfigProvider, Form, Input } from "antd";
 import { createStyles } from "antd-style";
 import { useRouter } from "next/navigation";
 
-import { INewUser } from "@/services/auth";
-
 import { useAuth } from "@/components/providers/auth";
 
 import styles from "./signup.module.scss";
-
 
 const useStyle = createStyles(({ prefixCls, css }) => ({
     linearGradientButton: css`
@@ -45,7 +42,7 @@ const SignupPage = () => {
 
     useEffect(() => {
         if (isAuthenticated) {
-            navigate.push("/internal/financial/overview");
+            navigate.push("/internal/financial/report");
         }
     }, [isAuthenticated, navigate]);
 

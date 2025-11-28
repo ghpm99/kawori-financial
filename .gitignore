@@ -3,8 +3,12 @@
 # dependencies
 /node_modules
 /.pnp
-.pnp.js
-package-lock.json
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
 # testing
 /coverage
@@ -26,21 +30,15 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# local env files
-.env*.local
+# env files (can opt-in for committing if needed)
+.env*
 
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
-.env
-# Sentry Auth Token
-.sentryclirc
+next-env.d.ts
 
 # Sentry Config File
 .env.sentry-build-plugin
-
-.vscode/targets.log
-.vscode/configurationCache.log
-.vscode/dryrun.log

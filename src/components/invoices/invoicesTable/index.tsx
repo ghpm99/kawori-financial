@@ -7,11 +7,9 @@ import { Dropdown, Input, MenuProps, Space, Table, Tag } from "antd";
 
 import { formatMoney, formatterDate } from "@/util";
 
-import FilterDropdown from "@/components/common/filterDropdown/Index";
-
 import { InvoicePayments } from "../payments";
-
-
+import { IInvoiceFilters, IInvoicePagination, InvoicesPage } from "@/components/providers/invoices";
+import FilterDropdown from "@/components/filterDropdown/Index";
 
 interface IInvoicesTable {
     data: InvoicesPage;

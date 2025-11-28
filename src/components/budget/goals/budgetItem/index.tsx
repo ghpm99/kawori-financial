@@ -11,7 +11,7 @@ const BudgetItem = ({
     handleChangeAllocationPercentage,
 }: {
     item: IBudget;
-    handleChangeAllocationPercentage: (allocationPercentage: number) => void;
+    handleChangeAllocationPercentage: (allocationPercentage: number | null) => void;
 }) => {
     return (
         <div>

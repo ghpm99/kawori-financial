@@ -12,12 +12,12 @@ import styles from "./signin.module.scss";
 
 const SigninPage = () => {
     const [form] = Form.useForm();
-    const { signIn, isAuthenticated, loading, errorMessage } = useAuth();
+    const { signIn, isAuthenticated, isLoading, errorMessage } = useAuth();
     const navigate = useRouter();
 
     useEffect(() => {
         if (isAuthenticated) {
-            navigate.push("/internal/financial/overview");
+            navigate.push("/internal/financial/report");
         }
     }, [isAuthenticated, navigate]);
 
@@ -42,7 +42,7 @@ const SigninPage = () => {
                             size="large"
                             block
                             className={styles.loginButton}
-                            loading={loading}
+                            loading={isLoading}
                         >
                             Entrar
                         </Button>

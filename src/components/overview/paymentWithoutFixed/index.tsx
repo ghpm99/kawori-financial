@@ -4,6 +4,7 @@ import { Theme } from "@/styles/theme";
 import { formatterMonthYearDate } from "@/util/index";
 
 import styles from "./paymentWithoutFixed.module.scss";
+import { IPaymentCharts } from "@/components/providers/report";
 
 export default function AccumulatedValue({
     amountForecastValue,
@@ -47,7 +48,7 @@ export default function AccumulatedValue({
             },
             {
                 label: "Valor de reserva",
-                data: payments?.map((data) => amountForecastValue),
+                data: payments?.map(() => amountForecastValue),
                 borderColor: "rgb(235, 53, 53)",
                 backgroundColor: "rgba(235, 53, 53, 0.5)",
             },

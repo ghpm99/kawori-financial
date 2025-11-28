@@ -1,24 +1,14 @@
 "use client";
-import { title } from "process";
-
-import { useEffect } from "react";
 
 import { PlusOutlined } from "@ant-design/icons";
 import { faEllipsis, faFilePen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Breadcrumb, Button, Dropdown, Layout, MenuProps, message, Space, Table, Tag, Typography } from "antd";
-import { useSelector } from "react-redux";
+import { Breadcrumb, Button, Dropdown, Layout, MenuProps, Space, Table, Tag, Typography } from "antd";
 
-import { setSelectedMenu } from "@/lib/features/auth";
-import { changeVisibleModalTag, fetchTags } from "@/lib/features/financial/tag";
-import { useAppDispatch } from "@/lib/hooks";
-import { RootState } from "@/lib/store";
-import { includeNewTagService } from "@/services/financial";
 import { formatMoney } from "@/util";
 
 import LoadingPage from "@/components/loadingPage/Index";
-import { useTags } from "@/components/providers/tags";
-import ModalNewTag, { IFormModalNewTag } from "@/components/tags/modalNew";
+import { ITags, useTags } from "@/components/providers/tags";
 import TagDrawer from "@/components/tags/tagDrawer";
 
 import styles from "./tags.module.scss";
@@ -26,9 +16,6 @@ import styles from "./tags.module.scss";
 const { Title } = Typography;
 
 function TagPage() {
-    const financialStore = useSelector((state: RootState) => state.financial.tag);
-    const dispatch = useAppDispatch();
-
     const {
         handleOnOpenDrawer,
         handleOnCloseDrawer,
@@ -39,27 +26,6 @@ function TagPage() {
         tagDetails,
         onUpdateTagDetail,
     } = useTags();
-
-    const openModal = (modal: keyof IModalTags) => {
-        dispatch(changeVisibleModalTag({ modal, visible: true }));
-    };
-
-    const closeModal = (modal: keyof IModalTags) => {
-        dispatch(changeVisibleModalTag({ modal, visible: false }));
-    };
-
-    const onFinish = (values: IFormModalNewTag) => {
-        const newTag = {
-            name: values.name,
-            color: values.color,
-        };
-
-        includeNewTagService(newTag).then((e) => {
-            message.success(e.msg);
-            closeModal("newTag");
-            dispatch(fetchTags());
-        });
-    };
 
     const createDropdownMenu = (record: ITags): MenuProps => {
         const items: MenuProps["items"] = [

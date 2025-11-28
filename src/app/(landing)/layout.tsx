@@ -4,8 +4,6 @@ import React from "react";
 
 import { Layout } from "antd";
 
-import { useAppSelector } from "@/lib/hooks";
-
 import MenuHeader from "@/components/menuHeader";
 import { useAuth } from "@/components/providers/auth";
 
@@ -15,11 +13,10 @@ const { Footer } = Layout;
 
 const LandingLayout = ({ children }: { children: React.ReactNode }) => {
     const { isAuthenticated, signOut } = useAuth();
-    const { user } = useAppSelector((state) => state.auth);
 
     return (
         <div className={styles["container"]}>
-            <MenuHeader isAuthenticated={isAuthenticated} user={user} signOut={signOut} />
+            <MenuHeader isAuthenticated={isAuthenticated} signOut={signOut} />
             <div className={styles["body"]}>
                 <div className={styles["internal-page"]}>{children}</div>
             </div>

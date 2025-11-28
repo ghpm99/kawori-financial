@@ -1,5 +1,4 @@
 import { DatePicker, Table, Typography } from "antd";
-import dayjs from "dayjs";
 
 import { formatMoney } from "@/util";
 

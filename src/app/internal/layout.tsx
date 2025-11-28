@@ -7,9 +7,9 @@ import MenuInternal from "@/components/menuInternal/Index";
 import { useAuth } from "@/components/providers/auth";
 import { useLayout } from "@/components/providers/layout";
 import { useUser } from "@/components/providers/user";
-import { useTheme } from "@/components/themeProvider/themeContext";
 
 import styles from "./layout.module.scss";
+import { useTheme } from "@/components/providers/themeProvider/themeContext";
 
 const { Header, Content } = Layout;
 

@@ -1,4 +1,4 @@
-import { useTheme } from "../themeProvider/themeContext";
+import { useTheme } from "../providers/themeProvider/themeContext";
 
 const useThemeControl = () => {
     const { state, dispatch } = useTheme();

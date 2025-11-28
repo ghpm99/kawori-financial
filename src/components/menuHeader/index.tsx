@@ -1,57 +1,10 @@
 "use client";
-import { Button, Menu } from "antd";
+import { Button } from "antd";
 import Link from "next/link";
 
-import { authStatus, IUser } from "@/lib/features/auth";
-import { Theme } from "@/styles/theme";
-
-import ThemeControl from "../themeControl";
 import styles from "./MenuHeader.module.scss";
 
-export default function MenuHeader({
-    isAuthenticated,
-    user,
-    signOut,
-}: {
-    isAuthenticated: boolean;
-    user: IUser;
-    signOut: () => void;
-}) {
-    const menuItens = [
-        {
-            label: <Link href={"/"}>Inicio</Link>,
-            key: "home",
-        },
-        isAuthenticated
-            ? {
-                  label: user.name,
-                  key: "user",
-                  children: [
-                      {
-                          label: <Link href={"/internal/user"}>Conta</Link>,
-                          key: "user-account",
-                      },
-                      {
-                          label: <Link href={"/internal/facetexture"}>Facetexture</Link>,
-                          key: "user-facetexture",
-                      },
-                      {
-                          label: <Link href={"/internal/rank"}>Rank de Classes</Link>,
-                          key: "user-classification",
-                      },
-                      {
-                          label: <div>Sair</div>,
-                          key: "user-logout",
-                          danger: true,
-                      },
-                  ],
-              }
-            : {
-                  label: <Link href={"/#login"}>Logar</Link>,
-                  key: "login",
-              },
-    ];
-
+export default function MenuHeader({ isAuthenticated, signOut }: { isAuthenticated: boolean; signOut: () => void }) {
     const renderMenu = () => {
         if (!isAuthenticated) {
             return (
@@ -67,7 +20,7 @@ export default function MenuHeader({
         }
         return (
             <>
-                <Link href={"/internal/financial/overview"} className={styles["button"]}>
+                <Link href={"/internal/financial/report"} className={styles["button"]}>
                     Dashboard
                 </Link>
                 <Button onClick={signOut} className={styles["button"]}>

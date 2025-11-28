@@ -1,14 +1,9 @@
-import { useEffect } from "react";
-
-import { Bar, Pie } from "react-chartjs-2";
+import { Pie } from "react-chartjs-2";
 
 import { Theme } from "@/styles/theme";
 
+import { IInvoiceByTag } from "@/components/providers/report";
 import styles from "./invoiceByTag.module.scss";
-
-interface IInvoiceByTagProps {
-    data: IInvoiceByTag[];
-}
 
 const InvoiceByTag = ({ data, theme }: { data: IInvoiceByTag[]; theme: Theme }) => {
     const dataset = [

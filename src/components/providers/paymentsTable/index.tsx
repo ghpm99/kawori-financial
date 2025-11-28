@@ -6,11 +6,11 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { message } from "antd";
 import dayjs from "dayjs";
 
-import {
-    fetchDetailInvoicePaymentsService,
-    fetchDetailPaymentService,
-    savePaymentDetailService,
-} from "@/services/financial";
+import { IPaymentDetail, IPaymentFilters, PaymentsPage } from "../payments";
+import { fetchDetailInvoicePaymentsService } from "@/services/financial/invoices";
+import { fetchDetailPaymentService, savePaymentDetailService } from "@/services/financial/payments";
+import { IInvoicePagination } from "../invoices";
+import { AxiosError } from "axios";
 
 type PaymentsTableContextValue = {
     paymentsData: PaymentsPage;
@@ -23,7 +23,9 @@ type PaymentsTableContextValue = {
     handleDateRangedFilter: (name: string, dates: string[]) => void;
     handleSelectFilter: (name: keyof IPaymentFilters, value: string | number) => void;
     handleChangeAllFilters: (filters: IPaymentFilters) => void;
-    updateFiltersBySearchParams: (searchParams: any) => void;
+    updateFiltersBySearchParams: (
+        searchParams: Partial<IPaymentFilters> & { [key: string]: string | number | boolean | undefined },
+    ) => void;
     onChangePagination: (page: number, pageSize: number) => void;
     paymentDetailVisible: boolean;
     onClosePaymentDetail: () => void;
@@ -38,7 +40,10 @@ const PaymentsTableContext = createContext<PaymentsTableContextValue | undefined
 type FilterAction =
     | { type: "SET_ALL"; payload: IPaymentFilters }
     | { type: "RESET" }
-    | { type: "SET_FIELD"; payload: { name: keyof IPaymentFilters; value: any } }
+    | {
+          type: "SET_FIELD";
+          payload: { name: keyof IPaymentFilters; value: string | number | boolean | null | undefined };
+      }
     | { type: "SET_PAGINATION"; payload: { page: number; page_size: number } };
 
 const defaultFilters: IPaymentFilters = {
@@ -102,13 +107,9 @@ export const PaymentsTableProvider: React.FC<{ children: React.ReactNode; invoic
     const [selectedRow, setSelectedRow] = useState<React.Key[]>([]);
     const [localFilters, dispatchFilters] = useReducer(paymentFiltersReducer, defaultFilters);
     const [paymentDetailVisible, setPaymentDetailVisible] = useState<boolean>(false);
-    const [paymentDetailId, setPaymentDetailId] = useState<number>(undefined);
+    const [paymentDetailId, setPaymentDetailId] = useState<number | undefined>(undefined);
 
-    const {
-        data,
-        refetch: refetchPayments,
-        isLoading,
-    } = useQuery({
+    const { data, isLoading } = useQuery({
         queryKey: ["paymentsTable", invoice.id, localFilters],
         queryFn: async () => {
             const response = await fetchDetailInvoicePaymentsService(invoice.id, localFilters);
@@ -143,7 +144,7 @@ export const PaymentsTableProvider: React.FC<{ children: React.ReactNode; invoic
     const { mutate: mutateUpdatePaymentDetail } = useMutation({
         mutationKey: ["updatePaymentDetail", paymentDetailId],
         mutationFn: async (data: IPaymentDetail) => {
-            const response = await savePaymentDetailService(paymentDetailId, {
+            const response = await savePaymentDetailService(paymentDetailId!, {
                 type: data.type,
                 active: data.active,
                 name: data.name,
@@ -160,9 +161,9 @@ export const PaymentsTableProvider: React.FC<{ children: React.ReactNode; invoic
                 key: messageKey,
             });
         },
-        onError: (error: Error) => {
+        onError: (error: AxiosError) => {
             message.error({
-                content: `Erro ao atualizar pagamento: ${error.message}`,
+                content: (error?.response?.data as CommonApiResponse).msg ?? "Erro ao atualizar pagamento",
                 key: messageKey,
             });
         },
@@ -203,13 +204,15 @@ export const PaymentsTableProvider: React.FC<{ children: React.ReactNode; invoic
         dispatchFilters({ type: "SET_ALL", payload: filters });
     };
 
-    const updateFiltersBySearchParams = (searchParams: any) => {
+    const updateFiltersBySearchParams = (
+        searchParams: Partial<IPaymentFilters> & { [key: string]: string | number | boolean | undefined },
+    ) => {
         if (!searchParams || Object.keys(searchParams).length === 0) {
             return;
         }
         const filters: IPaymentFilters = {
-            page: searchParams.page,
-            page_size: searchParams.page_size,
+            page: Number(searchParams.page),
+            page_size: Number(searchParams.page_size),
             active: searchParams.active,
             invoice: searchParams.invoice,
             date__gte: searchParams.date__gte,
@@ -245,7 +248,7 @@ export const PaymentsTableProvider: React.FC<{ children: React.ReactNode; invoic
     return (
         <PaymentsTableContext.Provider
             value={{
-                paymentsData: data,
+                paymentsData: data ?? defaultPaymentsPage,
                 isLoading,
                 paymentFilters: localFilters,
                 selectedRow,

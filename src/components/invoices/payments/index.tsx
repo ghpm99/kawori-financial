@@ -7,6 +7,7 @@ import PaymentsTable from "@/components/payments/paymentsTable";
 import { PaymentsProvider, usePayments } from "@/components/providers/payments";
 import { usePayoff } from "@/components/providers/payoff";
 import { useSelectPayments } from "@/components/providers/selectPayments";
+import { IInvoicePagination } from "@/components/providers/invoices";
 
 interface PaymentsProps {
     invoice: IInvoicePagination;
@@ -37,7 +38,7 @@ const Payments = ({ invoice }: PaymentsProps) => {
         if (invoice) {
             handleSelectFilter("invoice_id", invoice.id);
         }
-    }, [invoice]);
+    }, [handleSelectFilter, invoice]);
 
     return (
         <>

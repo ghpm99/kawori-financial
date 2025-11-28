@@ -20,12 +20,12 @@ const responseInterceptor = (response: AxiosResponse) => {
 
 const errorInterceptor = async (error: AxiosError) => {
     const { config, response } = error;
-    const originalRequest = config;
 
-    if (!response?.status) {
+    if (!response?.status || !config) {
         Sentry.captureException(error);
         return Promise.reject(error);
     }
+    const originalRequest = config;
 
     if (response.status === HttpStatusCode.Unauthorized) {
         try {
@@ -66,8 +66,12 @@ export const refreshTokenAsync = async () => {
             } else {
                 resolve(refreshResponse.data);
             }
-        } catch (error) {
-            if (typeof window !== "undefined" && error?.status === HttpStatusCode.Forbidden) {
+        } catch (error: unknown) {
+            if (
+                typeof window !== "undefined" &&
+                axios.isAxiosError(error) &&
+                error.response?.status === HttpStatusCode.Forbidden
+            ) {
                 window.dispatchEvent(new CustomEvent("tokenRefreshFailed"));
             }
             reject(error);

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-import { HomeOutlined, LineChartOutlined, SnippetsOutlined, UserOutlined } from "@ant-design/icons";
+import { HomeOutlined, LineChartOutlined, SnippetsOutlined } from "@ant-design/icons";
 import {
     faCalendarDays,
     faChartPie,
@@ -46,7 +46,7 @@ const menuItems: MenuItem[] = [
     {
         key: "overview",
         label: "Overview",
-        path: "/internal/financial/overview",
+        path: "/internal/financial/report",
         icon: <LineChartOutlined />,
         securePath: true,
         userGroup: "financial",
@@ -133,7 +133,7 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const menuItemsAntd: MenuItemAntd[] = menuItems
         .filter((menuItem) => {
             const isSecure = isAuthenticated || !menuItem.securePath;
-            const containsGroup = menuItem.userGroup ? groups.includes(menuItem.userGroup) : true;
+            const containsGroup = menuItem.userGroup ? groups?.includes(menuItem.userGroup) : true;
             return isSecure && containsGroup;
         })
         .map(

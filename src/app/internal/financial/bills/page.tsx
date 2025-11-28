@@ -7,18 +7,18 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { updateSearchParams } from "@/util/index";
 
-import ModalPayoff from "@/components/payments/modalPayoff";
 import PaymentsDrawer from "@/components/payments/paymentsDrawer";
 import PaymentsTable from "@/components/payments/paymentsTable";
 import { usePayments } from "@/components/providers/payments";
-import { PayoffPayment, usePayoff } from "@/components/providers/payoff";
+import { usePayoff } from "@/components/providers/payoff";
 import { useSelectPayments } from "@/components/providers/selectPayments";
 
+import ModalPayoff from "@/components/payments/modalPayoff";
 import styles from "./Payments.module.scss";
 
 const { Title } = Typography;
 
-function BillsPage({ searchParams }) {
+function BillsPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
     const {
         paymentFilters,
         paymentsData,
@@ -58,8 +58,10 @@ function BillsPage({ searchParams }) {
     const pathname = usePathname();
 
     useEffect(() => {
-        updateFiltersBySearchParams(searchParams);
-    }, [searchParams]);
+        Promise.resolve(searchParams).then((params) => {
+            updateFiltersBySearchParams(params);
+        });
+    }, []);
 
     useEffect(() => {
         updateSearchParams(router, pathname, paymentFilters);
@@ -107,16 +109,6 @@ function BillsPage({ searchParams }) {
                     paymentsData={paymentsData}
                     selectedRow={selectedRow}
                     updateSelectedRows={updateSelectedRows}
-                />
-                <ModalPayoff
-                    visible={modalBatchVisible}
-                    onCancel={closePayoffBatchModal}
-                    onPayoff={processPayOffBatch}
-                    data={paymentsToProcess}
-                    percent={paymentPayoffBatchProgress}
-                    progressText={paymentPayoffBatchProgressText()}
-                    completed={processPayOffBatchCompleted}
-                    processing={processingBatch}
                 />
                 <PaymentsDrawer
                     onClose={onClosePaymentDetail}

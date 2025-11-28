@@ -2,7 +2,6 @@ import { Alert, Button, Card, Typography } from "antd";
 
 import { useBudget } from "@/components/providers/budget";
 
-import AddBudgetGoal from "./addBudget";
 import BudgetItem from "./budgetItem";
 import styles from "./goals.module.scss";
 

@@ -5,6 +5,8 @@ import { Button, Col, DatePicker, Drawer, Form, Input, InputNumber, Row, Select,
 import dayjs from "dayjs";
 
 import { InvoicePayments } from "../payments";
+import { ITags } from "@/components/providers/tags";
+import { IInvoiceDetail } from "@/components/providers/invoices";
 
 interface InvoiceDrawerProps {
     open: boolean;
@@ -33,15 +35,13 @@ const InvoiceDrawer = ({
     const [form] = Form.useForm();
     const isEdit = Boolean(invoiceDetail && invoiceDetail.id);
 
-    console.log("isEdit", isEdit);
-
     const tags = tags_data.map((tag) => ({
         ...tag,
         value: tag.name,
         label: tag.name,
     }));
 
-    const [tagSelection, setTagSelection] = useState<ITags[]>([]);
+    const [tagSelection, setTagSelection] = useState<ITags[]>(invoiceDetail?.tags || []);
 
     const hasAlreadySelectedBudget =
         tags.filter((tag) => tagSelection.map((tag) => tag.name).includes(tag.name) && tag.is_budget).length > 0;
@@ -62,7 +62,7 @@ const InvoiceDrawer = ({
                 payment_date: invoiceDetail.next_payment ? dayjs(invoiceDetail.next_payment) : undefined,
                 tags: invoiceDetail.tags.map((tag) => tag.name),
             };
-            setTagSelection(invoiceDetail.tags);
+
             form.setFieldsValue(init);
         } else if (open) {
             const init = {
@@ -78,7 +78,7 @@ const InvoiceDrawer = ({
                 status: 0,
                 active: true,
             };
-            setTagSelection([]);
+
             form.setFieldsValue(init);
         } else {
             form.resetFields();
@@ -96,7 +96,7 @@ const InvoiceDrawer = ({
         }).format(floatValue);
     };
 
-    const parser = (value: string): number => {
+    const parser = (value: string | undefined): number => {
         if (!value) return 0;
         const digits = String(value).replace(/\D+/g, "");
         if (!digits) return 0;
@@ -108,7 +108,7 @@ const InvoiceDrawer = ({
             ...values,
             value: typeof values.value === "number" ? Number((values.value / 100).toFixed(2)) : 0,
             date: values.date ? dayjs(values.date).format("YYYY-MM-DD") : null,
-        };
+        } as IInvoiceDetail;
         onUpdateInvoiceDetail(payload);
     };
 
@@ -118,7 +118,7 @@ const InvoiceDrawer = ({
             value: typeof values.value === "number" ? Number((values.value / 100).toFixed(2)) : 0,
             date: values.date ? dayjs(values.date).format("YYYY-MM-DD") : null,
             tags: tagSelection,
-        };
+        } as IInvoiceDetail;
         onCreateNewInvoice(payload);
     };
 
@@ -135,9 +135,9 @@ const InvoiceDrawer = ({
         form.submit();
     };
 
-    const handleChangeTags = (value) => {
+    const handleChangeTags = (value: ITags[]) => {
         const tagsList = value.map((tagId) => {
-            return tags.find((tag) => tag.name === tagId)!;
+            return tags.find((tag) => tag.name === tagId.name)!;
         });
         setTagSelection(tagsList);
     };
@@ -183,14 +183,7 @@ const InvoiceDrawer = ({
                 </Space>
             }
         >
-            <Form
-                form={form}
-                name="invoice"
-                layout="vertical"
-                hideRequiredMark
-                variant="underlined"
-                onFinish={onFinish}
-            >
+            <Form form={form} name="invoice" layout="vertical" variant="underlined" onFinish={onFinish}>
                 <Form.Item name="id" label="ID" hidden>
                     <Input disabled />
                 </Form.Item>
@@ -317,7 +310,7 @@ const InvoiceDrawer = ({
                     </Col>
                 </Row>
             </Form>
-            {isEdit && <InvoicePayments invoice={invoiceDetail} />}
+            {isEdit && invoiceDetail && <InvoicePayments invoice={invoiceDetail} />}
         </Drawer>
     );
 };

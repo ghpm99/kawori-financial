@@ -1,31 +1,15 @@
 import { useEffect } from "react";
 
-import {
-    Button,
-    Col,
-    DatePicker,
-    Drawer,
-    Form,
-    Input,
-    InputNumber,
-    Row,
-    Select,
-    Space,
-    Switch,
-    Typography,
-} from "antd";
-import dayjs from "dayjs";
+import { ITags } from "@/components/providers/tags";
+import { Button, Col, Drawer, Form, Input, Row, Space } from "antd";
 
 interface TagDrawerProps {
     open: boolean;
     onClose: () => void;
-    tagDetails?: ITag;
+    tagDetails?: ITags;
     isLoading?: boolean;
-    onUpdateTagDetail: (values: ITag) => void;
+    onUpdateTagDetail: (values: ITags) => void;
 }
-
-const { Paragraph } = Typography;
-const { Option } = Select;
 
 const TagDrawer = ({ open, onClose, tagDetails, isLoading, onUpdateTagDetail }: TagDrawerProps) => {
     const [form] = Form.useForm();
@@ -37,7 +21,7 @@ const TagDrawer = ({ open, onClose, tagDetails, isLoading, onUpdateTagDetail }: 
         }
     }, [form, open, tagDetails]);
 
-    const onFinish = (values: any) => {
+    const onFinish = (values: ITags) => {
         onClose();
         onUpdateTagDetail(values);
     };
@@ -66,23 +50,27 @@ const TagDrawer = ({ open, onClose, tagDetails, isLoading, onUpdateTagDetail }: 
                 </Space>
             }
         >
-            <Form form={form} layout="vertical" hideRequiredMark variant="underlined" onFinish={onFinish}>
+            <Form form={form} layout="vertical" variant="underlined" onFinish={onFinish}>
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item label="Id" name="id" hidden>
-                            <Input placeholder="Digite o nome" data-testid="tag-name" />
+                            <Input placeholder="Digite o nome" data-testid="tag-id" />
                         </Form.Item>
                         <Form.Item
                             label="Nome"
                             name="name"
                             rules={[{ required: true, message: "Entre com o nome da tag" }]}
                         >
-                            <Input placeholder="Digite o nome" data-testid="tag-name" />
+                            <Input
+                                placeholder="Digite o nome"
+                                data-testid="tag-name"
+                                disabled={tagDetails?.is_budget}
+                            />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
                         <Form.Item label="Cor" name="color">
-                            <input type="color" data-testid="tag-color" />
+                            <input type="color" data-testid="tag-color" disabled={tagDetails?.is_budget} />
                         </Form.Item>
                     </Col>
                 </Row>
