@@ -29,7 +29,7 @@ const Goals = () => {
                 {feedbackMessage.msg && (
                     <Alert
                         className={styles["alert"]}
-                        message={feedbackMessage.msg}
+                        title={feedbackMessage.msg}
                         type={feedbackMessage.type}
                         showIcon
                     />
@@ -49,7 +49,12 @@ const Goals = () => {
                         <Button danger onClick={resetBudgets}>
                             Redefinir
                         </Button>
-                        <Button type="primary" disabled={!enabledSave} onClick={saveBudgets}>
+                        <Button
+                            type="primary"
+                            disabled={!enabledSave}
+                            aria-disabled={!enabledSave}
+                            onClick={saveBudgets}
+                        >
                             Salvar
                         </Button>
                     </div>

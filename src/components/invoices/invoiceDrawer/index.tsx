@@ -284,6 +284,7 @@ const InvoiceDrawer = ({
                                 mode="multiple"
                                 style={{ width: "100%" }}
                                 placeholder="Etiquetas"
+                                data-testid="invoice-tags"
                                 loading={isLoadingTags}
                                 onChange={handleChangeTags}
                                 value={tagSelection}

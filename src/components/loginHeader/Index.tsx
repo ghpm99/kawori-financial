@@ -24,7 +24,7 @@ export interface IUser {
     image?: string;
 }
 
-interface ILoginHeaderProps {
+export interface ILoginHeaderProps {
     user?: IUserData;
     isAuthenticated: boolean;
     handleSignout: () => void;

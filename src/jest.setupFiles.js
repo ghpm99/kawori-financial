@@ -1,6 +1,6 @@
 import axios from "axios";
 
-global.IntersectionObserver = jest.fn()
+global.IntersectionObserver = jest.fn();
 
 Object.defineProperty(window, "matchMedia", {
     writable: true,
@@ -16,7 +16,47 @@ Object.defineProperty(window, "matchMedia", {
     })),
 });
 
+Object.defineProperty(window, "getComputedStyle", {
+    value: () => ({
+        getPropertyValue: () => "",
+    }),
+});
+
 jest.mock("@sentry/nextjs", () => ({
     captureMessage: jest.fn(),
     captureException: jest.fn(),
 }));
+
+if (typeof MessageChannel === "undefined") {
+    global.MessageChannel = function () {
+        return {
+            port1: {
+                close: () => {},
+                postMessage: () => {},
+                onmessage: null,
+            },
+            port2: {
+                close: () => {},
+                postMessage: () => {},
+                onmessage: null,
+            },
+        };
+    };
+}
+
+jest.mock("next/navigation", () => {
+    return {
+        useRouter: () => ({
+            push: jest.fn(),
+            replace: jest.fn(),
+            refresh: jest.fn(),
+            back: jest.fn(),
+            forward: jest.fn(),
+            prefetch: jest.fn(),
+        }),
+        usePathname: () => "/",
+        useSearchParams: () => ({
+            get: jest.fn(),
+        }),
+    };
+});

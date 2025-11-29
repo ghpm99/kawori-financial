@@ -42,6 +42,7 @@ const Report = () => {
                                 disabled={isLoading}
                                 onChange={changePeriodFilter}
                                 defaultValue={periodFilter ? periodFilter : null}
+                                data-testid="datepicker"
                             />
                         </span>
                     </div>

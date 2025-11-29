@@ -8,8 +8,8 @@ export const FACETEXTURE_MESSAGE_REF = "facetexture-message-ref";
 export const formatMoney = (
     amount: number,
     decimalCount = 2,
-    decimal = ".",
-    thousands = ",",
+    decimal = ",",
+    thousands = ".",
     currencySymbol = "R$",
 ) => {
     if (typeof Intl === "object") {
@@ -19,27 +19,19 @@ export const formatMoney = (
         }).format(amount);
     }
     // Fallback if Intl is not present.
-    try {
-        const negativeSign = amount < 0 ? "-" : "";
-        const amountNumber = Math.abs(Number(amount) || 0).toFixed(decimalCount);
-        const i = parseInt(amountNumber, 10).toString();
-        const j = i.length > 3 ? i.length % 3 : 0;
-        return (
-            currencySymbol +
-            negativeSign +
-            (j ? i.substr(0, j) + thousands : "") +
-            i.substr(j).replace(/(\d{3})(?=\d)/g, `$1${thousands}`) +
-            (decimalCount
-                ? decimal +
-                  Math.abs(parseInt(amountNumber) - parseInt(i))
-                      .toFixed(decimalCount)
-                      .slice(2)
-                : "")
-        );
-    } catch (e) {
-        console.error(e);
-    }
-    return amount;
+
+    const negative = amount < 0 ? "-" : "";
+    const value = Math.abs(amount);
+
+    // força casas decimais corretas
+    const fixed = value.toFixed(decimalCount); // ex: "1234.56"
+    const [intPart, decimalPart] = fixed.split(".");
+
+    // adiciona separador de milhares
+    const intWithThousands = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, thousands);
+
+    // monta resultado final
+    return `${negative}${currencySymbol} ${intWithThousands}${decimal}${decimalPart}`;
 };
 
 export const formatterDate = (dateString: string) => {
@@ -60,7 +52,7 @@ export const formatterMonthYearDate = (dateString: string) => {
 };
 
 export const normalizeString = (className: string): string => {
-    return className.replace(" ", "-").toLowerCase();
+    return className.replaceAll(" ", "-").toLowerCase();
 };
 
 export const addStyle = (styleString: string) => {

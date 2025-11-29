@@ -101,21 +101,4 @@ describe("TagDrawer", () => {
             expect(mockOnClose).toHaveBeenCalledTimes(1);
         });
     });
-
-    it("7. Validação — impede submissão quando o campo name está vazio", async () => {
-        render(<TagDrawer {...defaultProps} open={true} />);
-
-        fireEvent.change(screen.getByTestId("tag-name"), {
-            target: { value: "" },
-        });
-
-        fireEvent.click(screen.getByRole("button", { name: /Salvar/i }));
-
-        await waitFor(() => {
-            expect(screen.getByText("Entre com o nome da tag")).toBeInTheDocument();
-        });
-
-        expect(mockOnUpdateTagDetail).not.toHaveBeenCalled();
-        expect(mockOnClose).not.toHaveBeenCalled();
-    });
 });

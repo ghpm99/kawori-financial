@@ -13,7 +13,6 @@ import { usePayments } from "@/components/providers/payments";
 import { usePayoff } from "@/components/providers/payoff";
 import { useSelectPayments } from "@/components/providers/selectPayments";
 
-import ModalPayoff from "@/components/payments/modalPayoff";
 import styles from "./Payments.module.scss";
 
 const { Title } = Typography;
@@ -40,19 +39,7 @@ function BillsPage({ searchParams }: { searchParams: { [key: string]: string | s
 
     const { selectedRow, updateSelectedRows } = useSelectPayments();
 
-    const {
-        setCallback,
-        modalBatchVisible,
-        openPayoffBatchModal,
-        closePayoffBatchModal,
-        paymentsToProcess,
-        paymentPayoffBatchProgress,
-        paymentPayoffBatchProgressText,
-        processPayOffBatch,
-        payOffPayment,
-        processPayOffBatchCompleted,
-        processingBatch,
-    } = usePayoff();
+    const { setCallback, openPayoffBatchModal, payOffPayment } = usePayoff();
 
     const router = useRouter();
     const pathname = usePathname();

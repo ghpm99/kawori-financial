@@ -18,7 +18,14 @@ interface IMenuInternal {
 }
 const MenuInternal = ({ theme, selectedMenu, collapsed, toggleCollapsed, menuItems }: IMenuInternal) => {
     return (
-        <Sider breakpoint="lg" collapsedWidth="0" onCollapse={toggleCollapsed} theme={theme} collapsed={collapsed}>
+        <Sider
+            data-testid="sider"
+            breakpoint="lg"
+            collapsedWidth="0"
+            onCollapse={toggleCollapsed}
+            theme={theme}
+            collapsed={collapsed}
+        >
             <div className={styles["logo-container"]}>
                 <Link href="/" className={styles["logo"]}>
                     Kawori
