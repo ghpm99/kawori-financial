@@ -68,9 +68,6 @@ describe("InvoiceDrawer", () => {
         isLoadingTags: false,
     };
 
-    // ---------------------------------------------------------
-    // RENDERIZAÇÃO BÁSICA
-    // ---------------------------------------------------------
     test("renderiza drawer de nova nota quando não há invoiceDetail", () => {
         render(<InvoiceDrawer {...defaultProps} invoiceDetail={undefined} />);
 
@@ -85,9 +82,6 @@ describe("InvoiceDrawer", () => {
         expect(screen.getByTestId("invoice-payments")).toBeInTheDocument();
     });
 
-    // ---------------------------------------------------------
-    // FORM INITIAL VALUES
-    // ---------------------------------------------------------
     test("preenche o formulário com dados da nota no modo edição", () => {
         render(<InvoiceDrawer {...defaultProps} invoiceDetail={invoiceDetail} />);
 
@@ -95,9 +89,6 @@ describe("InvoiceDrawer", () => {
         expect(screen.getByDisplayValue("1")).toBeInTheDocument(); // installments
     });
 
-    // ---------------------------------------------------------
-    // CANCELAR
-    // ---------------------------------------------------------
     test("aciona onClose ao clicar em cancelar", () => {
         const onClose = jest.fn();
 
@@ -108,9 +99,6 @@ describe("InvoiceDrawer", () => {
         expect(onClose).toHaveBeenCalled();
     });
 
-    // ---------------------------------------------------------
-    // SALVAR NOVA NOTA
-    // ---------------------------------------------------------
     test("salva nova nota chamando onCreateNewInvoice", async () => {
         const onCreate = jest.fn();
 
@@ -143,9 +131,6 @@ describe("InvoiceDrawer", () => {
         await waitFor(() => expect(onCreate).toHaveBeenCalled());
     });
 
-    // ---------------------------------------------------------
-    // SALVAR EDIÇÃO
-    // ---------------------------------------------------------
     test("salva edição chamando onUpdateInvoiceDetail", async () => {
         const onUpdate = jest.fn();
 
@@ -153,6 +138,19 @@ describe("InvoiceDrawer", () => {
 
         fireEvent.click(screen.getByText("Salvar"));
 
-        await waitFor(() => expect(onUpdate).toHaveBeenCalled());
+        await waitFor(() =>
+            expect(onUpdate).toHaveBeenCalledWith({
+                id: 10,
+                name: "Conta de Luz",
+                value: 150.0,
+                date: "2024-02-01",
+                fixed: undefined,
+                next_payment: "2024-02-15",
+                installments: 1,
+                tags: ["Orçamento"],
+                status: 0,
+                active: true,
+            }),
+        );
     });
 });

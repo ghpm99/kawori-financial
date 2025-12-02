@@ -59,7 +59,7 @@ const InvoiceDrawer = ({
                 ...invoiceDetail,
                 value: typeof invoiceDetail.value === "number" ? Math.round(invoiceDetail.value * 100) : 0,
                 date: invoiceDetail.date ? dayjs(invoiceDetail.date) : undefined,
-                payment_date: invoiceDetail.next_payment ? dayjs(invoiceDetail.next_payment) : undefined,
+                next_payment: invoiceDetail.next_payment ? dayjs(invoiceDetail.next_payment) : undefined,
                 tags: invoiceDetail.tags.map((tag) => tag.name),
             };
 
@@ -68,7 +68,7 @@ const InvoiceDrawer = ({
             const init = {
                 value: 0,
                 date: dayjs(),
-                payment_date: dayjs(),
+                next_payment: dayjs(),
                 installments: 1,
                 name: "",
                 id: 0,
@@ -108,6 +108,7 @@ const InvoiceDrawer = ({
             ...values,
             value: typeof values.value === "number" ? Number((values.value / 100).toFixed(2)) : 0,
             date: values.date ? dayjs(values.date).format("YYYY-MM-DD") : null,
+            next_payment: values.next_payment ? dayjs(values.next_payment).format("YYYY-MM-DD") : null,
         } as IInvoiceDetail;
         onUpdateInvoiceDetail(payload);
     };
@@ -117,6 +118,7 @@ const InvoiceDrawer = ({
             ...values,
             value: typeof values.value === "number" ? Number((values.value / 100).toFixed(2)) : 0,
             date: values.date ? dayjs(values.date).format("YYYY-MM-DD") : null,
+            next_payment: values.next_payment ? dayjs(values.next_payment).format("YYYY-MM-DD") : null,
             tags: tagSelection,
         } as IInvoiceDetail;
         onCreateNewInvoice(payload);
@@ -219,7 +221,7 @@ const InvoiceDrawer = ({
                     </Col>
                     <Col span={12}>
                         <Form.Item
-                            name="payment_date"
+                            name="next_payment"
                             label="Dia de pagamento"
                             rules={[{ required: true, message: "Selecione a data do pagamento" }]}
                         >

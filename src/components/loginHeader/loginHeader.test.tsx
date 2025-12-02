@@ -1,6 +1,6 @@
 import { fireEvent, screen } from "@testing-library/react";
 import LoginHeader, { IUser } from "./Index";
-import renderWithProviders from "@/test/util";
+import renderWithProviders from "@/tests/util";
 
 // mock para evitar navegação
 jest.mock("next/link", () => {
