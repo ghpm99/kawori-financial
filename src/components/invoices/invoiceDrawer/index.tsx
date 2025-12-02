@@ -43,6 +43,9 @@ const InvoiceDrawer = ({
 
     const [tagSelection, setTagSelection] = useState<ITags[]>(invoiceDetail?.tags || []);
 
+    console.log("tagSelection", tagSelection);
+    console.log("tags", tags);
+
     const hasAlreadySelectedBudget =
         tags.filter((tag) => tagSelection.map((tag) => tag.name).includes(tag.name) && tag.is_budget).length > 0;
 
@@ -137,11 +140,9 @@ const InvoiceDrawer = ({
         form.submit();
     };
 
-    const handleChangeTags = (value: ITags[]) => {
-        const tagsList = value.map((tagId) => {
-            return tags.find((tag) => tag.name === tagId.name)!;
-        });
-        setTagSelection(tagsList);
+    const handleChangeTags = (values: ITags[]) => {
+        console.log("handleChangeTags", values);
+        setTagSelection(tags.filter((tag) => values.includes(tag)));
     };
 
     const tagRender: TagRender = (props) => {
@@ -283,6 +284,7 @@ const InvoiceDrawer = ({
                             ]}
                         >
                             <Select
+                                virtual={false}
                                 mode="multiple"
                                 style={{ width: "100%" }}
                                 placeholder="Etiquetas"

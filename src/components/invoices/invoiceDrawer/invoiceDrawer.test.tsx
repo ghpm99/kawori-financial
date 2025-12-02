@@ -1,7 +1,8 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, findByRole, getByRole } from "@testing-library/react";
 import InvoiceDrawer from ".";
 import { ITags } from "@/components/providers/tags";
 import { IInvoiceDetail } from "@/components/providers/invoices";
+import userEvent from "@testing-library/user-event";
 
 // Mock simples do InvoicePayments
 jest.mock("../payments", () => ({
@@ -148,6 +149,46 @@ describe("InvoiceDrawer", () => {
                 next_payment: "2024-02-15",
                 installments: 1,
                 tags: ["Orçamento"],
+                status: 0,
+                active: true,
+            }),
+        );
+    });
+
+    test.skip("salva edição adicionando tag", async () => {
+        const onUpdate = jest.fn();
+
+        render(
+            <InvoiceDrawer
+                {...defaultProps}
+                invoiceDetail={invoiceDetail}
+                onUpdateInvoiceDetail={onUpdate}
+                isLoadingTags={false}
+            />,
+        );
+
+        const tagSelect = await screen.findByRole("combobox", { name: /etiquetas/i });
+
+        userEvent.type(tagSelect, "Comida");
+        userEvent.keyboard("{down}");
+        userEvent.keyboard("{Enter}");
+
+        const tagOption = await screen.findByText("Comida");
+
+        await userEvent.click(tagOption);
+
+        fireEvent.click(screen.getByText("Salvar"));
+
+        await waitFor(() =>
+            expect(onUpdate).toHaveBeenCalledWith({
+                id: 10,
+                name: "Conta de Luz",
+                value: 150.0,
+                date: "2024-02-01",
+                fixed: undefined,
+                next_payment: "2024-02-15",
+                installments: 1,
+                tags: ["Orçamento", "Comida"],
                 status: 0,
                 active: true,
             }),
