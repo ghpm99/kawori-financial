@@ -1,8 +1,9 @@
-import { render, screen, fireEvent, waitFor, findByRole, getByRole } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, findByRole, getByRole, within } from "@testing-library/react";
 import InvoiceDrawer from ".";
 import { ITags } from "@/components/providers/tags";
 import { IInvoiceDetail } from "@/components/providers/invoices";
 import userEvent from "@testing-library/user-event";
+import dayjs from "dayjs";
 
 // Mock simples do InvoicePayments
 jest.mock("../payments", () => ({
@@ -61,7 +62,7 @@ describe("InvoiceDrawer", () => {
     const defaultProps = {
         open: true,
         onClose: jest.fn(),
-        invoiceDetail: { undefined },
+        invoiceDetail: undefined,
         isLoading: false,
         onUpdateInvoiceDetail: jest.fn(),
         onCreateNewInvoice: jest.fn(),
@@ -155,40 +156,75 @@ describe("InvoiceDrawer", () => {
         );
     });
 
-    test.skip("salva edição adicionando tag", async () => {
-        const onUpdate = jest.fn();
+    test("preenche o formulario e cria nova nota", async () => {
+        const onCreate = jest.fn();
 
-        render(
-            <InvoiceDrawer
-                {...defaultProps}
-                invoiceDetail={invoiceDetail}
-                onUpdateInvoiceDetail={onUpdate}
-                isLoadingTags={false}
-            />,
-        );
+        render(<InvoiceDrawer {...defaultProps} onCreateNewInvoice={onCreate} />);
+        const user = userEvent.setup();
 
-        const tagSelect = await screen.findByRole("combobox", { name: /etiquetas/i });
+        const tagNameElement = screen.getByRole("textbox", { name: /nome/i });
+        await user.type(tagNameElement, "teste nota");
 
-        userEvent.type(tagSelect, "Comida");
-        userEvent.keyboard("{down}");
-        userEvent.keyboard("{Enter}");
+        const dateInput = screen.getByRole("textbox", { name: /dia de lançamento/i });
+        await user.clear(dateInput);
+        await user.type(dateInput, "01/02/2024");
 
-        const tagOption = await screen.findByText("Comida");
+        const paymentDateInput = screen.getByRole("textbox", { name: /dia de pagamento/i });
+        await user.clear(paymentDateInput);
+        await user.type(paymentDateInput, "02/02/2024");
 
-        await userEvent.click(tagOption);
+        const installments = screen.getByRole("spinbutton", { name: /parcelas/i });
+        await user.type(installments, "3");
+
+        const valueInput = screen.getByRole("spinbutton", { name: /valor/i });
+        await user.type(valueInput, "1234");
+
+        const tagSelect = screen.getByRole("combobox", { name: /etiquetas/i });
+        fireEvent.mouseDown(tagSelect);
+
+        const tagOption = await screen.findAllByText(/comida/i);
+        tagOption[1].click();
+
+        const tagBudgetOption = await screen.findAllByText(/orçamento/i);
+        tagBudgetOption[1].click();
 
         fireEvent.click(screen.getByText("Salvar"));
 
         await waitFor(() =>
-            expect(onUpdate).toHaveBeenCalledWith({
-                id: 10,
-                name: "Conta de Luz",
-                value: 150.0,
+            expect(onCreate).toHaveBeenCalledWith({
+                id: 0,
+                name: "teste nota",
+                value: 12.34,
                 date: "2024-02-01",
                 fixed: undefined,
-                next_payment: "2024-02-15",
-                installments: 1,
-                tags: ["Orçamento", "Comida"],
+                next_payment: "2024-02-02",
+                installments: 13,
+                tags: [
+                    {
+                        color: "red",
+                        id: 1,
+                        is_budget: true,
+                        label: "Orçamento",
+                        name: "Orçamento",
+                        total_closed: 0,
+                        total_open: 0,
+                        total_payments: 0,
+                        total_value: 0,
+                        value: "Orçamento",
+                    },
+                    {
+                        color: "green",
+                        id: 2,
+                        is_budget: false,
+                        label: "Comida",
+                        name: "Comida",
+                        total_closed: 0,
+                        total_open: 0,
+                        total_payments: 0,
+                        total_value: 0,
+                        value: "Comida",
+                    },
+                ],
                 status: 0,
                 active: true,
             }),

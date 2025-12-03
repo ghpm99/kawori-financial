@@ -1,6 +1,6 @@
 import axios from "axios";
 import React from "react";
-import "antd/dist/reset.css"
+import "antd/dist/reset.css";
 
 global.IntersectionObserver = jest.fn();
 
@@ -62,3 +62,15 @@ jest.mock("next/navigation", () => {
         }),
     };
 });
+
+global.ResizeObserver = class ResizeObserver {
+    observe() {
+        // não faz nada
+    }
+    unobserve() {
+        // não faz nada
+    }
+    disconnect() {
+        // não faz nada
+    }
+};

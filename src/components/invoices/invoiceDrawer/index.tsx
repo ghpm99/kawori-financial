@@ -43,9 +43,6 @@ const InvoiceDrawer = ({
 
     const [tagSelection, setTagSelection] = useState<ITags[]>(invoiceDetail?.tags || []);
 
-    console.log("tagSelection", tagSelection);
-    console.log("tags", tags);
-
     const hasAlreadySelectedBudget =
         tags.filter((tag) => tagSelection.map((tag) => tag.name).includes(tag.name) && tag.is_budget).length > 0;
 
@@ -140,9 +137,8 @@ const InvoiceDrawer = ({
         form.submit();
     };
 
-    const handleChangeTags = (values: ITags[]) => {
-        console.log("handleChangeTags", values);
-        setTagSelection(tags.filter((tag) => values.includes(tag)));
+    const handleChangeTags = (values: string[]) => {
+        setTagSelection(tags.filter((tag) => values.includes(tag.name)));
     };
 
     const tagRender: TagRender = (props) => {
@@ -203,7 +199,7 @@ const InvoiceDrawer = ({
                     </Col>
                     <Col span={12}>
                         <Form.Item name="status" label="Status">
-                            <Select placeholder="Please select an owner" disabled>
+                            <Select disabled>
                                 <Option value={0}>Em aberto</Option>
                                 <Option value={1}>Baixado</Option>
                             </Select>
@@ -217,7 +213,11 @@ const InvoiceDrawer = ({
                             label="Dia de lançamento"
                             rules={[{ required: true, message: "Selecione a data da nota" }]}
                         >
-                            <DatePicker style={{ width: "100%" }} format={"DD/MM/YYYY"} />
+                            <DatePicker
+                                placeholder="Selecione a data"
+                                style={{ width: "100%" }}
+                                format={"DD/MM/YYYY"}
+                            />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -226,7 +226,12 @@ const InvoiceDrawer = ({
                             label="Dia de pagamento"
                             rules={[{ required: true, message: "Selecione a data do pagamento" }]}
                         >
-                            <DatePicker style={{ width: "100%" }} format={"DD/MM/YYYY"} disabled={isEdit} />
+                            <DatePicker
+                                placeholder="Selecione a data de pagamento"
+                                style={{ width: "100%" }}
+                                format={"DD/MM/YYYY"}
+                                disabled={isEdit}
+                            />
                         </Form.Item>
                     </Col>
                 </Row>
@@ -284,14 +289,13 @@ const InvoiceDrawer = ({
                             ]}
                         >
                             <Select
-                                virtual={false}
                                 mode="multiple"
                                 style={{ width: "100%" }}
                                 placeholder="Etiquetas"
                                 data-testid="invoice-tags"
                                 loading={isLoadingTags}
                                 onChange={handleChangeTags}
-                                value={tagSelection}
+                                value={tagSelection.map((tag) => tag.name)}
                                 tagRender={tagRender}
                                 options={tagsOptions?.map((item) => ({
                                     value: item.name,
