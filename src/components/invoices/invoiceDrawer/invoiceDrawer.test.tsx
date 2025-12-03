@@ -91,6 +91,33 @@ describe("InvoiceDrawer", () => {
         expect(screen.getByDisplayValue("1")).toBeInTheDocument(); // installments
     });
 
+    describe("fixed behavior", () => {
+        test("deve renderizar o campo false e habilitar caso fixed undefined", () => {
+            render(<InvoiceDrawer {...defaultProps} isDefaultFixed={undefined} />);
+
+            const fixedCheckbox = screen.getByRole("switch", { name: /fixo/i });
+            expect(fixedCheckbox).toBeInTheDocument();
+            expect(fixedCheckbox).toBeEnabled();
+            expect(fixedCheckbox).toHaveAttribute("aria-checked", "false");
+        });
+        test("deve renderizar o campo true e desabilitar caso fixed true", () => {
+            render(<InvoiceDrawer {...defaultProps} isDefaultFixed={true} />);
+
+            const fixedCheckbox = screen.getByRole("switch", { name: /fixo/i });
+            expect(fixedCheckbox).toBeInTheDocument();
+            expect(fixedCheckbox).not.toBeEnabled();
+            expect(fixedCheckbox).toHaveAttribute("aria-checked", "true");
+        });
+        test("deve renderizar o campo false e desabilitar caso fixed false", () => {
+            render(<InvoiceDrawer {...defaultProps} isDefaultFixed={false} />);
+
+            const fixedCheckbox = screen.getByRole("switch", { name: /fixo/i });
+            expect(fixedCheckbox).toBeInTheDocument();
+            expect(fixedCheckbox).not.toBeEnabled();
+            expect(fixedCheckbox).toHaveAttribute("aria-checked", "false");
+        });
+    });
+
     test("aciona onClose ao clicar em cancelar", () => {
         const onClose = jest.fn();
 
@@ -196,7 +223,7 @@ describe("InvoiceDrawer", () => {
                 name: "teste nota",
                 value: 12.34,
                 date: "2024-02-01",
-                fixed: undefined,
+                fixed: false,
                 next_payment: "2024-02-02",
                 installments: 13,
                 tags: [

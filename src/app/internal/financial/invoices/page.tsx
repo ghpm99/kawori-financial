@@ -121,6 +121,7 @@ function FinancialPage({ searchParams }: { searchParams: { [key: string]: string
                 onCreateNewInvoice={onCreateNewInvoice}
                 tags_data={tags}
                 isLoadingTags={isLoadingTags}
+                isDefaultFixed={false}
             />
         </>
     );

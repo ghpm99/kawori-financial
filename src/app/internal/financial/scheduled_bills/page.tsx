@@ -95,6 +95,7 @@ function ScheduledBillsPage({ searchParams }: { searchParams: { [key: string]: s
                 onCreateNewInvoice={onCreateNewInvoice}
                 tags_data={tags}
                 isLoadingTags={isLoadingTags}
+                isDefaultFixed={true}
             />
         </>
     );

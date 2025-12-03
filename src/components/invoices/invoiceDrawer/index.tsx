@@ -17,6 +17,7 @@ interface InvoiceDrawerProps {
     onCreateNewInvoice: (values: IInvoiceDetail) => void;
     tags_data: ITags[];
     isLoadingTags: boolean;
+    isDefaultFixed?: boolean;
 }
 
 const { Option } = Select;
@@ -31,6 +32,7 @@ const InvoiceDrawer = ({
     onCreateNewInvoice,
     tags_data = [],
     isLoadingTags,
+    isDefaultFixed,
 }: InvoiceDrawerProps) => {
     const [form] = Form.useForm();
     const isEdit = Boolean(invoiceDetail && invoiceDetail.id);
@@ -77,13 +79,14 @@ const InvoiceDrawer = ({
                 value_open: 0,
                 status: 0,
                 active: true,
+                fixed: isDefaultFixed ?? false,
             };
 
             form.setFieldsValue(init);
         } else {
             form.resetFields();
         }
-    }, [form, open, invoiceDetail]);
+    }, [form, open, invoiceDetail, isDefaultFixed]);
 
     const formatter = (value: number | string | undefined) => {
         const cents = typeof value === "number" ? value : Number(String(value || "").replace(/\D+/g, "")) || 0;
@@ -309,7 +312,7 @@ const InvoiceDrawer = ({
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item name="fixed" label="Fixo">
-                            <Switch />
+                            <Switch disabled={isDefaultFixed !== undefined} />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
