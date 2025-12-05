@@ -15,7 +15,7 @@ const config: Config = {
         "^dexie$": "<rootDir>/node_modules/dexie",
         "^@/(.*)$": "<rootDir>/src/$1",
     },
-
+    transformIgnorePatterns: ["node_modules/(?!@faker-js).+"],
     collectCoverageFrom: [
         "src/**/*.ts",
         "src/**/*.tsx",

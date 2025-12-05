@@ -32,6 +32,7 @@
         "react-dom": "19.2.0"
     },
     "devDependencies": {
+        "@faker-js/faker": "^9",
         "@testing-library/dom": "^10.4.1",
         "@testing-library/jest-dom": "^6.9.1",
         "@testing-library/react": "^16.3.0",

@@ -16,6 +16,9 @@ const { Option } = Select;
 
 const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading, onUpdatePaymentDetail }: PaymentsDrawerProps) => {
     const [form] = Form.useForm();
+
+    const enableEdit = Boolean(paymentDetail && paymentDetail.status === 0);
+
     useEffect(() => {
         if (open && paymentDetail) {
             const init = {
@@ -86,25 +89,10 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading, onUpdatePayme
             }
         >
             <Form form={form} layout="vertical" variant="underlined" onFinish={onFinish}>
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Form.Item name="id" label="ID">
-                            <Input placeholder="Please enter user name" disabled />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="contract" label="contrato" hidden>
-                            <Input />
-                        </Form.Item>
-                        <Form.Item
-                            name="contract_name"
-                            label="Contrato"
-                            rules={[{ required: true, message: "Please enter url" }]}
-                        >
-                            <Input placeholder="Please enter user name" disabled />
-                        </Form.Item>
-                    </Col>
-                </Row>
+                <Form.Item name="id" label="ID" hidden>
+                    <Input placeholder="Please enter user name" disabled />
+                </Form.Item>
+
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item name="invoice" label="Nota" hidden>
@@ -127,10 +115,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading, onUpdatePayme
                             label="Nome"
                             rules={[{ required: true, message: "Please choose the type" }]}
                         >
-                            <Select placeholder="Please choose the type">
-                                <Option value="private">Private</Option>
-                                <Option value="public">Public</Option>
-                            </Select>
+                            <Input placeholder="Entre com o nome do pagamento" />
                         </Form.Item>
                     </Col>
                 </Row>
@@ -150,7 +135,12 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading, onUpdatePayme
                             label="Dia de pagamento"
                             rules={[{ required: true, message: "Please choose the dateTime" }]}
                         >
-                            <DatePicker style={{ width: "100%" }} format={"DD/MM/YYYY"} />
+                            <DatePicker
+                                placeholder="Selecione a data de pagamento"
+                                style={{ width: "100%" }}
+                                format={"DD/MM/YYYY"}
+                                disabled={!enableEdit}
+                            />
                         </Form.Item>
                     </Col>
                 </Row>
@@ -173,7 +163,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading, onUpdatePayme
                             label="Tipo"
                             rules={[{ required: true, message: "Please choose the type" }]}
                         >
-                            <Select placeholder="Please choose the type">
+                            <Select placeholder="Please choose the type" disabled={!enableEdit}>
                                 <Option value={0}>Credito</Option>
                                 <Option value={1}>Debito</Option>
                             </Select>
@@ -187,10 +177,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading, onUpdatePayme
                             label="Parcelas"
                             rules={[{ required: true, message: "Please select an owner" }]}
                         >
-                            <Select placeholder="Please select an owner" disabled>
-                                <Option value="xiao">Xiaoxiao Fu</Option>
-                                <Option value="mao">Maomao Zhou</Option>
-                            </Select>
+                            <InputNumber step={1} precision={0} style={{ width: "100%" }} disabled />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -205,6 +192,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading, onUpdatePayme
                                 formatter={formatter}
                                 parser={parser}
                                 style={{ width: "100%" }}
+                                disabled={!enableEdit}
                             />
                         </Form.Item>
                     </Col>
@@ -216,7 +204,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading, onUpdatePayme
                             label="Fixo"
                             rules={[{ required: true, message: "Please select an owner" }]}
                         >
-                            <Switch />
+                            <Switch disabled={!enableEdit} />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -225,7 +213,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading, onUpdatePayme
                             label="Ativo"
                             rules={[{ required: true, message: "Please choose the type" }]}
                         >
-                            <Switch />
+                            <Switch disabled={!enableEdit} />
                         </Form.Item>
                     </Col>
                 </Row>
