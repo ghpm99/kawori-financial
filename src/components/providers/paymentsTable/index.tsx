@@ -84,9 +84,7 @@ const defaultPaymentDetail: IPaymentDetail = {
     payment_date: "",
     fixed: false,
     value: 0,
-    contract: 0,
     active: false,
-    contract_name: "",
     invoice: 0,
     invoice_name: "",
 };
