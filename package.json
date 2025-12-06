@@ -30,7 +30,9 @@
         "next": "16.0.7",
         "react": "19.2.1",
         "react-chartjs-2": "^5.3.1",
-        "react-dom": "19.2.1"
+        "react-dom": "19.2.1",
+        "react-is": "^16.0.7",
+        "recharts": "^3.5.1"
     },
     "devDependencies": {
         "@faker-js/faker": "^9",
@@ -42,6 +44,7 @@
         "@types/node": "^24",
         "@types/react": "^19",
         "@types/react-dom": "^19",
+        "@types/react-is": "^16",
         "babel-plugin-react-compiler": "1.0.0",
         "eslint": "^9",
         "eslint-config-next": "16.0.7",

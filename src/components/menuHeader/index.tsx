@@ -20,7 +20,7 @@ export default function MenuHeader({ isAuthenticated, signOut }: { isAuthenticat
         }
         return (
             <>
-                <Link href={"/internal/financial/report"} className={styles["button"]}>
+                <Link href={"/internal/financial"} className={styles["button"]}>
                     Dashboard
                 </Link>
                 <Button onClick={signOut} className={styles["button"]}>

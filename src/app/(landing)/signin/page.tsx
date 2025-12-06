@@ -17,7 +17,7 @@ const SigninPage = () => {
 
     useEffect(() => {
         if (isAuthenticated) {
-            navigate.push("/internal/financial/report");
+            navigate.push("/internal/financial");
         }
     }, [isAuthenticated, navigate]);
 

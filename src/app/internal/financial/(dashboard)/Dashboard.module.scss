@@ -1,0 +1,256 @@
+.breadcrumb {
+    margin: 16px;
+}
+
+.container {
+    padding: 24px;
+    min-height: 100vh;
+}
+
+.header {
+    margin-bottom: 32px;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+}
+
+.subtitle {
+    font-size: 1rem;
+    color: #8c8c8c;
+    margin: 0;
+}
+
+.metricsRow {
+    margin-bottom: 32px;
+}
+
+.metricCard {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    position: relative;
+
+    :global(.ant-card-body) {
+        padding: 24px;
+    }
+
+    :global(.ant-statistic-title) {
+        font-size: 14px;
+        color: #8c8c8c;
+        margin-bottom: 8px;
+    }
+
+    :global(.ant-statistic-content) {
+        font-size: 24px;
+        font-weight: 600;
+    }
+
+    &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gradient);
+    }
+
+    &.revenue::before {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    &.expenses::before {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    &.profit::before {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    &.growth::before {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+}
+
+.metricChange {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    font-size: 12px;
+    font-weight: 500;
+
+    &.positive {
+        color: #52c41a;
+    }
+
+    &.negative {
+        color: #ff4d4f;
+    }
+
+    &.neutral {
+        color: #1890ff;
+    }
+}
+
+// Responsive utilities
+@media (max-width: 768px) {
+    .container {
+        padding: 16px;
+    }
+
+    .dashboard {
+        padding: 0;
+    }
+
+    .metricsGrid {
+        margin-bottom: 1.5rem;
+    }
+
+    .metricCard {
+        :global(.ant-card-body) {
+            padding: 16px;
+        }
+
+        :global(.ant-statistic-content) {
+            font-size: 20px;
+        }
+    }
+
+    .chartsSection {
+        margin-bottom: 1.5rem;
+    }
+
+    .transactionsFilters {
+        > * {
+            width: 100%;
+        }
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+}
+
+.chartsRow {
+    margin-bottom: 32px;
+}
+
+.chartCard {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    :global(.ant-card-head) {
+        border-bottom: 1px solid #f0f0f0;
+        padding: 1rem 1.5rem;
+
+        :global(.ant-card-head-title) {
+            font-size: 16px;
+            font-weight: 600;
+        }
+    }
+
+    :global(.ant-card-body) {
+        padding: 1.5rem;
+    }
+}
+
+.goalsRow {
+    margin-bottom: 32px;
+}
+
+.goalsCard {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.goalItem {
+    margin-bottom: 24px;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.goalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 14px;
+
+    span:first-child {
+        font-weight: 500;
+    }
+
+    span:last-child {
+        color: #8c8c8c;
+    }
+}
+
+.summaryCard {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.summaryItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-of-type {
+        border-bottom: none;
+        margin-bottom: 16px;
+    }
+}
+
+.summaryLabel {
+    font-size: 14px;
+    color: #8c8c8c;
+}
+
+.summaryValue {
+    font-size: 16px;
+    font-weight: 600;
+
+    &.positive {
+        color: #52c41a;
+    }
+}
+
+.summaryProgress {
+    margin-top: 16px;
+}
+
+.transactionsRow {
+    margin-bottom: 32px;
+}
+
+.transactionsCard {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    :global(.ant-card-head) {
+        border-bottom: 1px solid #f0f0f0;
+        padding: 1rem 1.5rem;
+
+        :global(.ant-card-head-title) {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+    }
+
+    :global(.ant-card-body) {
+        padding: 0;
+    }
+}
