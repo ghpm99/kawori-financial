@@ -14,6 +14,7 @@ import {
     DeleteOutlined,
 } from "@ant-design/icons";
 import {
+    fetchAmountInvoiceByTagReportService,
     fetchAmountPaymentReportService,
     fetchFinancialMetricsService,
     fetchPaymentReportService,
@@ -35,12 +36,20 @@ type PaymentsChart = {
     revenue: number;
     expenses: number;
 };
+
+type invoiceByTag = {
+    category: string;
+    amount: number;
+    color: string;
+};
+
 type DashboardContextData = {
     revenues: CardProps;
     expenses: CardProps;
     profit: CardProps;
     growth: Omit<CardProps, "metric_value">;
     paymentsChart: PaymentsChart[];
+    invoiceByTag: invoiceByTag[];
 };
 
 const DashboardContext = createContext({} as DashboardContextData);
@@ -62,6 +71,11 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
     const { data: paymentData } = useQuery({
         queryKey: ["paymentReport"],
         queryFn: fetchPaymentReportService,
+    });
+
+    const { data: invoiceByTagQuery, isLoading: isLoadingInvoiceByTag } = useQuery({
+        queryKey: ["invoiceByTag"],
+        queryFn: fetchAmountInvoiceByTagReportService,
     });
 
     const generateCardIconAndStatus = (
@@ -94,6 +108,13 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
             expenses: payment.debit,
         })) || [];
 
+    const invoiceByTag: invoiceByTag[] =
+        invoiceByTagQuery?.map((tag) => ({
+            category: tag.name,
+            amount: tag.amount,
+            color: tag.color,
+        })) || [];
+
     const contextValue: DashboardContextData = {
         ...metricsData,
         revenues: {
@@ -123,6 +144,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
             status: "positive",
         },
         paymentsChart: paymentChartData,
+        invoiceByTag,
     };
 
     return <DashboardContext.Provider value={contextValue}>{children}</DashboardContext.Provider>;

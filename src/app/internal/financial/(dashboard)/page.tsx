@@ -15,17 +15,20 @@ import {
     EditOutlined,
     DeleteOutlined,
 } from "@ant-design/icons";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
+import {
+    LineChart,
+    Line,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    BarChart,
+    Bar,
+    Cell,
+} from "recharts";
 import { useDashboard } from "@/components/providers/dashboard";
 import { formatMoney } from "@/util";
-
-const expenseData = [
-    { category: "Alimentação", amount: 1200 },
-    { category: "Transporte", amount: 800 },
-    { category: "Moradia", amount: 2000 },
-    { category: "Lazer", amount: 600 },
-    { category: "Saúde", amount: 400 },
-];
 
 const transactionColumns = [
     {
@@ -109,11 +112,12 @@ const transactionData = [
 ];
 
 const DashBoardPage = () => {
-    const { revenues, expenses, profit, growth, paymentsChart } = useDashboard();
+    const { revenues, expenses, profit, growth, paymentsChart, invoiceByTag } = useDashboard();
     const {
         state: { theme },
     } = useTheme();
 
+    console.log(invoiceByTag);
     return (
         <>
             <Breadcrumb
@@ -197,9 +201,9 @@ const DashBoardPage = () => {
 
                     {/* Gráficos */}
                     <Row gutter={[24, 24]} className={styles.chartsRow}>
-                        <Col xs={24} lg={16}>
+                        <Col xs={24} lg={8}>
                             <Card title="Receita vs Gastos" className={styles.chartCard}>
-                                <ResponsiveContainer width="100%" height={300}>
+                                <ResponsiveContainer width="100%" height={500}>
                                     <LineChart data={paymentsChart}>
                                         <CartesianGrid strokeDasharray="3 3" />
                                         <XAxis dataKey="month" />
@@ -223,20 +227,34 @@ const DashBoardPage = () => {
                                 </ResponsiveContainer>
                             </Card>
                         </Col>
-                        <Col xs={24} lg={8}>
+                        <Col xs={24} lg={16}>
                             <Card title="Gastos por Categoria" className={styles.chartCard}>
-                                <ResponsiveContainer width="100%" height={300}>
-                                    <BarChart data={expenseData} layout="horizontal">
+                                <ResponsiveContainer width="100%" height={500}>
+                                    <BarChart data={invoiceByTag} layout="vertical">
                                         <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis type="number" />
-                                        <YAxis dataKey="category" type="category" width={80} />
+                                        <XAxis
+                                            type="number"
+                                            tickFormatter={(value) => `R$ ${value.toLocaleString("pt-BR")}`}
+                                        />
+                                        <YAxis
+                                            dataKey="category"
+                                            type="category"
+                                            width={150}
+                                            tick={{ fontSize: 12 }}
+                                            interval={0}
+                                            tickSize={10}
+                                        />
                                         <Tooltip
                                             formatter={(value: number) => [
                                                 `R$ ${value.toLocaleString("pt-BR")}`,
                                                 "Valor",
                                             ]}
                                         />
-                                        <Bar dataKey="amount" fill="#1890ff" />
+                                        <Bar dataKey="amount" name="Valor" animationDuration={1500}>
+                                            {invoiceByTag.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color} />
+                                            ))}
+                                        </Bar>
                                     </BarChart>
                                 </ResponsiveContainer>
                             </Card>
