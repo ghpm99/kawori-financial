@@ -110,3 +110,24 @@ export const fetchAmountForecastValueService = async (): Promise<number> => {
     const response = await apiDjango.get<IAmountForecastValueResponse>("/financial/report/amount_forecast_value");
     return response.data.data;
 };
+
+interface MetricData {
+    value: number;
+    metric_value: number;
+}
+
+interface GrowthData {
+    value: number;
+}
+
+interface FinancialMetricsResponse {
+    revenues: MetricData;
+    expenses: MetricData;
+    profit: MetricData;
+    growth: GrowthData;
+}
+
+export const fetchFinancialMetricsService = async (): Promise<FinancialMetricsResponse> => {
+    const response = await apiDjango.get<FinancialMetricsResponse>("/financial/report/metrics");
+    return response.data;
+};

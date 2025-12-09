@@ -109,7 +109,7 @@ const transactionData = [
 ];
 
 const DashBoardPage = () => {
-    const { revenue, expenses, profit, growth, paymentsChart } = useDashboard();
+    const { revenues, expenses, profit, growth, paymentsChart } = useDashboard();
     const {
         state: { theme },
     } = useTheme();
@@ -132,17 +132,17 @@ const DashBoardPage = () => {
                         <Col xs={24} sm={12} lg={6}>
                             <Card className={styles.metricCard}>
                                 <Statistic
-                                    loading={revenue.loading}
+                                    loading={revenues.loading}
                                     title="Receita Total"
-                                    value={revenue.value}
+                                    value={revenues.value}
                                     precision={2}
                                     valueStyle={{ color: "#3f8600" }}
                                     prefix={<DollarOutlined />}
                                     suffix="R$"
                                 />
-                                <div className={`${styles.metricChange} ${styles[revenue.status]}`}>
-                                    {revenue.metricIcon}
-                                    <span>{revenue.metric_value}%</span>
+                                <div className={`${styles.metricChange} ${styles[revenues.status]}`}>
+                                    {revenues.metricIcon}
+                                    <span>{revenues.metric_value}%</span>
                                 </div>
                             </Card>
                         </Col>
@@ -167,15 +167,16 @@ const DashBoardPage = () => {
                             <Card className={styles.metricCard}>
                                 <Statistic
                                     title="Lucro Líquido"
-                                    value={16300}
+                                    loading={profit.loading}
+                                    value={profit.value}
                                     precision={2}
                                     valueStyle={{ color: "#1890ff" }}
                                     prefix={<TrophyOutlined />}
                                     suffix="R$"
                                 />
-                                <div className={`${styles.metricChange} ${styles.positive}`}>
-                                    <ArrowUpOutlined className={styles.positive} />
-                                    <span className={styles.positive}>18.7%</span>
+                                <div className={`${styles.metricChange} ${styles[profit.status]}`}>
+                                    {profit.metricIcon}
+                                    <span>{profit.metric_value}%</span>
                                 </div>
                             </Card>
                         </Col>
@@ -183,16 +184,13 @@ const DashBoardPage = () => {
                             <Card className={styles.metricCard}>
                                 <Statistic
                                     title="Crescimento"
-                                    value={25}
+                                    loading={growth.loading}
+                                    value={growth.value}
                                     precision={1}
                                     valueStyle={{ color: "#722ed1" }}
                                     prefix={<RiseOutlined />}
                                     suffix="%"
                                 />
-                                <div className={styles.metricChange}>
-                                    <ArrowUpOutlined className={styles.positive} />
-                                    <span className={styles.positive}>5.3%</span>
-                                </div>
                             </Card>
                         </Col>
                     </Row>

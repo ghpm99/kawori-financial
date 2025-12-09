@@ -13,16 +13,21 @@ import {
     EditOutlined,
     DeleteOutlined,
 } from "@ant-design/icons";
-import { fetchAmountPaymentReportService, fetchPaymentReportService } from "@/services/financial/report";
+import {
+    fetchAmountPaymentReportService,
+    fetchFinancialMetricsService,
+    fetchPaymentReportService,
+} from "@/services/financial/report";
 import { formatterMonthYearDate } from "@/util";
 
+type CardStatus = "positive" | "negative" | "neutral";
 type CardProps = {
     value: number;
     loading: boolean;
     color: string;
     metricIcon: ReactNode;
     metric_value: number;
-    status: "positive" | "negative" | "neutral";
+    status: CardStatus;
 };
 
 type PaymentsChart = {
@@ -31,43 +36,48 @@ type PaymentsChart = {
     expenses: number;
 };
 type DashboardContextData = {
-    revenue: CardProps;
+    revenues: CardProps;
     expenses: CardProps;
     profit: CardProps;
-    growth: CardProps;
+    growth: Omit<CardProps, "metric_value">;
     paymentsChart: PaymentsChart[];
 };
 
 const DashboardContext = createContext({} as DashboardContextData);
 
 export const DashboardProvider = ({ children }: { children: ReactNode }) => {
-    const { data: earningsGetTotal = { value: 0, metric_value: 1 }, isLoading: isLoadingEarningsGetTotal } = useQuery({
-        queryKey: ["earnings_get_total"],
-        queryFn: async () => {
-            const response = await apiDjango.get<{
-                value: number;
-                metric_value: number;
-            }>("/financial/earnings/total/");
-            return response.data;
+    const {
+        data: metricsData = {
+            revenues: { value: 0, metric_value: 1 },
+            expenses: { value: 0, metric_value: 1 },
+            profit: { value: 0, metric_value: 1 },
+            growth: { value: 0 },
         },
+        isLoading: isLoadingMetrics,
+    } = useQuery({
+        queryKey: ["metrics_get_total"],
+        queryFn: fetchFinancialMetricsService,
     });
 
-    const { data: amountPayment, isLoading: isLoadingAmountPayment } = useQuery({
-        queryKey: ["amountPayment"],
-        queryFn: fetchAmountPaymentReportService,
+    const { data: paymentData } = useQuery({
+        queryKey: ["paymentReport"],
+        queryFn: fetchPaymentReportService,
     });
 
-    const generateCardIconAndStatus = (metricValue: number) => {
+    const generateCardIconAndStatus = (
+        metricValue: number,
+        inverseStatus: boolean = false,
+    ): { metricIcon: ReactNode; status: CardStatus } => {
         if (metricValue < 1) {
             return {
                 metricIcon: <ArrowDownOutlined />,
-                status: "negative",
+                status: inverseStatus ? "positive" : "negative",
             };
         }
         if (metricValue > 1) {
             return {
                 metricIcon: <ArrowUpOutlined />,
-                status: "positive",
+                status: inverseStatus ? "negative" : "positive",
             };
         }
 
@@ -77,14 +87,6 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
         };
     };
 
-    const profit = (earningsGetTotal?.data || 0) - (amountPayment || 0);
-    const isLoading = isLoadingEarningsGetTotal || isLoadingAmountPayment;
-
-    const { data: paymentData, isLoading: isLoadingPayments } = useQuery({
-        queryKey: ["paymentReport"],
-        queryFn: fetchPaymentReportService,
-    });
-
     const paymentChartData =
         paymentData?.payments.map((payment) => ({
             month: formatterMonthYearDate(payment.label),
@@ -93,34 +95,31 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
         })) || [];
 
     const contextValue: DashboardContextData = {
-        revenue: {
-            ...earningsGetTotal,
-            ...generateCardIconAndStatus(earningsGetTotal.metric_value),
-            loading: isLoadingEarningsGetTotal,
+        ...metricsData,
+        revenues: {
+            ...metricsData.revenues,
+            ...generateCardIconAndStatus(metricsData.revenues.metric_value),
+            loading: isLoadingMetrics,
             color: "green",
         },
         expenses: {
-            value: amountPayment || 0,
-            loading: isLoadingAmountPayment,
+            ...metricsData.expenses,
+            ...generateCardIconAndStatus(metricsData.expenses.metric_value, true),
+            loading: isLoadingMetrics,
             color: "red",
-            metricIcon: <ArrowDownOutlined />,
-            metricValue: 3.2,
-            status: "negative",
         },
         profit: {
-            value: profit,
-            loading: isLoading,
+            ...metricsData.profit,
+            ...generateCardIconAndStatus(metricsData.profit.metric_value),
+            loading: isLoadingMetrics,
             color: "green",
-            metricIcon: <ArrowUpOutlined />,
-            metricValue: 12.5,
-            status: "positive",
         },
         growth: {
-            value: 25,
-            loading: false,
+            ...metricsData.growth,
+            loading: isLoadingMetrics,
             color: "#722ed1",
             metricIcon: <ArrowUpOutlined />,
-            metricValue: 5.3,
+
             status: "positive",
         },
         paymentsChart: paymentChartData,
