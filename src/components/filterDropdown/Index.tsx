@@ -1,11 +1,55 @@
-import { Button } from "antd";
-
+import { Button, DatePicker, Input, Select } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 import styles from "./filterDropdown.module.scss";
+import dayjs from "dayjs";
+import { customFormat } from "../constants";
+
+const { RangePicker } = DatePicker;
+type RangeValue = NonNullable<React.ComponentProps<typeof DatePicker.RangePicker>["value"]>;
 
 interface IFilterDropdownProps {
     applyFilter: React.MouseEventHandler<HTMLElement>;
     children: React.ReactNode;
 }
+
+export const makeSearchFilterIcon = (filtered: boolean) => (
+    <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+);
+
+export const makeFilterDropdownInput = (name: string, value: string, onChange: any) => (
+    <FilterDropdown applyFilter={() => {}}>
+        <Input name={name} style={{ width: 220 }} onChange={onChange} value={value} />
+    </FilterDropdown>
+);
+
+export const makeFilterDropdownSelect = (value: string, options: any[], onChange: any) => (
+    <FilterDropdown applyFilter={() => {}}>
+        <Select style={{ width: 220 }} options={options} value={value} onChange={onChange} />
+    </FilterDropdown>
+);
+
+export const makeFilterDropdownDateRange = (name: string, value: RangeValue | null | undefined, onChange: any) => (
+    <FilterDropdown applyFilter={() => {}}>
+        <RangePicker
+            name={name}
+            onChange={onChange}
+            format={customFormat}
+            value={value}
+            ranges={{
+                Hoje: [dayjs(), dayjs()],
+                Ontem: [dayjs().subtract(1, "days"), dayjs().subtract(1, "days")],
+                "Últimos 7 dias": [dayjs().subtract(7, "days"), dayjs()],
+                "Últimos 30 dias": [dayjs().subtract(30, "days"), dayjs()],
+                "Mês atual": [dayjs().startOf("month"), dayjs().endOf("month")],
+                "Proximo mês": [dayjs().add(1, "months").startOf("month"), dayjs().add(1, "months").endOf("month")],
+                "Mês passado": [
+                    dayjs().subtract(1, "month").startOf("month"),
+                    dayjs().subtract(1, "month").endOf("month"),
+                ],
+            }}
+        />
+    </FilterDropdown>
+);
 
 const FilterDropdown = (props: IFilterDropdownProps) => {
     return (

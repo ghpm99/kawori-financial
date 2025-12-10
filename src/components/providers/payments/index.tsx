@@ -159,10 +159,14 @@ const defaultPaymentsPage: PaymentsPage = {
     data: [],
 };
 
-export const PaymentsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const PaymentsProvider: React.FC<{ children: React.ReactNode; customDefaultFilters?: IPaymentFilters }> = ({
+    children,
+    customDefaultFilters = {},
+}) => {
     const initFilters = (): IPaymentFilters => {
         return {
             ...defaultFilters,
+            ...customDefaultFilters,
         };
     };
 

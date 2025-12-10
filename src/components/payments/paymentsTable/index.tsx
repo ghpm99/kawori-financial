@@ -1,17 +1,21 @@
 "use client";
 
-import { SearchOutlined } from "@ant-design/icons";
 import { faEllipsis, faFileCircleCheck, faFilePen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { DatePicker, Dropdown, Input, MenuProps, Select, Space, Table, Typography } from "antd";
+import { DatePicker, Dropdown, MenuProps, Space, Table, TableProps, Typography } from "antd";
 import dayjs from "dayjs";
 import Link from "next/link";
 
 import { formatMoney, formatterDate } from "@/util/index";
 
-import { SelectedRowType } from "@/components/providers/selectPayments";
+import {
+    makeFilterDropdownDateRange,
+    makeFilterDropdownInput,
+    makeFilterDropdownSelect,
+    makeSearchFilterIcon,
+} from "@/components/filterDropdown/Index";
 import { IPaymentFilters, IPaymentPagination, PaymentItem, PaymentsPage } from "@/components/providers/payments";
-import FilterDropdown from "@/components/filterDropdown/Index";
+import { SelectedRowType } from "@/components/providers/selectPayments";
 
 const { RangePicker } = DatePicker;
 
@@ -27,9 +31,38 @@ interface IPaymentsTableProps {
     selectedRow: SelectedRowType[];
     handleSelectFilter: (name: keyof IPaymentFilters, value: string | number) => void;
     updateSelectedRows: (keys: SelectedRowType[]) => void;
+    simplifiedView?: boolean;
 }
+type ColumnKey =
+    | "name"
+    | "invoice"
+    | "value"
+    | "paymentDate"
+    | "status"
+    | "type"
+    | "date"
+    | "installments"
+    | "fixed"
+    | "actions";
 
-const customFormat = ["DD/MM/YYYY", "DD/MM/YYYY"];
+type Columns = NonNullable<TableProps<PaymentItem>["columns"]>;
+type SingleColumn = Columns[number];
+type ColumnFactory = Record<ColumnKey, () => SingleColumn>;
+
+const simplifiedOrder: ColumnKey[] = ["name", "value", "paymentDate", "actions"];
+
+const fullOrder: ColumnKey[] = [
+    "name",
+    "invoice",
+    "value",
+    "paymentDate",
+    "status",
+    "type",
+    "date",
+    "installments",
+    "fixed",
+    "actions",
+];
 
 const PaymentsTable = ({
     paymentsData,
@@ -43,6 +76,7 @@ const PaymentsTable = ({
     selectedRow,
     handleSelectFilter,
     updateSelectedRows,
+    simplifiedView,
 }: IPaymentsTableProps) => {
     const createDropdownMenu = (record: PaymentItem): MenuProps => {
         const items: MenuProps["items"] = [
@@ -72,214 +106,144 @@ const PaymentsTable = ({
         return { items };
     };
 
+    const columnFactory: ColumnFactory = {
+        name: (): SingleColumn => ({
+            title: "Nome",
+            dataIndex: "name",
+            key: "name",
+            filterDropdown: () =>
+                makeFilterDropdownInput("name__icontains", paymentFilters?.name__icontains ?? "", handleChangeFilter),
+            filterIcon: makeSearchFilterIcon,
+        }),
+        value: (): SingleColumn => ({
+            title: "Valor",
+            dataIndex: "value",
+            key: "value",
+            render: formatMoney,
+        }),
+
+        paymentDate: (): SingleColumn => ({
+            title: "Dia de pagamento",
+            dataIndex: "payment_date",
+            key: "payment_date",
+            render: formatterDate,
+            filterDropdown: () =>
+                makeFilterDropdownDateRange(
+                    "payment_date",
+                    [dayjs(paymentFilters?.payment_date__gte), dayjs(paymentFilters?.payment_date__lte)],
+                    (_, formatString) => handleDateRangedFilter("payment_date", formatString),
+                ),
+            filterIcon: makeSearchFilterIcon,
+        }),
+
+        invoice: (): SingleColumn => ({
+            title: "Nota",
+            dataIndex: "invoice",
+            key: "invoice",
+            render: (_, record) => (
+                <Link href={`/internal/financial/invoices/details/${record.invoice_id}`}>{record.invoice_name}</Link>
+            ),
+            filterDropdown: () =>
+                makeFilterDropdownInput("contract", paymentFilters?.invoice ?? "", handleChangeFilter),
+            filterIcon: makeSearchFilterIcon,
+        }),
+
+        status: (): SingleColumn => ({
+            title: "Status",
+            dataIndex: "status",
+            key: "status",
+            render: (value) => (value === 0 ? "Em aberto" : "Baixado"),
+            filterDropdown: () =>
+                makeFilterDropdownSelect(
+                    paymentFilters?.status ?? "",
+                    [
+                        { label: "Todos", value: "all" },
+                        { label: "Em aberto", value: "open" },
+                        { label: "Baixado", value: "done" },
+                    ],
+                    (value) => handleSelectFilter("status", value),
+                ),
+            filterIcon: makeSearchFilterIcon,
+        }),
+
+        type: (): SingleColumn => ({
+            title: "Tipo",
+            dataIndex: "type",
+            key: "type",
+            render: (value) => (value === 0 ? "Credito" : "Debito"),
+            filterDropdown: () =>
+                makeFilterDropdownSelect(
+                    paymentFilters?.type ?? "",
+                    [
+                        { label: "Todos", value: "" },
+                        { label: "Credito", value: 0 },
+                        { label: "Debito", value: 1 },
+                    ],
+                    (value) => handleSelectFilter("type", value),
+                ),
+            filterIcon: makeSearchFilterIcon,
+        }),
+
+        date: (): SingleColumn => ({
+            title: "Data",
+            dataIndex: "date",
+            key: "date",
+            render: formatterDate,
+            filterDropdown: () =>
+                makeFilterDropdownDateRange(
+                    "date",
+                    [dayjs(paymentFilters?.date__gte), dayjs(paymentFilters?.date__lte)],
+                    (_, formatString) => handleDateRangedFilter("date", formatString),
+                ),
+            filterIcon: makeSearchFilterIcon,
+        }),
+
+        installments: (): SingleColumn => ({
+            title: "Parcela",
+            dataIndex: "installments",
+            key: "installments",
+        }),
+
+        fixed: (): SingleColumn => ({
+            title: "Fixo",
+            dataIndex: "fixed",
+            key: "fixed",
+            render: (value) => (value ? "Sim" : "Não"),
+        }),
+
+        actions: (): SingleColumn => ({
+            title: "Ações",
+            dataIndex: "id",
+            key: "actions",
+            render: (_, record) => (
+                <Dropdown menu={createDropdownMenu(record)}>
+                    <a onClick={(e) => e.preventDefault()}>
+                        <Space>
+                            <FontAwesomeIcon icon={faEllipsis} />
+                        </Space>
+                    </a>
+                </Dropdown>
+            ),
+        }),
+    };
+
+    const columnsTable = (): TableProps<PaymentItem>["columns"] => {
+        const order = simplifiedView ? simplifiedOrder : fullOrder;
+        return order.map((key) => columnFactory[key]());
+    };
+
     return (
         <Table
             title={() => "Pagamentos"}
             scroll={{ x: "max-content" }}
             pagination={{
-                showSizeChanger: true,
+                showSizeChanger: !simplifiedView,
                 pageSize: paymentsData.page_size,
                 current: paymentsData.current_page,
                 total: paymentsData.total_pages * paymentsData.page_size,
                 onChange: onChangePagination,
             }}
-            columns={[
-                {
-                    title: "Nome",
-                    dataIndex: "name",
-                    key: "name",
-                    filterDropdown: () => (
-                        <FilterDropdown applyFilter={() => {}}>
-                            <Input
-                                name="name__icontains"
-                                style={{ width: 220 }}
-                                onChange={(event) => handleChangeFilter(event)}
-                                value={paymentFilters?.name__icontains ?? ""}
-                            />
-                        </FilterDropdown>
-                    ),
-                    filterIcon: (filtered: boolean) => (
-                        <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
-                    ),
-                },
-                {
-                    title: "Nota",
-                    dataIndex: "invoice",
-                    key: "invoice",
-                    render: (_, record) => (
-                        <Link href={`/internal/financial/invoices/details/${record.invoice_id}`}>
-                            {record.invoice_name}
-                        </Link>
-                    ),
-                    filterDropdown: () => (
-                        <FilterDropdown applyFilter={() => {}}>
-                            <Input
-                                name="contract"
-                                style={{ width: 220 }}
-                                onChange={(event) => handleChangeFilter(event)}
-                                value={paymentFilters?.invoice ?? ""}
-                            />
-                        </FilterDropdown>
-                    ),
-                    filterIcon: (filtered: boolean) => (
-                        <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
-                    ),
-                },
-                {
-                    title: "Valor",
-                    dataIndex: "value",
-                    key: "value",
-                    render: (value) => formatMoney(value),
-                },
-                {
-                    title: "Dia de pagamento",
-                    dataIndex: "payment_date",
-                    key: "payment_date",
-                    render: (value) => formatterDate(value),
-                    filterDropdown: () => (
-                        <FilterDropdown applyFilter={() => {}}>
-                            <RangePicker
-                                name={"payment_date"}
-                                onChange={(_, formatString) => {
-                                    handleDateRangedFilter("payment_date", formatString);
-                                }}
-                                format={customFormat}
-                                value={[
-                                    dayjs(paymentFilters?.payment_date__gte),
-                                    dayjs(paymentFilters?.payment_date__lte),
-                                ]}
-                                ranges={{
-                                    Hoje: [dayjs(), dayjs()],
-                                    Ontem: [dayjs().subtract(1, "days"), dayjs().subtract(1, "days")],
-                                    "Últimos 7 dias": [dayjs().subtract(7, "days"), dayjs()],
-                                    "Últimos 30 dias": [dayjs().subtract(30, "days"), dayjs()],
-                                    "Mês atual": [dayjs().startOf("month"), dayjs().endOf("month")],
-                                    "Proximo mês": [
-                                        dayjs().add(1, "months").startOf("month"),
-                                        dayjs().add(1, "months").endOf("month"),
-                                    ],
-                                    "Mês passado": [
-                                        dayjs().subtract(1, "month").startOf("month"),
-                                        dayjs().subtract(1, "month").endOf("month"),
-                                    ],
-                                }}
-                            />
-                        </FilterDropdown>
-                    ),
-                    filterIcon: (filtered: boolean) => (
-                        <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
-                    ),
-                },
-                {
-                    title: "Status",
-                    dataIndex: "status",
-                    key: "status",
-                    render: (value) => (value === 0 ? "Em aberto" : "Baixado"),
-                    filterDropdown: () => (
-                        <FilterDropdown applyFilter={() => {}}>
-                            <Select
-                                style={{ width: 220 }}
-                                options={[
-                                    { label: "Todos", value: "all" },
-                                    { label: "Em aberto", value: "open" },
-                                    { label: "Baixado", value: "done" },
-                                ]}
-                                onChange={(value) => handleSelectFilter("status", value)}
-                                value={paymentFilters?.status ?? ""}
-                            />
-                        </FilterDropdown>
-                    ),
-                    filterIcon: (filtered: boolean) => (
-                        <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
-                    ),
-                },
-                {
-                    title: "Tipo",
-                    dataIndex: "type",
-                    key: "type",
-                    render: (text) => (text === 0 ? "Credito" : "Debito"),
-                    filterDropdown: () => (
-                        <FilterDropdown applyFilter={() => {}}>
-                            <Select
-                                style={{ width: 220 }}
-                                options={[
-                                    { label: "Todos", value: "" },
-                                    { label: "Credito", value: 0 },
-                                    { label: "Debito", value: 1 },
-                                ]}
-                                onChange={(value) => handleSelectFilter("type", value)}
-                                value={paymentFilters?.type ?? ""}
-                            />
-                        </FilterDropdown>
-                    ),
-                    filterIcon: (filtered: boolean) => (
-                        <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
-                    ),
-                },
-                {
-                    title: "Data",
-                    dataIndex: "date",
-                    key: "dataIndex",
-                    render: (value) => formatterDate(value),
-                    filterDropdown: () => (
-                        <FilterDropdown applyFilter={() => {}}>
-                            <RangePicker
-                                name={"date"}
-                                onChange={(_, formatString) => {
-                                    handleDateRangedFilter("date", formatString);
-                                }}
-                                format={customFormat}
-                                value={[dayjs(paymentFilters?.date__gte), dayjs(paymentFilters?.date__lte)]}
-                                ranges={{
-                                    Hoje: [dayjs(), dayjs()],
-                                    Ontem: [dayjs().subtract(1, "days"), dayjs().subtract(1, "days")],
-                                    "Últimos 7 dias": [dayjs().subtract(7, "days"), dayjs()],
-                                    "Últimos 30 dias": [dayjs().subtract(30, "days"), dayjs()],
-                                    "Mês atual": [dayjs().startOf("month"), dayjs().endOf("month")],
-                                    "Proximo mês": [
-                                        dayjs().add(1, "months").startOf("month"),
-                                        dayjs().add(1, "months").endOf("month"),
-                                    ],
-                                    "Mês passado": [
-                                        dayjs().subtract(1, "month").startOf("month"),
-                                        dayjs().subtract(1, "month").endOf("month"),
-                                    ],
-                                }}
-                            />
-                        </FilterDropdown>
-                    ),
-                    filterIcon: (filtered: boolean) => (
-                        <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
-                    ),
-                },
-
-                {
-                    title: "Parcela",
-                    dataIndex: "installments",
-                    key: "installments",
-                },
-
-                {
-                    title: "Fixo",
-                    dataIndex: "fixed",
-                    key: "fixed",
-                    render: (value) => (value ? "Sim" : "Não"),
-                },
-                {
-                    title: "Ações",
-                    dataIndex: "id",
-                    key: "id",
-                    render: (_, record) => (
-                        <Dropdown menu={createDropdownMenu(record)}>
-                            <a onClick={(e) => e.preventDefault()}>
-                                <Space>
-                                    <FontAwesomeIcon icon={faEllipsis} />
-                                </Space>
-                            </a>
-                        </Dropdown>
-                    ),
-                },
-            ]}
+            columns={columnsTable()}
             rowSelection={{
                 type: "checkbox",
                 selectedRowKeys: selectedRow.filter((x) => x.selected).map((x) => x.id),
@@ -301,7 +265,7 @@ const PaymentsTable = ({
             }}
             dataSource={paymentsData.data}
             loading={isLoading}
-            summary={(paymentData) => <TableSummary paymentData={paymentData} />}
+            summary={simplifiedView ? undefined : (paymentData) => <TableSummary paymentData={paymentData} />}
         />
     );
 };

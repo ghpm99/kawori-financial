@@ -11,6 +11,7 @@ import { IInvoicePagination } from "@/components/providers/invoices";
 
 interface PaymentsProps {
     invoice: IInvoicePagination;
+    pageSize?: number;
 }
 
 const Payments = ({ invoice }: PaymentsProps) => {
@@ -43,6 +44,7 @@ const Payments = ({ invoice }: PaymentsProps) => {
     return (
         <>
             <PaymentsTable
+                simplifiedView
                 handleChangeFilter={handleChangeFilter}
                 handleDateRangedFilter={handleDateRangedFilter}
                 handleSelectFilter={handleSelectFilter}
@@ -66,9 +68,9 @@ const Payments = ({ invoice }: PaymentsProps) => {
     );
 };
 
-export const InvoicePayments = ({ invoice }: PaymentsProps) => {
+export const InvoicePayments = ({ invoice, pageSize }: PaymentsProps) => {
     return (
-        <PaymentsProvider>
+        <PaymentsProvider customDefaultFilters={{ page_size: pageSize ?? 10, page: 1 }}>
             <Payments invoice={invoice} />
         </PaymentsProvider>
     );
