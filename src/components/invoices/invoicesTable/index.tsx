@@ -3,13 +3,14 @@ import { ChangeEvent } from "react";
 import { SearchOutlined } from "@ant-design/icons";
 import { faEllipsis, faFilePen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Dropdown, Input, MenuProps, Space, Table, Tag } from "antd";
+import { Dropdown, Input, MenuProps, Space, Table, TableProps, Tag } from "antd";
 
 import { formatMoney, formatterDate } from "@/util";
 
 import { InvoicePayments } from "../payments";
 import { IInvoiceFilters, IInvoicePagination, InvoicesPage } from "@/components/providers/invoices";
 import FilterDropdown from "@/components/filterDropdown/Index";
+import { ITags } from "@/components/providers/tags";
 
 interface IInvoicesTable {
     data: InvoicesPage;
@@ -18,6 +19,7 @@ interface IInvoicesTable {
     onOpenInvoiceDetail: (invoiceId?: number) => void;
     onChangePagination: (page: number, pageSize: number) => void;
     handleChangeFilter: (e: ChangeEvent<HTMLInputElement>) => void;
+    simplifiedView?: boolean;
 }
 const InvoicesTable = ({
     data,
@@ -26,6 +28,7 @@ const InvoicesTable = ({
     onOpenInvoiceDetail,
     onChangePagination,
     handleChangeFilter,
+    simplifiedView,
 }: IInvoicesTable) => {
     const createDropdownMenu = (record: IInvoicePagination): MenuProps => {
         const items: MenuProps["items"] = [
@@ -47,94 +50,107 @@ const InvoicesTable = ({
 
         return { items };
     };
+
+    const columnsTable = (): TableProps<IInvoicePagination>["columns"] => {
+        const columns: TableProps<IInvoicePagination>["columns"] = [
+            {
+                title: "Nome",
+                dataIndex: "name",
+                key: "name",
+                filterDropdown: () => (
+                    <FilterDropdown applyFilter={() => {}}>
+                        <Input
+                            name="name__icontains"
+                            style={{ width: 220 }}
+                            onChange={(event) => handleChangeFilter(event)}
+                            value={filters?.name__icontains ?? ""}
+                        />
+                    </FilterDropdown>
+                ),
+                filterIcon: (filtered: boolean) => (
+                    <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+                ),
+            },
+            {
+                title: "Proximo pagamento",
+                dataIndex: "next_payment",
+                key: "next_payment",
+                render: (value: string) => formatterDate(value),
+            },
+            {
+                title: "Tags",
+                dataIndex: "tags",
+                key: "tags",
+                render: (_: ITags[], { tags }: IInvoicePagination) =>
+                    tags.map((tag) => (
+                        <Tag color={tag.color} key={`invoice-tags-${tag.id}`}>
+                            {tag.name}
+                        </Tag>
+                    )),
+            },
+            {
+                title: "Ações",
+                dataIndex: "id",
+                key: "id",
+                render: (_: number, record: IInvoicePagination) => (
+                    <Dropdown menu={createDropdownMenu(record)}>
+                        <a onClick={(e) => e.preventDefault()}>
+                            <Space>
+                                <FontAwesomeIcon icon={faEllipsis} />
+                            </Space>
+                        </a>
+                    </Dropdown>
+                ),
+            },
+        ];
+
+        if (simplifiedView) return columns;
+
+        columns.splice(
+            1,
+            0,
+            {
+                title: "Valor",
+                dataIndex: "value",
+                key: "value",
+                render: (value: number) => formatMoney(value),
+            },
+            {
+                title: "Baixado",
+                dataIndex: "value_closed",
+                key: "value_closed",
+                render: (value: number) => formatMoney(value),
+            },
+            {
+                title: "Em aberto",
+                dataIndex: "value_open",
+                key: "value_open",
+                render: (value: number) => formatMoney(value),
+            },
+            {
+                title: "Parcelas",
+                dataIndex: "installments",
+                key: "installments",
+            },
+        );
+        return columns;
+    };
+
     return (
         <Table
             scroll={{ x: "max-content" }}
             rowKey={"id"}
             pagination={{
-                showSizeChanger: true,
+                showSizeChanger: !simplifiedView,
                 pageSize: data.page_size,
                 current: data.current_page,
                 total: data.total_pages * data.page_size,
                 onChange: onChangePagination,
             }}
-            columns={[
-                {
-                    title: "Nome",
-                    dataIndex: "name",
-                    key: "name",
-                    filterDropdown: () => (
-                        <FilterDropdown applyFilter={() => {}}>
-                            <Input
-                                name="name__icontains"
-                                style={{ width: 220 }}
-                                onChange={(event) => handleChangeFilter(event)}
-                                value={filters?.name__icontains ?? ""}
-                            />
-                        </FilterDropdown>
-                    ),
-                    filterIcon: (filtered: boolean) => (
-                        <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
-                    ),
-                },
-                {
-                    title: "Valor",
-                    dataIndex: "value",
-                    key: "value",
-                    render: (value) => formatMoney(value),
-                },
-                {
-                    title: "Baixado",
-                    dataIndex: "value_closed",
-                    key: "value_closed",
-                    render: (value) => formatMoney(value),
-                },
-                {
-                    title: "Em aberto",
-                    dataIndex: "value_open",
-                    key: "value_open",
-                    render: (value) => formatMoney(value),
-                },
-                {
-                    title: "Parcelas",
-                    dataIndex: "installments",
-                    key: "installments",
-                },
-                {
-                    title: "Proximo pagamento",
-                    dataIndex: "next_payment",
-                    key: "next_payment",
-                    render: (value) => formatterDate(value),
-                },
-                {
-                    title: "Tags",
-                    dataIndex: "tags",
-                    key: "tags",
-                    render: (_, { tags }: IInvoicePagination) =>
-                        tags.map((tag) => (
-                            <Tag color={tag.color} key={`invoice-tags-${tag.id}`}>
-                                {tag.name}
-                            </Tag>
-                        )),
-                },
-                {
-                    title: "Ações",
-                    dataIndex: "id",
-                    key: "id",
-                    render: (_, record) => (
-                        <Dropdown menu={createDropdownMenu(record)}>
-                            <a onClick={(e) => e.preventDefault()}>
-                                <Space>
-                                    <FontAwesomeIcon icon={faEllipsis} />
-                                </Space>
-                            </a>
-                        </Dropdown>
-                    ),
-                },
-            ]}
+            columns={columnsTable()}
             dataSource={data.data}
             loading={isLoading}
-            summary={(invoiceData) => <TableSummary invoiceData={invoiceData} />}
+            summary={simplifiedView ? undefined : (invoiceData) => <TableSummary invoiceData={invoiceData} />}
             expandable={{
                 expandedRowRender: (record) => <InvoicePayments invoice={record} />,
                 rowExpandable: (record) => {

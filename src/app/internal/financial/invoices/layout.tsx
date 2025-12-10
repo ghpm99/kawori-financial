@@ -16,7 +16,7 @@ const InvoiceslLayout = ({ children }: { children: React.ReactNode }) => (
                         page_size: 10,
                     }}
                 >
-                    <PayoffProvider>{children}</PayoffProvider>
+                    {children}
                 </InvoicesProvider>
             </PayoffProvider>
         </SelectPaymentsProvider>

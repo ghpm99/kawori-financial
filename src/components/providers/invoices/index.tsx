@@ -40,6 +40,8 @@ export interface IInvoiceFilters {
     installments?: number;
     date__gte?: string;
     date__lte?: string;
+    payment_date__gte?: string;
+    payment_date__lte?: string;
     type?: number;
     fixed?: boolean;
 }
@@ -143,10 +145,11 @@ const defaultInvoiceDetail: IInvoiceDetail = {
     active: false,
 };
 
-export const InvoicesProvider: React.FC<{ children: React.ReactNode; customDefaultFilters?: IInvoiceFilters }> = ({
-    children,
-    customDefaultFilters = {},
-}) => {
+export const InvoicesProvider: React.FC<{
+    children: React.ReactNode;
+    customDefaultFilters?: IInvoiceFilters;
+    enableUpdateSearchParams?: boolean;
+}> = ({ children, customDefaultFilters = {}, enableUpdateSearchParams = true }) => {
     const queryClient = useQueryClient();
     const router = useRouter();
     const pathname = usePathname();
@@ -163,7 +166,7 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode; customDefau
         refetch: refetchInvoices,
         isLoading,
     } = useQuery({
-        enabled: isInitialized,
+        enabled: isInitialized || !enableUpdateSearchParams,
         queryKey: ["invoices", localFilters],
         queryFn: async () => {
             const response = await fetchAllInvoiceService(localFilters);
@@ -276,9 +279,9 @@ export const InvoicesProvider: React.FC<{ children: React.ReactNode; customDefau
     };
 
     useEffect(() => {
-        if (!isInitialized) return;
+        if (!isInitialized || !enableUpdateSearchParams) return;
         updateSearchParams(router, pathname, localFilters);
-    }, [isInitialized, localFilters, router, pathname]);
+    }, [isInitialized, localFilters, router, pathname, enableUpdateSearchParams]);
 
     const updateFiltersBySearchParams = (searchParams: { [key: string]: string | string[] | undefined }) => {
         if (!searchParams || Object.keys(searchParams).length === 0) {

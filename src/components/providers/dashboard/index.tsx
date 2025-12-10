@@ -1,28 +1,15 @@
-import { apiDjango } from "@/services";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import { createContext, ReactNode, useContext } from "react";
-import {
-    ArrowUpOutlined,
-    ArrowDownOutlined,
-    DollarOutlined,
-    ShoppingCartOutlined,
-    TrophyOutlined,
-    RiseOutlined,
-    EyeOutlined,
-    EditOutlined,
-    DeleteOutlined,
-} from "@ant-design/icons";
 import {
     fetchAmountInvoiceByTagReportService,
-    fetchAmountPaymentReportService,
     fetchFinancialMetricsService,
     fetchPaymentReportService,
 } from "@/services/financial/report";
 import { formatterMonthYearDate } from "@/util";
+import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
+import { useQuery } from "@tanstack/react-query";
+import { createContext, ReactNode, useContext } from "react";
 
 type CardStatus = "positive" | "negative" | "neutral";
-type CardProps = {
+export type CardProps = {
     value: number;
     loading: boolean;
     color: string;
@@ -31,13 +18,13 @@ type CardProps = {
     status: CardStatus;
 };
 
-type PaymentsChart = {
+export type PaymentsChart = {
     month: string;
     revenue: number;
     expenses: number;
 };
 
-type invoiceByTag = {
+export type InvoiceByTag = {
     category: string;
     amount: number;
     color: string;
@@ -49,7 +36,7 @@ type DashboardContextData = {
     profit: CardProps;
     growth: Omit<CardProps, "metric_value">;
     paymentsChart: PaymentsChart[];
-    invoiceByTag: invoiceByTag[];
+    invoiceByTag: InvoiceByTag[];
 };
 
 const DashboardContext = createContext({} as DashboardContextData);
@@ -108,7 +95,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
             expenses: payment.debit,
         })) || [];
 
-    const invoiceByTag: invoiceByTag[] =
+    const invoiceByTag: InvoiceByTag[] =
         invoiceByTagQuery?.map((tag) => ({
             category: tag.name,
             amount: tag.amount,
