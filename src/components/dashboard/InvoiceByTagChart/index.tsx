@@ -23,7 +23,10 @@ const InvoiceByTagChart = ({ invoiceByTag }: IInvoiceByTagChartProps) => {
                             interval={0}
                             tickSize={10}
                         />
-                        <Tooltip formatter={(value: number) => [`R$ ${value.toLocaleString("pt-BR")}`, "Valor"]} />
+                        <Tooltip
+                            labelStyle={{ color: "black" }}
+                            formatter={(value: number) => [`R$ ${value.toLocaleString("pt-BR")}`, "Valor"]}
+                        />
                         <Bar dataKey="amount" name="Valor" animationDuration={1500}>
                             {invoiceByTag.map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={entry.color} />

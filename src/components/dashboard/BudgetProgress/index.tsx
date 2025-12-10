@@ -1,24 +1,28 @@
 import { Card, Col, Progress } from "antd";
 import styles from "./BudgetProgress.module.scss";
-const BudgetProgress = () => {
+import type { BudgetProgress } from "@/components/providers/dashboard";
+const BudgetProgress = ({ data, isLoading }: BudgetProgress) => {
+    const calculatedPercent = (estimatedExpense: number, actualExpense: number) => {
+        const percentAlreadyUsed = estimatedExpense > 0 ? actualExpense / estimatedExpense : 0;
+        if (isNaN(percentAlreadyUsed) || !isFinite(percentAlreadyUsed)) {
+            return 0;
+        }
+        return Math.round(percentAlreadyUsed * 100);
+    };
     return (
         <Col xs={24} lg={12}>
-            <Card title="Resumo do Mês" className={styles.summaryCard}>
-                <div className={styles.summaryItem}>
-                    <span className={styles.summaryLabel}>Orçamento Planejado</span>
-                    <span className={styles.summaryValue}>R$ 4.500</span>
-                </div>
-                <div className={styles.summaryItem}>
-                    <span className={styles.summaryLabel}>Gasto Atual</span>
-                    <span className={styles.summaryValue}>R$ 3.200</span>
-                </div>
-                <div className={styles.summaryItem}>
-                    <span className={styles.summaryLabel}>Restante</span>
-                    <span className={`${styles.summaryValue} ${styles.positive}`}>R$ 1.300</span>
-                </div>
-                <div className={styles.summaryProgress}>
-                    <Progress percent={71} strokeColor="#52c41a" format={() => "71% do orçamento usado"} />
-                </div>
+            <Card title="Resumo do Mês" className={styles.summaryCard} loading={isLoading}>
+                {data.map((budget) => (
+                    <div key={budget.id} className={styles.summaryItem}>
+                        <span className={styles.summaryLabel}>{budget.name}</span>
+                        <span className={styles.summaryValue}>
+                            <Progress
+                                percent={calculatedPercent(budget.estimated_expense, budget.actual_expense)}
+                                strokeColor={budget.color}
+                            />
+                        </span>
+                    </div>
+                ))}
             </Card>
         </Col>
     );

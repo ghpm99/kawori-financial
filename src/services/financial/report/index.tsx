@@ -128,6 +128,6 @@ interface FinancialMetricsResponse {
 }
 
 export const fetchFinancialMetricsService = async (): Promise<FinancialMetricsResponse> => {
-    const response = await apiDjango.get<FinancialMetricsResponse>("/financial/report/metrics");
+    const response = await apiDjango.get<FinancialMetricsResponse>("/financial/report/metrics/");
     return response.data;
 };

@@ -5,7 +5,8 @@ const GoalsProgress = () => {
     return (
         <Col xs={24} lg={12}>
             <Card title="Metas de Economia" className={styles.goalsCard}>
-                <div className={styles.goalItem}>
+                <div>Em breve</div>
+                {/* <div className={styles.goalItem}>
                     <div className={styles.goalHeader}>
                         <span>Viagem de Férias</span>
                         <span>R$ 3.500 / R$ 5.000</span>
@@ -25,7 +26,7 @@ const GoalsProgress = () => {
                         <span>R$ 8.200 / R$ 25.000</span>
                     </div>
                     <Progress percent={33} strokeColor="#1890ff" />
-                </div>
+                </div> */}
             </Card>
         </Col>
     );

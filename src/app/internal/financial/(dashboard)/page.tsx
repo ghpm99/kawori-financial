@@ -11,7 +11,7 @@ import { Breadcrumb, Layout, Row } from "antd";
 import styles from "./Dashboard.module.scss";
 
 const DashBoardPage = () => {
-    const { revenues, expenses, profit, growth, paymentsChart, invoiceByTag } = useDashboard();
+    const { revenues, expenses, profit, growth, paymentsChart, invoiceByTag, budgetsData } = useDashboard();
 
     return (
         <>
@@ -38,7 +38,7 @@ const DashBoardPage = () => {
                     {/* Metas de Economia */}
                     <Row gutter={[24, 24]} className={styles.goalsRow}>
                         <GoalsProgress />
-                        <BudgetProgress />
+                        <BudgetProgress {...budgetsData} />
                     </Row>
 
                     {/* Transações Recentes */}

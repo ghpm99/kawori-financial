@@ -1,3 +1,4 @@
+import { fetchAllBudgetService } from "@/services/financial/budget";
 import {
     fetchAmountInvoiceByTagReportService,
     fetchFinancialMetricsService,
@@ -6,7 +7,9 @@ import {
 import { formatterMonthYearDate } from "@/util";
 import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
+import dayjs from "dayjs";
 import { createContext, ReactNode, useContext } from "react";
+import { IBudget } from "../budget";
 
 type CardStatus = "positive" | "negative" | "neutral";
 export type CardProps = {
@@ -30,6 +33,11 @@ export type InvoiceByTag = {
     color: string;
 };
 
+export type BudgetProgress = {
+    isLoading: boolean;
+    data: IBudget[];
+};
+
 type DashboardContextData = {
     revenues: CardProps;
     expenses: CardProps;
@@ -37,6 +45,7 @@ type DashboardContextData = {
     growth: Omit<CardProps, "metric_value">;
     paymentsChart: PaymentsChart[];
     invoiceByTag: InvoiceByTag[];
+    budgetsData: BudgetProgress;
 };
 
 const DashboardContext = createContext({} as DashboardContextData);
@@ -60,9 +69,18 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
         queryFn: fetchPaymentReportService,
     });
 
-    const { data: invoiceByTagQuery, isLoading: isLoadingInvoiceByTag } = useQuery({
+    const { data: invoiceByTagQuery } = useQuery({
         queryKey: ["invoiceByTag"],
         queryFn: fetchAmountInvoiceByTagReportService,
+    });
+
+    const { data: budgetsData = [], isLoading: isLoadingBudgetsData } = useQuery({
+        queryKey: ["budgets"],
+        queryFn: async () => {
+            const periodDate = dayjs()?.format("MM/YYYY");
+            const response = await fetchAllBudgetService(periodDate);
+            return response.data;
+        },
     });
 
     const generateCardIconAndStatus = (
@@ -132,6 +150,10 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
         },
         paymentsChart: paymentChartData,
         invoiceByTag,
+        budgetsData: {
+            data: budgetsData,
+            isLoading: isLoadingBudgetsData,
+        },
     };
 
     return <DashboardContext.Provider value={contextValue}>{children}</DashboardContext.Provider>;

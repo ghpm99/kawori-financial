@@ -1,4 +1,4 @@
-import { Pie } from "react-chartjs-2";
+import { Bar, Pie } from "react-chartjs-2";
 
 import { Theme } from "@/styles/theme";
 
@@ -34,7 +34,7 @@ const InvoiceByTag = ({ data, theme }: { data: IInvoiceByTag[]; theme: Theme }) 
 
     return (
         <div className={styles["chart-container"]}>
-            <Pie
+            <Bar
                 data={dataSource}
                 options={options}
                 width={400}
