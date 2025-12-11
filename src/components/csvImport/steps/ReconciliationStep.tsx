@@ -4,7 +4,7 @@ import React from "react";
 import { Card, Select, Button, Alert, Checkbox } from "antd";
 import { LinkOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import type { ParsedTransaction } from "../types";
-import styles from "../csv-import-modal.module.scss";
+import styles from "../steps/steps.module.scss";
 import { formatMoney, formatterDate } from "@/util";
 
 const { Option } = Select;
@@ -26,11 +26,13 @@ export default function ReconciliationStep({
     setShowOnlyMatches,
     linkPayment,
 }: Props) {
+    const matchedCount = transactions.filter((t) => t.matchedPayment).length;
+
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
             <Alert
                 message="Reconciliação de Pagamentos"
-                description={`Encontramos ${transactions.filter((t) => t.matchedPayment).length} possíveis correspondências com pagamentos existentes.`}
+                description={`Encontramos ${matchedCount} possíveis correspondências com pagamentos existentes.`}
                 type="info"
                 showIcon
                 style={{ margin: 12 }}
@@ -48,9 +50,7 @@ export default function ReconciliationStep({
                 <Checkbox checked={showOnlyMatches} onChange={(e) => setShowOnlyMatches(e.target.checked)}>
                     Mostrar apenas correspondências
                 </Checkbox>
-                <div style={{ marginLeft: "auto" }}>
-                    {transactions.filter((t) => t.matchedPayment).length} correspondências encontradas
-                </div>
+                <div style={{ marginLeft: "auto" }}>{matchedCount} correspondências encontradas</div>
             </div>
 
             <div style={{ overflow: "auto", padding: 12 }}>
@@ -60,10 +60,9 @@ export default function ReconciliationStep({
                         <Card
                             key={transaction.id}
                             className={styles.reconciliationCard}
-                            bordered={!!transaction.matchedPayment}
                             style={
                                 transaction.matchedPayment
-                                    ? { borderColor: "#bae7ff", background: "rgba(186,231,255,0.2)" }
+                                    ? { borderColor: "#bae7ff", background: "rgba(186,231,255,0.12)" }
                                     : undefined
                             }
                         >

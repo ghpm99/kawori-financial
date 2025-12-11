@@ -1,111 +1,65 @@
-/* components/csv-import/csv-import-modal.module.scss */
+/* components/csv-import/csv-import.module.scss */
 
-.modalContent {
-    max-width: 920px;
-    max-height: 90vh;
+/* Layout wrapper for modal content */
+.wrapper {
     display: flex;
     flex-direction: column;
+    height: 100%;
+    max-height: 90vh;
 }
 
-.headerTitle {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+/* header area */
+.header {
+    padding: 16px;
+    border-bottom: 1px solid var(--ant-border-color-base);
 }
 
+/* steps row (above content) */
 .stepsRow {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     padding: 12px 16px;
     border-bottom: 1px solid var(--ant-border-color-base);
 }
 
-.stepPill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
-    border-radius: 999px;
-    font-weight: 500;
-    font-size: 13px;
-    transition: background-color 0.12s;
-}
-
-.stepActive {
-    background: var(--ant-primary-6);
-    color: var(--ant-primary-1);
-}
-
-.stepCompleted {
-    background: rgba(24, 144, 255, 0.12);
-    color: var(--ant-primary-6);
-}
-
+/* content area - each step uses full remaining height */
 .content {
-    flex: 1;
-    overflow: hidden;
     display: flex;
     flex-direction: column;
+    flex: 1;
+    overflow: hidden;
 }
 
-.uploadArea {
-    border: 2px dashed var(--ant-border-color-base);
-    border-radius: 8px;
-    padding: 48px;
-    text-align: center;
-    cursor: pointer;
-    transition:
-        background-color 0.12s,
-        border-color 0.12s;
-}
-
-.uploadActive {
-    border-color: var(--ant-primary-6);
-    background: rgba(24, 144, 255, 0.04);
-}
-
-.infoAlert {
-    margin-top: 12px;
-}
-
-.sampleRow {
+/* footer */
+.footer {
+    padding: 12px;
+    border-top: 1px solid var(--ant-border-color-base);
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    padding: 12px;
-    border-radius: 8px;
-    background: var(--ant-layout-body-background);
+    gap: 8px;
 }
 
-.mappingTable {
-    width: 100%;
-}
-
-.previewStats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    padding: 12px;
-    border-bottom: 1px solid var(--ant-border-color-base);
-}
-
-.searchInput {
-    width: 100%;
-}
-
-.transactionsWrapper {
+/* scrollable body (where tables/cards go) */
+.scrollArea {
     flex: 1;
     overflow: auto;
+    padding: 12px;
 }
 
-.reconciliationCard {
-    margin-bottom: 12px;
+/* small helpers */
+.rowBetween {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-/* small responsive tweaks */
-@media (max-width: 700px) {
-    .previewStats {
-        grid-template-columns: repeat(2, 1fr);
+.center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* responsive */
+@media (max-width: 720px) {
+    .stepsRow {
+        overflow-x: auto;
     }
 }

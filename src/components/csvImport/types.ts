@@ -1,15 +1,16 @@
 // components/csv-import/types.ts
-import type { Payment } from "@/contexts/financial-context";
+
+import { IPaymentDetail } from "../providers/payments";
 
 export type CSVRow = { [key: string]: string };
 
 export interface ParsedTransaction {
     id: string;
     originalRow: CSVRow;
-    mappedData: Partial<Payment>;
+    mappedData: Partial<IPaymentDetail>;
     validationErrors: string[];
     isValid: boolean;
-    matchedPayment?: Payment;
+    matchedPayment?: IPaymentDetail;
     matchScore?: number;
     selected: boolean;
 }
@@ -19,5 +20,5 @@ export interface ColumnMapping {
     systemField: string;
 }
 
-export type ImportType = "payments" | "invoices";
-export type ImportStep = "upload" | "mapping" | "preview" | "reconciliation" | "confirm";
+export type ImportType = "transactions" | "invoices";
+export type ImportStep = "type" | "upload" | "mapping" | "preview" | "reconciliation" | "confirm";

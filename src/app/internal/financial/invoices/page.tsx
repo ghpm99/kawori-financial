@@ -15,6 +15,8 @@ import { useEffect } from "react";
 import { useCsvImportProvider } from "@/components/providers/csvImport";
 import CSVImportModal from "@/components/csvImport";
 import CsvImportModal from "@/components/csvImport/CsvImportModal";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFileCirclePlus, faUpload } from "@fortawesome/free-solid-svg-icons";
 
 const { Title } = Typography;
 
@@ -85,7 +87,7 @@ function FinancialPage({ searchParams }: { searchParams: { [key: string]: string
                     <div>
                         <Space.Compact>
                             <Button
-                                icon={<FileAddOutlined />}
+                                icon={<FontAwesomeIcon icon={faFileCirclePlus} />}
                                 type="primary"
                                 onClick={() => onOpenInvoiceDetail(undefined)}
                             >
@@ -95,7 +97,11 @@ function FinancialPage({ searchParams }: { searchParams: { [key: string]: string
                                 trigger={["click"]}
                                 menu={{
                                     items: [
-                                        { key: "importCsv", label: "Importar CSV", icon: <UploadOutlined /> },
+                                        {
+                                            key: "importCsv",
+                                            label: "Importar CSV",
+                                            icon: <FontAwesomeIcon icon={faUpload} />,
+                                        },
                                         { key: "cleanFilter", label: "Limpar filtros", icon: <ClearOutlined /> },
                                         {
                                             key: "payoffPayment",

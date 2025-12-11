@@ -1,10 +1,10 @@
 // components/csv-import/steps/PreviewStep.tsx
 "use client";
 import React from "react";
-import { Card, Row, Col, Input, Checkbox, Table, Tag, Badge } from "antd";
+import { Card, Input, Checkbox, Table, Tag, Space } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import type { ParsedTransaction } from "../types";
-import styles from "../csv-import-modal.module.scss";
+import styles from "../steps/steps.module.scss";
 import { formatMoney, formatterDate } from "@/util";
 
 const { Search } = Input;
@@ -13,7 +13,6 @@ interface Props {
     transactions: ParsedTransaction[];
     filteredTransactions: ParsedTransaction[];
     stats: { total: number; valid: number; invalid: number; selected: number; matched: number; toImport: number };
-
     toggleSelection: (id: string) => void;
     toggleAllSelection: (selected: boolean) => void;
     searchTerm: string;
@@ -22,7 +21,6 @@ interface Props {
 }
 
 export default function PreviewStep({
-    transactions,
     filteredTransactions,
     stats,
     toggleSelection,
@@ -39,6 +37,7 @@ export default function PreviewStep({
             render: (_: any, rec: any) => (
                 <Checkbox checked={rec.selected} disabled={!rec.isValid} onChange={() => toggleSelection(rec.id)} />
             ),
+            width: 48,
         },
         {
             title: "Descrição",
@@ -46,7 +45,7 @@ export default function PreviewStep({
             key: "desc",
             render: (v: any, rec: any) => (
                 <div>
-                    <div style={{ fontWeight: 600 }}>{v ?? "-"}</div>
+                    <div style={{ fontWeight: 700 }}>{v ?? "-"}</div>
                     {rec.validationErrors?.length > 0 && (
                         <div style={{ marginTop: 6 }}>
                             {rec.validationErrors.map((e: string, i: number) => (
@@ -58,58 +57,49 @@ export default function PreviewStep({
                     )}
                 </div>
             ),
+            ellipsis: true,
         },
         {
             title: "Data",
             dataIndex: ["mappedData", "date"],
             key: "date",
             render: (v: any) => (v ? formatterDate(v) : "-"),
+            width: 120,
         },
         {
             title: "Valor",
             dataIndex: ["mappedData", "amount"],
             key: "amount",
             render: (v: any, rec: any) => (
-                <div style={{ fontWeight: 600 }}>
-                    {rec.mappedData.type === "income" ? "+" : "-"}
-                    {v != null ? formatMoney(v) : "-"}
+                <div style={{ fontWeight: 700 }}>
+                    {rec.mappedData.type === "income" ? "+" : "-"} {v != null ? formatMoney(v) : "-"}
                 </div>
             ),
+            width: 140,
         },
         {
             title: "Tipo",
             dataIndex: ["mappedData", "type"],
             key: "type",
             render: (v: any) => (
-                <Badge
-                    count={v === "income" ? "Receita" : "Despesa"}
-                    style={{
-                        backgroundColor: v === "income" ? "#f6ffed" : "#fff1f0",
-                        color: v === "income" ? "#237804" : "#a8071a",
-                    }}
-                />
+                <Tag color={v === "income" ? "success" : "error"}>{v === "income" ? "Receita" : "Despesa"}</Tag>
             ),
+            width: 120,
         },
         {
             title: "Status",
             dataIndex: "isValid",
             key: "isValid",
-            render: (v: boolean) =>
-                v ? (
-                    <Tag icon={<></>} color="success">
-                        Válido
-                    </Tag>
-                ) : (
-                    <Tag color="error">Erro</Tag>
-                ),
+            render: (v: boolean) => (v ? <Tag color="success">Válido</Tag> : <Tag color="error">Erro</Tag>),
+            width: 120,
         },
     ];
 
     const dataSource = filteredTransactions.map((t) => ({ ...t, key: t.id }));
 
     return (
-        <div className="previewStep" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-            <div className={styles.previewStats}>
+        <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+            <div className={styles.statsGrid}>
                 <Card>
                     <div style={{ fontSize: 20, fontWeight: 700 }}>{stats.total}</div>
                     <div style={{ color: "var(--ant-text-color-secondary)" }}>Total</div>
@@ -136,12 +126,11 @@ export default function PreviewStep({
                     gap: 12,
                 }}
             >
-                <div style={{ flex: 1, position: "relative" }}>
+                <div style={{ flex: 1 }}>
                     <Search
                         placeholder="Buscar transações..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className={styles.searchInput}
                         prefix={<SearchOutlined />}
                         allowClear
                     />
@@ -153,7 +142,7 @@ export default function PreviewStep({
                 </div>
             </div>
 
-            <div className={styles.transactionsWrapper}>
+            <div style={{ flex: 1, overflow: "auto", padding: 12 }}>
                 <Table columns={columns} dataSource={dataSource} pagination={false} rowKey="id" />
             </div>
         </div>

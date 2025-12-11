@@ -1,27 +1,42 @@
 // components/csv-import/CsvImportModal.tsx
 "use client";
-import React, { useCallback, useMemo, useState } from "react";
-import { Modal, Steps, Button, Checkbox } from "antd";
 import {
-    UploadOutlined,
-    LinkOutlined,
-    FileOutlined,
-    ReloadOutlined,
     CheckOutlined,
+    FileOutlined,
     LeftOutlined,
+    LinkOutlined,
+    ReloadOutlined,
     RightOutlined,
+    UploadOutlined,
 } from "@ant-design/icons";
+import { Button, Modal, Steps } from "antd";
+import { useCallback, useMemo, useState } from "react";
 
-import UploadStep from "./steps/UploadStep";
+import ConfirmStep from "./steps/ConfirmStep";
 import MappingStep from "./steps/MappingStep";
 import PreviewStep from "./steps/PreviewStep";
 import ReconciliationStep from "./steps/ReconciliationStep";
-import ConfirmStep from "./steps/ConfirmStep";
+import UploadStep from "./steps/UploadStep";
 
-import { parseCSVText, parseDateToISO } from "./utils/csv";
-
-import { CSVRow, ParsedTransaction, ColumnMapping, ImportType, ImportStep } from "./types";
 import styles from "./csv-import-modal.module.scss";
+import { ColumnMapping, CSVRow, ImportStep, ImportType, ParsedTransaction } from "./types";
+import { parseDateToISO } from "./utils/csv";
+import SelectTypeStep from "./steps/SelectTypeStep";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+    faArrowRotateRight,
+    faCheck,
+    faFile,
+    faFileCsv,
+    faFolderOpen,
+    faLink,
+    faList,
+    faListAlt,
+    faSlidersH,
+    faTasks,
+    faThLarge,
+    faUpload,
+} from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
     open: boolean;
@@ -30,7 +45,7 @@ interface Props {
 }
 
 export default function CsvImportModal({ open, onOpenChange, defaultType = "payments" }: Props) {
-    const [step, setStep] = useState<ImportStep>("upload");
+    const [step, setStep] = useState<ImportStep>("type");
     const [importType, setImportType] = useState<ImportType>(defaultType);
     const [fileData, setFileData] = useState<{ headers: string[]; data: CSVRow[] } | null>(null);
     const [columnMappings, setColumnMappings] = useState<ColumnMapping[]>([]);
@@ -42,7 +57,7 @@ export default function CsvImportModal({ open, onOpenChange, defaultType = "paym
     const [dragActive, setDragActive] = useState(false);
 
     const resetState = useCallback(() => {
-        setStep("upload");
+        setStep("type");
         setFileData(null);
         setColumnMappings([]);
         setParsedTransactions([]);
@@ -50,6 +65,7 @@ export default function CsvImportModal({ open, onOpenChange, defaultType = "paym
         setImportProgress(0);
         setSearchTerm("");
         setShowOnlyMatches(false);
+        setDragActive(false);
     }, []);
 
     const handleClose = useCallback(() => {
@@ -57,12 +73,11 @@ export default function CsvImportModal({ open, onOpenChange, defaultType = "paym
         onOpenChange(false);
     }, [onOpenChange, resetState]);
 
-    // file parsed from UploadStep
     const handleFileParsed = useCallback((headers: string[], data: CSVRow[]) => {
         setFileData({ headers, data });
-        // auto-mapping
-        const auto = headers.map((header) => {
-            const lh = header.toLowerCase();
+        // auto map
+        const auto = headers.map((h) => {
+            const lh = h.toLowerCase();
             let systemField = "ignore";
             if (lh.includes("descri") || lh.includes("desc")) systemField = "description";
             else if (lh.includes("valor") || lh.includes("amount") || lh.includes("value")) systemField = "amount";
@@ -76,7 +91,7 @@ export default function CsvImportModal({ open, onOpenChange, defaultType = "paym
             else if (lh.includes("email")) systemField = "clientEmail";
             else if (lh.includes("vencimento") || lh.includes("due")) systemField = "dueDate";
             else if (lh.includes("total")) systemField = "total";
-            return { csvColumn: header, systemField };
+            return { csvColumn: h, systemField };
         });
         setColumnMappings(auto);
         setStep("mapping");
@@ -86,7 +101,41 @@ export default function CsvImportModal({ open, onOpenChange, defaultType = "paym
         setColumnMappings((prev) => prev.map((m) => (m.csvColumn === csvColumn ? { ...m, systemField } : m)));
     }, []);
 
-    // process transactions (mapping -> parsedTransactions)
+    const findBestMatch = useCallback((mappedData: Partial<any>, existingPayments: any[]) => {
+        if (!mappedData.amount || !mappedData.date) return {};
+        let best: any | undefined;
+        let bestScore = 0;
+        for (const p of existingPayments) {
+            let score = 0;
+            const amountDiff = Math.abs(p.amount - (mappedData.amount ?? 0));
+            if (amountDiff === 0) score += 50;
+            else if (amountDiff < 1) score += 40;
+            else if (amountDiff / p.amount < 0.01) score += 30;
+
+            if (p.date === mappedData.date) score += 30;
+            else {
+                const dd = Math.abs(new Date(p.date).getTime() - new Date(mappedData.date ?? "").getTime());
+                const days = dd / (1000 * 60 * 60 * 24);
+                if (days <= 1) score += 20;
+                else if (days <= 3) score += 10;
+            }
+
+            if (mappedData.description && p.description) {
+                const d1 = String(mappedData.description).toLowerCase();
+                const d2 = String(p.description).toLowerCase();
+                if (d1.includes(d2) || d2.includes(d1)) score += 20;
+            }
+
+            if (mappedData.reference && p.reference && mappedData.reference === p.reference) score += 30;
+
+            if (score > bestScore && score >= 50) {
+                bestScore = score;
+                best = p;
+            }
+        }
+        return { matchedPayment: best, matchScore: bestScore };
+    }, []);
+
     const processTransactions = useCallback(() => {
         if (!fileData) return;
         setIsProcessing(true);
@@ -145,7 +194,6 @@ export default function CsvImportModal({ open, onOpenChange, defaultType = "paym
             if (!mapped.method) mapped.method = "bank_transfer";
             if (!mapped.status) mapped.status = "completed";
 
-            // match
             const { matchedPayment, matchScore } = findBestMatch(mapped, []);
 
             return {
@@ -163,44 +211,8 @@ export default function CsvImportModal({ open, onOpenChange, defaultType = "paym
         setParsedTransactions(txs);
         setIsProcessing(false);
         setStep("preview");
-    }, [columnMappings, fileData]);
+    }, [columnMappings, fileData, findBestMatch]);
 
-    const findBestMatch = (mappedData: Partial<any>, existingPayments: any[]) => {
-        if (!mappedData.amount || !mappedData.date) return {};
-        let best: any | undefined;
-        let bestScore = 0;
-        for (const p of existingPayments) {
-            let score = 0;
-            const amountDiff = Math.abs(p.amount - (mappedData.amount ?? 0));
-            if (amountDiff === 0) score += 50;
-            else if (amountDiff < 1) score += 40;
-            else if (amountDiff / p.amount < 0.01) score += 30;
-
-            if (p.date === mappedData.date) score += 30;
-            else {
-                const dd = Math.abs(new Date(p.date).getTime() - new Date(mappedData.date ?? "").getTime());
-                const days = dd / (1000 * 60 * 60 * 24);
-                if (days <= 1) score += 20;
-                else if (days <= 3) score += 10;
-            }
-
-            if (mappedData.description && p.description) {
-                const d1 = String(mappedData.description).toLowerCase();
-                const d2 = String(p.description).toLowerCase();
-                if (d1.includes(d2) || d2.includes(d1)) score += 20;
-            }
-
-            if (mappedData.reference && p.reference && mappedData.reference === p.reference) score += 30;
-
-            if (score > bestScore && score >= 50) {
-                bestScore = score;
-                best = p;
-            }
-        }
-        return { matchedPayment: best, matchScore: bestScore };
-    };
-
-    // selection toggles
     const toggleSelection = useCallback((id: string) => {
         setParsedTransactions((prev) => prev.map((t) => (t.id === id ? { ...t, selected: !t.selected } : t)));
     }, []);
@@ -243,7 +255,6 @@ export default function CsvImportModal({ open, onOpenChange, defaultType = "paym
         setIsProcessing(false);
     }, [parsedTransactions]);
 
-    // filtered transactions for display
     const filteredTransactions = useMemo(() => {
         return parsedTransactions.filter((t) => {
             if (showOnlyMatches && !t.matchedPayment) return false;
@@ -279,22 +290,23 @@ export default function CsvImportModal({ open, onOpenChange, defaultType = "paym
     }, [parsedTransactions]);
 
     const steps = [
-        { key: "upload", label: "Upload", icon: <UploadOutlined /> },
-        { key: "mapping", label: "Mapeamento", icon: <LinkOutlined /> },
-        { key: "preview", label: "Preview", icon: <FileOutlined /> },
-        { key: "reconciliation", label: "Reconciliação", icon: <ReloadOutlined /> },
-        { key: "confirm", label: "Confirmar", icon: <CheckOutlined /> },
+        { key: "type", title: "Tipo", icon: <FontAwesomeIcon icon={faListAlt} /> },
+        { key: "upload", title: "Upload", icon: <FontAwesomeIcon icon={faUpload} /> },
+        { key: "mapping", title: "Mapeamento", icon: <FontAwesomeIcon icon={faLink} /> },
+        { key: "preview", title: "Preview", icon: <FontAwesomeIcon icon={faFile} /> },
+        { key: "reconciliation", title: "Reconciliação", icon: <FontAwesomeIcon icon={faArrowRotateRight} /> },
+        { key: "confirm", title: "Confirmar", icon: <FontAwesomeIcon icon={faCheck} /> },
     ] as const;
 
     const currentIndex = steps.findIndex((s) => s.key === step);
 
     return (
-        <Modal open={open} onCancel={handleClose} footer={null} width={920} bodyStyle={{ padding: 0 }}>
-            <div className={styles.modalContent}>
-                <div style={{ padding: 16 }}>
-                    <div className={styles.headerTitle}>
-                        <FileOutlined />
-                        <div style={{ fontWeight: 700 }}>Importar Transações via CSV</div>
+        <Modal open={open} onCancel={handleClose} footer={null} width={960}>
+            <div className={styles.wrapper}>
+                <div className={styles.header} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                        <FontAwesomeIcon icon={faFileCsv} />
+                        <div style={{ fontWeight: 700, fontSize: 16 }}>Importar Transações via CSV</div>
                     </div>
                     <div style={{ color: "var(--ant-text-color-secondary)" }}>
                         Importe faturas ou movimentações bancárias de um arquivo CSV.
@@ -302,25 +314,27 @@ export default function CsvImportModal({ open, onOpenChange, defaultType = "paym
                 </div>
 
                 <div className={styles.stepsRow}>
-                    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                        {steps.map((s, idx) => (
-                            <div
-                                key={s.key}
-                                className={`${styles.stepPill} ${idx === currentIndex ? styles.stepActive : idx < currentIndex ? styles.stepCompleted : ""}`}
-                            >
-                                {idx < currentIndex ? <CheckOutlined /> : s.icon}
-                                <span style={{ marginLeft: 8 }}>{s.label}</span>
-                            </div>
-                        ))}
-                    </div>
+                    <Steps
+                        current={currentIndex}
+                        size="small"
+                        items={steps.map((s) => ({ key: s.key, title: s.title, icon: s.icon }))}
+                    />
                 </div>
 
                 <div className={styles.content}>
+                    {step === "type" && (
+                        <SelectTypeStep
+                            onSelect={(type) => {
+                                setImportType(type);
+                                setStep("upload");
+                            }}
+                        />
+                    )}
                     {step === "upload" && (
                         <UploadStep
                             importType={importType}
                             setImportType={setImportType}
-                            onFileParsed={(headers, data) => handleFileParsed(headers, data)}
+                            onFileParsed={(h, d) => handleFileParsed(h, d)}
                             csvCount={fileData?.data.length ?? 0}
                             dragActive={dragActive}
                             setDragActive={setDragActive}
@@ -338,16 +352,18 @@ export default function CsvImportModal({ open, onOpenChange, defaultType = "paym
                     )}
 
                     {step === "preview" && (
-                        <PreviewStep
-                            transactions={parsedTransactions}
-                            filteredTransactions={filteredTransactions}
-                            stats={stats}
-                            toggleSelection={toggleSelection}
-                            toggleAllSelection={toggleAllSelection}
-                            searchTerm={searchTerm}
-                            setSearchTerm={setSearchTerm}
-                            selectAllState={stats.selected === stats.valid && stats.valid > 0}
-                        />
+                        <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+                            <PreviewStep
+                                transactions={parsedTransactions}
+                                filteredTransactions={filteredTransactions}
+                                stats={stats}
+                                toggleSelection={toggleSelection}
+                                toggleAllSelection={toggleAllSelection}
+                                searchTerm={searchTerm}
+                                setSearchTerm={setSearchTerm}
+                                selectAllState={stats.selected === stats.valid && stats.valid > 0}
+                            />
+                        </div>
                     )}
 
                     {step === "reconciliation" && (
@@ -371,39 +387,32 @@ export default function CsvImportModal({ open, onOpenChange, defaultType = "paym
                     )}
                 </div>
 
-                {/* Footer */}
                 {step !== "confirm" && (
-                    <div
-                        style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            gap: 12,
-                            padding: 12,
-                            borderTop: "1px solid var(--ant-border-color-base)",
-                        }}
-                    >
-                        <Button
-                            onClick={() => {
-                                if (step === "upload") handleClose();
-                                else {
-                                    const prev = Math.max(0, currentIndex - 1);
-                                    setStep(steps[prev].key as ImportStep);
-                                }
-                            }}
-                        >
-                            <LeftOutlined /> {step === "upload" ? "Cancelar" : "Voltar"}
-                        </Button>
+                    <div className={styles.footer}>
+                        <div>
+                            <Button
+                                onClick={() => {
+                                    if (step === "type") handleClose();
+                                    else {
+                                        const prev = Math.max(0, currentIndex - 1);
+                                        setStep(steps[prev].key as ImportStep);
+                                    }
+                                }}
+                            >
+                                <LeftOutlined /> {step === "type" ? "Cancelar" : "Voltar"}
+                            </Button>
+                        </div>
 
-                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                             {step === "preview" && (
-                                <div style={{ color: "var(--ant-text-color-secondary)", marginRight: 12 }}>
+                                <div style={{ color: "var(--ant-text-color-secondary)" }}>
                                     {stats.toImport} transações serão importadas
                                 </div>
                             )}
 
                             {step === "mapping" && (
                                 <Button type="primary" onClick={processTransactions} disabled={isProcessing}>
-                                    {isProcessing ? "Processando..." : "Processar dados"} <RightOutlined />
+                                    Processar dados <RightOutlined />
                                 </Button>
                             )}
 

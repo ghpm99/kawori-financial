@@ -1,0 +1,77 @@
+/* components/csv-import/steps/steps.module.scss */
+.container {
+    padding: 8px 4px;
+}
+
+.title {
+    margin-bottom: 4px;
+}
+
+.subtitle {
+    margin-bottom: 24px;
+}
+
+.card {
+    border-radius: 12px;
+    transition: all 0.2s ease;
+
+    &:hover {
+        border-color: #1677ff;
+        box-shadow: 0 4px 14px rgba(22, 119, 255, 0.15);
+    }
+}
+
+.iconWrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+
+.icon {
+    font-size: 38px;
+    color: #1677ff;
+}
+
+.uploadArea {
+    border: 2px dashed var(--ant-border-color-base);
+    border-radius: 8px;
+    padding: 36px;
+    text-align: center;
+    cursor: pointer;
+    transition:
+        border-color 0.12s,
+        background 0.12s;
+}
+
+.uploadActive {
+    border-color: var(--ant-primary-color);
+    background: rgba(24, 144, 255, 0.03);
+}
+
+.sampleRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 6px;
+    background: var(--ant-layout-body-background);
+}
+
+.mappingTableWrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+@media (max-width: 720px) {
+    .statsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
