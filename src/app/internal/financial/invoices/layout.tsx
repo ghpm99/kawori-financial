@@ -1,4 +1,5 @@
 "use client";
+import { CsvImportProvider } from "@/components/providers/csvImport";
 import { InvoicesProvider } from "@/components/providers/invoices";
 import { PayoffProvider } from "@/components/providers/payoff";
 import { SelectPaymentsProvider } from "@/components/providers/selectPayments";
@@ -16,7 +17,7 @@ const InvoiceslLayout = ({ children }: { children: React.ReactNode }) => (
                         page_size: 10,
                     }}
                 >
-                    {children}
+                    <CsvImportProvider>{children}</CsvImportProvider>
                 </InvoicesProvider>
             </PayoffProvider>
         </SelectPaymentsProvider>

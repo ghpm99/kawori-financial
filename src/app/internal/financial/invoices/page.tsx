@@ -1,6 +1,6 @@
 "use client";
 
-import { ClearOutlined, EllipsisOutlined, FileAddOutlined, ToTopOutlined } from "@ant-design/icons";
+import { ClearOutlined, EllipsisOutlined, FileAddOutlined, ToTopOutlined, UploadOutlined } from "@ant-design/icons";
 import { Breadcrumb, Button, Dropdown, Layout, MenuProps, Space, Typography } from "antd";
 
 import InvoiceDrawer from "@/components/invoices/invoiceDrawer";
@@ -12,6 +12,8 @@ import { useTags } from "@/components/providers/tags";
 
 import styles from "./Invoices.module.scss";
 import { useEffect } from "react";
+import { useCsvImportProvider } from "@/components/providers/csvImport";
+import CSVImportModal from "@/components/csvImport";
 
 const { Title } = Typography;
 
@@ -35,6 +37,8 @@ function FinancialPage({ searchParams }: { searchParams: { [key: string]: string
         updateFiltersBySearchParams,
     } = useInvoices();
 
+    const { openModal: openCsvImportModal, setOpenModal: SetOpenCsvImportModal } = useCsvImportProvider();
+
     useEffect(() => {
         Promise.resolve(searchParams).then((params) => {
             updateFiltersBySearchParams(params);
@@ -55,6 +59,9 @@ function FinancialPage({ searchParams }: { searchParams: { [key: string]: string
                     refetchInvoices();
                 });
                 openPayoffBatchModal();
+                break;
+            case "importCsv":
+                SetOpenCsvImportModal(true);
                 break;
             default:
                 break;
@@ -84,8 +91,10 @@ function FinancialPage({ searchParams }: { searchParams: { [key: string]: string
                                 Adicionar nota
                             </Button>
                             <Dropdown
+                                trigger={["click"]}
                                 menu={{
                                     items: [
+                                        { key: "importCsv", label: "Importar CSV", icon: <UploadOutlined /> },
                                         { key: "cleanFilter", label: "Limpar filtros", icon: <ClearOutlined /> },
                                         {
                                             key: "payoffPayment",
@@ -123,6 +132,7 @@ function FinancialPage({ searchParams }: { searchParams: { [key: string]: string
                 isLoadingTags={isLoadingTags}
                 isDefaultFixed={false}
             />
+            <CSVImportModal open={openCsvImportModal} />
         </>
     );
 }
