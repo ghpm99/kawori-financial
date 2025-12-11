@@ -1,0 +1,111 @@
+/* components/csv-import/csv-import-modal.module.scss */
+
+.modalContent {
+    max-width: 920px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.headerTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stepsRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--ant-border-color-base);
+}
+
+.stepPill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-weight: 500;
+    font-size: 13px;
+    transition: background-color 0.12s;
+}
+
+.stepActive {
+    background: var(--ant-primary-6);
+    color: var(--ant-primary-1);
+}
+
+.stepCompleted {
+    background: rgba(24, 144, 255, 0.12);
+    color: var(--ant-primary-6);
+}
+
+.content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.uploadArea {
+    border: 2px dashed var(--ant-border-color-base);
+    border-radius: 8px;
+    padding: 48px;
+    text-align: center;
+    cursor: pointer;
+    transition:
+        background-color 0.12s,
+        border-color 0.12s;
+}
+
+.uploadActive {
+    border-color: var(--ant-primary-6);
+    background: rgba(24, 144, 255, 0.04);
+}
+
+.infoAlert {
+    margin-top: 12px;
+}
+
+.sampleRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--ant-layout-body-background);
+}
+
+.mappingTable {
+    width: 100%;
+}
+
+.previewStats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    padding: 12px;
+    border-bottom: 1px solid var(--ant-border-color-base);
+}
+
+.searchInput {
+    width: 100%;
+}
+
+.transactionsWrapper {
+    flex: 1;
+    overflow: auto;
+}
+
+.reconciliationCard {
+    margin-bottom: 12px;
+}
+
+/* small responsive tweaks */
+@media (max-width: 700px) {
+    .previewStats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

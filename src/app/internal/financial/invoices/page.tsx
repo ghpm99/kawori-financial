@@ -14,6 +14,7 @@ import styles from "./Invoices.module.scss";
 import { useEffect } from "react";
 import { useCsvImportProvider } from "@/components/providers/csvImport";
 import CSVImportModal from "@/components/csvImport";
+import CsvImportModal from "@/components/csvImport/CsvImportModal";
 
 const { Title } = Typography;
 
@@ -132,7 +133,7 @@ function FinancialPage({ searchParams }: { searchParams: { [key: string]: string
                 isLoadingTags={isLoadingTags}
                 isDefaultFixed={false}
             />
-            <CSVImportModal open={openCsvImportModal} />
+            <CsvImportModal open={openCsvImportModal} onOpenChange={SetOpenCsvImportModal} />
         </>
     );
 }
