@@ -1,17 +1,11 @@
-// components/csv-import/steps/ConfirmStep.tsx
 "use client";
-import React from "react";
-import { Progress, Button } from "antd";
+
+import { useCsvImportProvider } from "@/components/providers/csvImport";
 import { CheckCircleOutlined, LoadingOutlined } from "@ant-design/icons";
+import { Button, Progress } from "antd";
 
-interface Props {
-    isProcessing: boolean;
-    importProgress: number;
-    stats: { toImport: number; matched: number };
-    onClose: () => void;
-}
-
-export default function ConfirmStep({ isProcessing, importProgress, stats, onClose }: Props) {
+export default function ConfirmStep() {
+    const { isProcessing, importProgress, stats, handleCloseModal } = useCsvImportProvider();
     return (
         <div style={{ padding: 24, textAlign: "center" }}>
             {isProcessing ? (
@@ -46,7 +40,7 @@ export default function ConfirmStep({ isProcessing, importProgress, stats, onClo
                         {stats.toImport} transações importadas.{" "}
                         {stats.matched > 0 && `${stats.matched} foram vinculadas.`}
                     </div>
-                    <Button type="primary" onClick={onClose}>
+                    <Button type="primary" onClick={handleCloseModal}>
                         Fechar
                     </Button>
                 </>

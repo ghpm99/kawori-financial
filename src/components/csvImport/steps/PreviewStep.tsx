@@ -1,41 +1,39 @@
-// components/csv-import/steps/PreviewStep.tsx
 "use client";
-import React from "react";
-import { Card, Input, Checkbox, Table, Tag, Space } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
-import type { ParsedTransaction } from "../types";
-import styles from "../steps/steps.module.scss";
+
+import { ParsedTransaction, useCsvImportProvider } from "@/components/providers/csvImport";
 import { formatMoney, formatterDate } from "@/util";
+import { SearchOutlined } from "@ant-design/icons";
+import { Card, Checkbox, Input, Table, Tag } from "antd";
+import styles from "../steps/steps.module.scss";
 
 const { Search } = Input;
 
-interface Props {
-    transactions: ParsedTransaction[];
-    filteredTransactions: ParsedTransaction[];
-    stats: { total: number; valid: number; invalid: number; selected: number; matched: number; toImport: number };
-    toggleSelection: (id: string) => void;
-    toggleAllSelection: (selected: boolean) => void;
-    searchTerm: string;
-    setSearchTerm: (s: string) => void;
-    selectAllState: boolean;
-}
+type DataSourceType = {
+    id: string;
+} & ParsedTransaction;
 
-export default function PreviewStep({
-    filteredTransactions,
-    stats,
-    toggleSelection,
-    toggleAllSelection,
-    searchTerm,
-    setSearchTerm,
-    selectAllState,
-}: Props) {
+export default function PreviewStep() {
+    const {
+        filteredTransactions,
+        stats,
+        toggleSelection,
+        toggleAllSelection,
+        searchTerm,
+        setSearchTerm,
+        selectAllState,
+    } = useCsvImportProvider();
+
     const columns = [
         {
             title: "",
-            dataIndex: "checkbox",
-            key: "checkbox",
-            render: (_: any, rec: any) => (
-                <Checkbox checked={rec.selected} disabled={!rec.isValid} onChange={() => toggleSelection(rec.id)} />
+            dataIndex: "selected",
+            key: "selected",
+            render: (_: boolean, record: DataSourceType) => (
+                <Checkbox
+                    checked={record.selected}
+                    disabled={!record.isValid}
+                    onChange={() => toggleSelection(record.id)}
+                />
             ),
             width: 48,
         },
@@ -43,12 +41,12 @@ export default function PreviewStep({
             title: "Descrição",
             dataIndex: ["mappedData", "description"],
             key: "desc",
-            render: (v: any, rec: any) => (
+            render: (v: string, record: DataSourceType) => (
                 <div>
                     <div style={{ fontWeight: 700 }}>{v ?? "-"}</div>
-                    {rec.validationErrors?.length > 0 && (
+                    {record.validationErrors?.length > 0 && (
                         <div style={{ marginTop: 6 }}>
-                            {rec.validationErrors.map((e: string, i: number) => (
+                            {record.validationErrors.map((e: string, i: number) => (
                                 <Tag color="error" key={i} style={{ marginBottom: 6 }}>
                                     {e}
                                 </Tag>
@@ -63,16 +61,16 @@ export default function PreviewStep({
             title: "Data",
             dataIndex: ["mappedData", "date"],
             key: "date",
-            render: (v: any) => (v ? formatterDate(v) : "-"),
+            render: (date: string) => (date ? formatterDate(date) : "-"),
             width: 120,
         },
         {
             title: "Valor",
-            dataIndex: ["mappedData", "amount"],
-            key: "amount",
-            render: (v: any, rec: any) => (
+            dataIndex: ["mappedData", "value"],
+            key: "value",
+            render: (value: number, record: DataSourceType) => (
                 <div style={{ fontWeight: 700 }}>
-                    {rec.mappedData.type === "income" ? "+" : "-"} {v != null ? formatMoney(v) : "-"}
+                    {record.mappedData.type === 0 ? "+" : "-"} {value != null ? formatMoney(value) : "-"}
                 </div>
             ),
             width: 140,
@@ -81,8 +79,8 @@ export default function PreviewStep({
             title: "Tipo",
             dataIndex: ["mappedData", "type"],
             key: "type",
-            render: (v: any) => (
-                <Tag color={v === "income" ? "success" : "error"}>{v === "income" ? "Receita" : "Despesa"}</Tag>
+            render: (type: number) => (
+                <Tag color={type === 0 ? "success" : "error"}>{type === 0 ? "Receita" : "Despesa"}</Tag>
             ),
             width: 120,
         },
@@ -90,12 +88,12 @@ export default function PreviewStep({
             title: "Status",
             dataIndex: "isValid",
             key: "isValid",
-            render: (v: boolean) => (v ? <Tag color="success">Válido</Tag> : <Tag color="error">Erro</Tag>),
+            render: (isValid: boolean) => (isValid ? <Tag color="success">Válido</Tag> : <Tag color="error">Erro</Tag>),
             width: 120,
         },
     ];
 
-    const dataSource = filteredTransactions.map((t) => ({ ...t, key: t.id }));
+    const dataSource: DataSourceType[] = filteredTransactions.map((t) => ({ ...t, key: t.id }));
 
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -142,8 +140,14 @@ export default function PreviewStep({
                 </div>
             </div>
 
-            <div style={{ flex: 1, overflow: "auto", padding: 12 }}>
-                <Table columns={columns} dataSource={dataSource} pagination={false} rowKey="id" />
+            <div style={{ padding: 12 }}>
+                <Table
+                    scroll={{ y: "380px" }}
+                    columns={columns}
+                    dataSource={dataSource}
+                    pagination={false}
+                    rowKey="id"
+                />
             </div>
         </div>
     );

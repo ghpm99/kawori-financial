@@ -1,61 +1,35 @@
-// components/csv-import/steps/MappingStep.tsx
 "use client";
-import React from "react";
-import { Table, Select } from "antd";
+
+import { PAYMENT_FIELDS, useCsvImportProvider } from "@/components/providers/csvImport";
+import { Select, Table } from "antd";
 import type { ColumnType } from "antd/es/table";
-import type { ColumnMapping, CSVRow, ImportType } from "../types";
 import styles from "../steps/steps.module.scss";
 
 const { Option } = Select;
 
-type FieldOption = { value: string; label: string; required?: boolean };
+type DataSourceType = {
+    key: string;
+    csvColumn: string;
+    sample: string;
+    systemField: string;
+};
 
-const PAYMENT_FIELDS: FieldOption[] = [
-    { value: "description", label: "Descrição", required: true },
-    { value: "amount", label: "Valor", required: true },
-    { value: "date", label: "Data", required: true },
-    { value: "method", label: "Método" },
-    { value: "type", label: "Tipo" },
-    { value: "reference", label: "Referência" },
-    { value: "status", label: "Status" },
-    { value: "ignore", label: "Ignorar coluna" },
-];
-
-const INVOICE_FIELDS: FieldOption[] = [
-    { value: "clientName", label: "Nome do Cliente", required: true },
-    { value: "clientEmail", label: "Email do Cliente" },
-    { value: "date", label: "Data", required: true },
-    { value: "dueDate", label: "Data de Vencimento", required: true },
-    { value: "total", label: "Valor Total", required: true },
-    { value: "status", label: "Status" },
-    { value: "ignore", label: "Ignorar coluna" },
-];
-
-interface Props {
-    headers: string[];
-    csvSample: CSVRow[];
-    mappings: ColumnMapping[];
-    onUpdateMapping: (csvColumn: string, systemField: string) => void;
-    importType: ImportType;
-}
-
-export default function MappingStep({ headers, csvSample, mappings, onUpdateMapping, importType }: Props) {
-    const fields = importType === "payments" ? PAYMENT_FIELDS : INVOICE_FIELDS;
-
-    const columns: ColumnType<any>[] = [
+export default function MappingStep() {
+    const { columnMappings, handleUpdateMapping, csvHeaders, csvDataSample } = useCsvImportProvider();
+    const columns: ColumnType<DataSourceType>[] = [
         { title: "Coluna do CSV", dataIndex: "csvColumn", key: "csvColumn", render: (v) => <strong>{v}</strong> },
         { title: "Amostra", dataIndex: "sample", key: "sample" },
         {
             title: "Campo do Sistema",
             dataIndex: "systemField",
             key: "systemField",
-            render: (_: any, rec: any) => (
+            render: (_: string, record: DataSourceType) => (
                 <Select
-                    value={rec.systemField}
-                    onChange={(value) => onUpdateMapping(rec.csvColumn, value)}
+                    value={record.systemField}
+                    onChange={(value) => handleUpdateMapping(record.csvColumn, value)}
                     style={{ width: 220 }}
                 >
-                    {fields.map((f) => (
+                    {PAYMENT_FIELDS.map((f) => (
                         <Option value={f.value} key={f.value}>
                             {f.label} {f.required ? "*" : ""}
                         </Option>
@@ -65,11 +39,11 @@ export default function MappingStep({ headers, csvSample, mappings, onUpdateMapp
         },
     ];
 
-    const dataSource = mappings.map((m) => ({
-        key: m.csvColumn,
-        csvColumn: m.csvColumn,
-        sample: csvSample?.[0]?.[m.csvColumn] ?? "-",
-        systemField: m.systemField,
+    const dataSource: DataSourceType[] = columnMappings.map((mapping) => ({
+        key: mapping.csvColumn,
+        csvColumn: mapping.csvColumn,
+        sample: csvDataSample?.[0]?.[mapping.csvColumn] ?? "-",
+        systemField: mapping.systemField,
     }));
 
     return (
@@ -91,7 +65,7 @@ export default function MappingStep({ headers, csvSample, mappings, onUpdateMapp
                     <table style={{ width: "100%", borderCollapse: "collapse" }}>
                         <thead>
                             <tr>
-                                {headers.map((h) => (
+                                {csvHeaders.map((h) => (
                                     <th key={h} style={{ textAlign: "left", padding: 8 }}>
                                         {h}
                                     </th>
@@ -99,9 +73,9 @@ export default function MappingStep({ headers, csvSample, mappings, onUpdateMapp
                             </tr>
                         </thead>
                         <tbody>
-                            {csvSample.slice(0, 3).map((row, i) => (
+                            {csvDataSample.map((row, i) => (
                                 <tr key={i}>
-                                    {headers.map((h) => (
+                                    {csvHeaders.map((h) => (
                                         <td key={h} style={{ padding: 8, whiteSpace: "nowrap" }}>
                                             {row[h] ?? "-"}
                                         </td>

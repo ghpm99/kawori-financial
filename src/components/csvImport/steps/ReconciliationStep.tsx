@@ -1,32 +1,17 @@
-// components/csv-import/steps/ReconciliationStep.tsx
 "use client";
-import React from "react";
-import { Card, Select, Button, Alert, Checkbox } from "antd";
-import { LinkOutlined, ArrowRightOutlined } from "@ant-design/icons";
-import type { ParsedTransaction } from "../types";
-import styles from "../steps/steps.module.scss";
+
+import { useCsvImportProvider } from "@/components/providers/csvImport";
 import { formatMoney, formatterDate } from "@/util";
+import { ArrowRightOutlined, LinkOutlined } from "@ant-design/icons";
+import { Alert, Button, Card, Checkbox, Select } from "antd";
+import styles from "../steps/steps.module.scss";
 
 const { Option } = Select;
 
-interface Props {
-    transactions: ParsedTransaction[];
-    filteredTransactions: ParsedTransaction[];
-    payments: any[];
-    showOnlyMatches: boolean;
-    setShowOnlyMatches: (b: boolean) => void;
-    linkPayment: (transactionId: string, payment?: any) => void;
-}
-
-export default function ReconciliationStep({
-    transactions,
-    filteredTransactions,
-    payments,
-    showOnlyMatches,
-    setShowOnlyMatches,
-    linkPayment,
-}: Props) {
-    const matchedCount = transactions.filter((t) => t.matchedPayment).length;
+export default function ReconciliationStep() {
+    const { parsedTransactions, filteredTransactions, showOnlyMatches, setShowOnlyMatches, linkPayment } =
+        useCsvImportProvider();
+    const matchedCount = parsedTransactions.filter((t) => t.matchedPayment).length;
 
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -71,15 +56,15 @@ export default function ReconciliationStep({
                                     <div style={{ fontSize: 12, color: "var(--ant-text-color-secondary)" }}>
                                         Transação importada
                                     </div>
-                                    <div style={{ fontWeight: 700 }}>{transaction.mappedData.description}</div>
+                                    <div style={{ fontWeight: 700 }}>{transaction.mappedData.name}</div>
                                     <div style={{ color: "var(--ant-text-color-secondary)" }}>
                                         {formatterDate(transaction.mappedData.date || "")} •{" "}
                                         <span
                                             style={{
-                                                color: transaction.mappedData.type === "income" ? "#237804" : "#a8071a",
+                                                color: transaction.mappedData.type === 0 ? "#237804" : "#a8071a",
                                             }}
                                         >
-                                            {formatMoney(transaction.mappedData.amount || 0)}
+                                            {formatMoney(transaction.mappedData.value || 0)}
                                         </span>
                                     </div>
                                 </div>
@@ -105,12 +90,10 @@ export default function ReconciliationStep({
                                             <div style={{ fontSize: 12, color: "var(--ant-text-color-secondary)" }}>
                                                 Pagamento existente
                                             </div>
-                                            <div style={{ fontWeight: 700 }}>
-                                                {transaction.matchedPayment.description}
-                                            </div>
+                                            <div style={{ fontWeight: 700 }}>{transaction.matchedPayment.name}</div>
                                             <div style={{ color: "var(--ant-text-color-secondary)" }}>
                                                 {formatterDate(transaction.matchedPayment.date)} •{" "}
-                                                {formatMoney(transaction.matchedPayment.amount)}
+                                                {formatMoney(transaction.matchedPayment.value)}
                                             </div>
                                         </>
                                     ) : (
@@ -133,14 +116,16 @@ export default function ReconciliationStep({
                                             style={{ width: 220 }}
                                             placeholder="Vincular a..."
                                             onChange={(paymentId) => {
-                                                const p = payments.find((pp) => pp.id === paymentId);
+                                                const p = transaction.possiblyMatchedPaymentList.find(
+                                                    (pp) => pp.id === paymentId,
+                                                );
                                                 linkPayment(transaction.id, p);
                                             }}
                                             allowClear
                                         >
-                                            {payments.map((p) => (
+                                            {transaction.possiblyMatchedPaymentList.map((p) => (
                                                 <Option key={p.id} value={p.id}>
-                                                    {p.description} - {formatMoney(p.amount)}
+                                                    {p.name} - {formatMoney(p.value)}
                                                 </Option>
                                             ))}
                                         </Select>

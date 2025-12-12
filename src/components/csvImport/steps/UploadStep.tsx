@@ -1,33 +1,16 @@
 // components/csv-import/steps/UploadStep.tsx
 "use client";
-import React from "react";
-import { Button, Alert, Space, Upload } from "antd";
-import { UploadOutlined, DownloadOutlined, InboxOutlined, FileOutlined } from "@ant-design/icons";
-import styles from "../steps/steps.module.scss";
-import { parseCSVText } from "../utils/csv";
-import type { ImportType } from "../types";
 import { faDownload, faInbox, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Alert, Button, Upload } from "antd";
+import styles from "../steps/steps.module.scss";
+import { parseCSVText } from "../utils/csv";
+import { useCsvImportProvider } from "@/components/providers/csvImport";
 
 const { Dragger } = Upload;
 
-interface Props {
-    importType: ImportType;
-    setImportType: (t: ImportType) => void;
-    onFileParsed: (headers: string[], data: Record<string, string>[]) => void;
-    csvCount: number;
-    dragActive: boolean;
-    setDragActive: (v: boolean) => void;
-}
-
-export default function UploadStep({
-    importType,
-    setImportType,
-    onFileParsed,
-    csvCount,
-    dragActive,
-    setDragActive,
-}: Props) {
+export default function UploadStep() {
+    const { handleFileParsed, totalDataLoaded, dragActive, setDragActive } = useCsvImportProvider();
     const props = {
         name: "file",
         multiple: false,
@@ -42,7 +25,7 @@ export default function UploadStep({
             reader.onload = (e) => {
                 const text = String(e.target?.result ?? "");
                 const { headers, data } = parseCSVText(text);
-                onFileParsed(headers, data);
+                handleFileParsed(file.name, headers, data);
             };
             reader.readAsText(file);
             return Upload.LIST_IGNORE;
@@ -68,12 +51,11 @@ export default function UploadStep({
                     <Button icon={<FontAwesomeIcon icon={faUpload} />}>Selecionar arquivo</Button>
                 </div>
             </Dragger>
-
             <Alert
                 type="info"
                 showIcon
                 style={{ marginTop: 12 }}
-                message="Dicas para importação"
+                title="Dicas para importação"
                 description={
                     <ul style={{ margin: 0, paddingLeft: 16 }}>
                         <li>O arquivo deve estar no formato CSV (vírgula ou ponto-e-vírgula)</li>
@@ -83,7 +65,6 @@ export default function UploadStep({
                     </ul>
                 }
             />
-
             <div className={styles.sampleRow}>
                 <div>
                     <div style={{ fontWeight: 700 }}>Precisa de um modelo?</div>
@@ -93,7 +74,7 @@ export default function UploadStep({
             </div>
 
             <div style={{ marginTop: 12, color: "var(--ant-text-color-secondary)" }}>
-                {csvCount} registros carregados
+                {totalDataLoaded} registros carregados
             </div>
         </div>
     );

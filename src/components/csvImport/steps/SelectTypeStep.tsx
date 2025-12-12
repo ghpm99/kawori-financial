@@ -1,18 +1,15 @@
-import { Card, Typography, Row, Col } from "antd";
-import { CreditCardOutlined, SwapOutlined } from "@ant-design/icons";
+import { Card, Col, Row, Typography } from "antd";
+
+import { faCreditCard, faMoneyBillTransfer } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import styles from "./steps.module.scss";
-import { ImportType } from "../types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCreditCard, faMoneyBillTransfer } from "@fortawesome/free-solid-svg-icons";
+import { ImportType, useCsvImportProvider } from "@/components/providers/csvImport";
 
 const { Title, Paragraph } = Typography;
 
-interface SelectTypeStepProps {
-    onSelect: (type: ImportType) => void;
-}
-
-export default function SelectTypeStep({ onSelect }: SelectTypeStepProps) {
+export default function SelectTypeStep() {
+    const { handleSelectImportType } = useCsvImportProvider();
     return (
         <div className={styles.container}>
             <Title level={4} className={styles.title}>
@@ -27,7 +24,7 @@ export default function SelectTypeStep({ onSelect }: SelectTypeStepProps) {
             <Row gutter={[24, 24]}>
                 {/* MOVIMENTAÇÕES */}
                 <Col xs={24} md={12}>
-                    <Card hoverable className={styles.card} onClick={() => onSelect("transactions")}>
+                    <Card hoverable className={styles.card} onClick={() => handleSelectImportType("transactions")}>
                         <div className={styles.iconWrapper}>
                             <FontAwesomeIcon icon={faMoneyBillTransfer} className={styles.icon} />
                         </div>
@@ -47,7 +44,7 @@ export default function SelectTypeStep({ onSelect }: SelectTypeStepProps) {
 
                 {/* FATURAS */}
                 <Col xs={24} md={12}>
-                    <Card hoverable className={styles.card} onClick={() => onSelect("invoices")}>
+                    <Card hoverable className={styles.card} onClick={() => handleSelectImportType("invoices")}>
                         <div className={styles.iconWrapper}>
                             <FontAwesomeIcon icon={faCreditCard} className={styles.icon} />
                         </div>
