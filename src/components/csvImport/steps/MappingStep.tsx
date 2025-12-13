@@ -1,6 +1,6 @@
 "use client";
 
-import { PAYMENT_FIELDS, useCsvImportProvider } from "@/components/providers/csvImport";
+import { ColumnMapping, PAYMENT_FIELDS, useCsvImportProvider } from "@/components/providers/csvImport";
 import { Select, Table } from "antd";
 import type { ColumnType } from "antd/es/table";
 import styles from "../steps/steps.module.scss";
@@ -9,10 +9,8 @@ const { Option } = Select;
 
 type DataSourceType = {
     key: string;
-    csvColumn: string;
     sample: string;
-    systemField: string;
-};
+} & ColumnMapping;
 
 export default function MappingStep() {
     const { columnMappings, handleUpdateMapping, csvHeaders, csvDataSample } = useCsvImportProvider();
@@ -28,6 +26,7 @@ export default function MappingStep() {
                     value={record.systemField}
                     onChange={(value) => handleUpdateMapping(record.csvColumn, value)}
                     style={{ width: 220 }}
+                    disabled={record.readonly}
                 >
                     {PAYMENT_FIELDS.map((f) => (
                         <Option value={f.value} key={f.value}>
@@ -40,10 +39,9 @@ export default function MappingStep() {
     ];
 
     const dataSource: DataSourceType[] = columnMappings.map((mapping) => ({
+        ...mapping,
         key: mapping.csvColumn,
-        csvColumn: mapping.csvColumn,
         sample: csvDataSample?.[0]?.[mapping.csvColumn] ?? "-",
-        systemField: mapping.systemField,
     }));
 
     return (

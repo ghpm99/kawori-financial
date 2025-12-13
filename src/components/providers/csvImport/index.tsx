@@ -23,6 +23,7 @@ export interface ParsedTransaction {
 export interface ColumnMapping {
     csvColumn: string;
     systemField: string;
+    readonly?: boolean;
 }
 
 export type ImportType = "transactions" | "invoices";
@@ -43,6 +44,7 @@ export const PAYMENT_FIELDS: FieldOption[] = [
     { value: "payment_date", label: "Data de Pagamento" },
     { value: "value", label: "Valor", required: true },
     { value: "description", label: "Descrição" },
+    { value: "reference", label: "Referência" },
     { value: "ignore", label: "Ignorar coluna" },
 ];
 
@@ -113,11 +115,40 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     const { mutate: mutateParseHeader } = useMutation({
         mutationFn: async ({ fileName, headers }: { fileName: string; headers: string[] }) => {
-            const response = await apiDjango.post("/financial/payment/csv-mapping/", {
-                fileName: fileName,
-                headers: headers,
-            });
+            const response = await apiDjango.post<{ data: { csv_column: string; system_field: string }[] }>(
+                "/financial/payment/csv-mapping/",
+                {
+                    fileName: fileName,
+                    headers: headers,
+                },
+            );
             return response.data;
+        },
+        onSuccess: (data) => {
+            setColumnMappings(
+                data.data.map((d) => ({
+                    csvColumn: d.csv_column,
+                    systemField: d.system_field,
+                    readonly: d.system_field !== "ignore",
+                })),
+            );
+            setStep("mapping");
+        },
+    });
+
+    const { mutate: mutateProcessCsv } = useMutation({
+        mutationFn: async ({ headers, data }: { headers: ColumnMapping[]; data: CSVRow[] }) => {
+            const response = await apiDjango.post<{ data: { csv_column: string; system_field: string }[] }>(
+                "/financial/payment/process-csv/",
+                {
+                    headers: headers.map((h) => ({ csv_column: h.csvColumn, system_field: h.systemField })),
+                    body: data,
+                },
+            );
+            return response.data;
+        },
+        onSuccess: (data) => {
+            console.log("Processed CSV data", data);
         },
     });
 
@@ -160,27 +191,7 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const handleFileParsed = useCallback(
         (fileName: string, headers: string[], data: CSVRow[]) => {
             setFileData({ fileName, headers, data });
-            // TODO ajustar para uma mutation de mapeamento automática mais inteligente
-            const auto = headers.map((h) => {
-                const lh = h.toLowerCase();
-                let systemField = "ignore";
-                if (lh.includes("descri") || lh.includes("desc")) systemField = "description";
-                else if (lh.includes("valor") || lh.includes("amount") || lh.includes("value")) systemField = "amount";
-                else if (lh.includes("data") || lh.includes("date")) systemField = "date";
-                else if (lh.includes("método") || lh.includes("method") || lh.includes("forma")) systemField = "method";
-                else if (lh.includes("tipo") || lh.includes("type")) systemField = "type";
-                else if (lh.includes("referência") || lh.includes("reference") || lh.includes("ref"))
-                    systemField = "reference";
-                else if (lh.includes("status")) systemField = "status";
-                else if (lh.includes("cliente") || lh.includes("client")) systemField = "clientName";
-                else if (lh.includes("email")) systemField = "clientEmail";
-                else if (lh.includes("vencimento") || lh.includes("due")) systemField = "dueDate";
-                else if (lh.includes("total")) systemField = "total";
-                return { csvColumn: h, systemField };
-            });
             mutateParseHeader({ fileName, headers });
-            setColumnMappings(auto);
-            setStep("mapping");
         },
         [mutateParseHeader],
     );
@@ -227,6 +238,7 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const processTransactions = useCallback(() => {
         if (!fileData) return;
         setIsProcessing(true);
+        mutateProcessCsv({ headers: columnMappings, data: fileData.data });
         const txs: ParsedTransaction[] = fileData.data.map((row, idx) => {
             const mapped: any = {};
             const errors: string[] = [];
@@ -299,7 +311,7 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setParsedTransactions(txs);
         setIsProcessing(false);
         setStep("preview");
-    }, [columnMappings, fileData, findBestMatch]);
+    }, [columnMappings, fileData, findBestMatch, mutateProcessCsv]);
 
     const toggleSelection = useCallback((id: string) => {
         setParsedTransactions((prev) => prev.map((t) => (t.id === id ? { ...t, selected: !t.selected } : t)));

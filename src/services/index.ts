@@ -25,6 +25,7 @@ export const errorInterceptor = async (error: AxiosError) => {
     if (response?.status === HttpStatusCode.Unauthorized) {
         try {
             await refreshTokenAsync();
+            return apiDjango.request(config);
         } catch (refreshError) {
             sendEventTokenRefreshFailed();
             return Promise.reject(refreshError);

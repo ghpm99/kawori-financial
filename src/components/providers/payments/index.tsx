@@ -30,6 +30,8 @@ export interface IPaymentDetail {
     status: number;
     type: number;
     name: string;
+    description: string;
+    reference: string;
     date: string;
     installments: number;
     payment_date: string;
