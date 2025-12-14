@@ -150,6 +150,8 @@ const defaultPaymentDetail: IPaymentDetail = {
     active: false,
     invoice: 0,
     invoice_name: "",
+    description: "",
+    reference: "",
 };
 
 const defaultPaymentsPage: PaymentsPage = {

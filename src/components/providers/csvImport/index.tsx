@@ -1,23 +1,22 @@
+import { apiDjango } from "@/services";
+import { faArrowRotateRight, faCheck, faFile, faLink, faListAlt, faUpload } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useMutation } from "@tanstack/react-query";
 import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { IPaymentDetail } from "../payments";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRotateRight, faCheck, faFile, faLink, faListAlt, faUpload } from "@fortawesome/free-solid-svg-icons";
-import { parseDateToISO } from "@/components/csvImport/utils/csv";
-import { useMutation } from "@tanstack/react-query";
-import { apiDjango } from "@/services";
 
 export type CSVRow = { [key: string]: string };
 
 export interface ParsedTransaction {
     id: string;
-    originalRow: CSVRow;
-    mappedData: Partial<IPaymentDetail>;
-    validationErrors: string[];
-    isValid: boolean;
-    matchedPayment?: IPaymentDetail;
-    matchScore?: number;
+    original_row: CSVRow;
+    mapped_data: Partial<IPaymentDetail>;
+    validation_errors: string[];
+    is_valid: boolean;
+    matched_payment?: IPaymentDetail;
+    match_score?: number;
     selected: boolean;
-    possiblyMatchedPaymentList?: IPaymentDetail[];
+    possibly_matched_payment_list?: IPaymentDetail[];
 }
 
 export interface ColumnMapping {
@@ -26,7 +25,7 @@ export interface ColumnMapping {
     readonly?: boolean;
 }
 
-export type ImportType = "transactions" | "invoices";
+export type ImportType = "transactions" | "card_payments";
 export type ImportStep = "type" | "upload" | "mapping" | "preview" | "reconciliation" | "confirm";
 
 export type Step = {
@@ -96,7 +95,7 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const [fileData, setFileData] = useState<{ fileName: string; headers: string[]; data: CSVRow[] } | null>(null);
     const [columnMappings, setColumnMappings] = useState<ColumnMapping[]>([]);
     const [parsedTransactions, setParsedTransactions] = useState<ParsedTransaction[]>([]);
-    const [isProcessing, setIsProcessing] = useState(false);
+
     const [importProgress, setImportProgress] = useState(0);
     const [searchTerm, setSearchTerm] = useState("");
     const [showOnlyMatches, setShowOnlyMatches] = useState(false);
@@ -136,19 +135,33 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         },
     });
 
-    const { mutate: mutateProcessCsv } = useMutation({
-        mutationFn: async ({ headers, data }: { headers: ColumnMapping[]; data: CSVRow[] }) => {
-            const response = await apiDjango.post<{ data: { csv_column: string; system_field: string }[] }>(
-                "/financial/payment/process-csv/",
-                {
-                    headers: headers.map((h) => ({ csv_column: h.csvColumn, system_field: h.systemField })),
-                    body: data,
-                },
-            );
+    const { mutate: mutateProcessCsv, isPending: isPedingProcessCsv } = useMutation({
+        mutationFn: async ({
+            headers,
+            data,
+            importType,
+        }: {
+            headers: ColumnMapping[];
+            data: CSVRow[];
+            importType: ImportType;
+        }) => {
+            const response = await apiDjango.post<{
+                data: ParsedTransaction[];
+            }>("/financial/payment/process-csv/", {
+                headers: headers.map((h) => ({ csv_column: h.csvColumn, system_field: h.systemField })),
+                body: data,
+                import_type: importType,
+            });
             return response.data;
         },
         onSuccess: (data) => {
-            console.log("Processed CSV data", data);
+            setParsedTransactions(
+                data.data.map((d) => ({
+                    ...d,
+                    selected: false,
+                })),
+            );
+            setStep("preview");
         },
     });
 
@@ -157,7 +170,6 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setFileData(null);
         setColumnMappings([]);
         setParsedTransactions([]);
-        setIsProcessing(false);
         setImportProgress(0);
         setSearchTerm("");
         setShowOnlyMatches(false);
@@ -200,150 +212,42 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setColumnMappings((prev) => prev.map((m) => (m.csvColumn === csvColumn ? { ...m, systemField } : m)));
     }, []);
 
-    const findBestMatch = useCallback((mappedData: Partial<any>, existingPayments: any[]) => {
-        if (!mappedData.amount || !mappedData.date) return {};
-        let best: any | undefined;
-        let bestScore = 0;
-        for (const p of existingPayments) {
-            let score = 0;
-            const amountDiff = Math.abs(p.amount - (mappedData.amount ?? 0));
-            if (amountDiff === 0) score += 50;
-            else if (amountDiff < 1) score += 40;
-            else if (amountDiff / p.amount < 0.01) score += 30;
-
-            if (p.date === mappedData.date) score += 30;
-            else {
-                const dd = Math.abs(new Date(p.date).getTime() - new Date(mappedData.date ?? "").getTime());
-                const days = dd / (1000 * 60 * 60 * 24);
-                if (days <= 1) score += 20;
-                else if (days <= 3) score += 10;
-            }
-
-            if (mappedData.description && p.description) {
-                const d1 = String(mappedData.description).toLowerCase();
-                const d2 = String(p.description).toLowerCase();
-                if (d1.includes(d2) || d2.includes(d1)) score += 20;
-            }
-
-            if (mappedData.reference && p.reference && mappedData.reference === p.reference) score += 30;
-
-            if (score > bestScore && score >= 50) {
-                bestScore = score;
-                best = p;
-            }
-        }
-        return { matchedPayment: best, matchScore: bestScore };
-    }, []);
-
     const processTransactions = useCallback(() => {
         if (!fileData) return;
-        setIsProcessing(true);
-        mutateProcessCsv({ headers: columnMappings, data: fileData.data });
-        const txs: ParsedTransaction[] = fileData.data.map((row, idx) => {
-            const mapped: any = {};
-            const errors: string[] = [];
 
-            columnMappings.forEach((m) => {
-                if (m.systemField === "ignore") return;
-                const val = row[m.csvColumn] ?? "";
-                if (m.systemField === "amount") {
-                    const num = Number.parseFloat(val.replace(/[^\d.,-]/g, "").replace(",", "."));
-                    if (isNaN(num)) errors.push(`Valor inválido: ${val}`);
-                    else {
-                        mapped.amount = Math.abs(num);
-                        if (num < 0) mapped.type = "expense";
-                    }
-                } else if (m.systemField === "date") {
-                    const ds = parseDateToISO(val);
-                    if (!ds) errors.push(`Data inválida: ${val}`);
-                    else mapped.date = ds;
-                } else if (m.systemField === "type") {
-                    const lv = String(val).toLowerCase();
-                    if (lv.includes("recei") || lv.includes("entrada") || lv.includes("income")) mapped.type = "income";
-                    else if (
-                        lv.includes("despe") ||
-                        lv.includes("déb") ||
-                        lv.includes("saída") ||
-                        lv.includes("expense")
-                    )
-                        mapped.type = "expense";
-                } else if (m.systemField === "method") {
-                    const lv = String(val).toLowerCase();
-                    if (lv.includes("pix")) mapped.method = "pix";
-                    else if (lv.includes("cartão") || lv.includes("card") || lv.includes("crédito"))
-                        mapped.method = "credit_card";
-                    else if (lv.includes("transfer") || lv.includes("ted") || lv.includes("doc"))
-                        mapped.method = "bank_transfer";
-                    else if (lv.includes("dinheiro") || lv.includes("cash")) mapped.method = "cash";
-                } else if (m.systemField === "status") {
-                    const lv = String(val).toLowerCase();
-                    if (lv.includes("pago") || lv.includes("paid")) mapped.status = "completed";
-                    else if (lv.includes("pend") || lv.includes("aguard")) mapped.status = "pending";
-                    else if (lv.includes("cancel")) mapped.status = "cancelled";
-                    else if (lv.includes("fail")) mapped.status = "failed";
-                } else {
-                    (mapped as any)[m.systemField] = val;
-                }
-            });
-
-            if (!mapped.description) errors.push("Descrição é obrigatória");
-            if (!mapped.amount) errors.push("Valor é obrigatório");
-            if (!mapped.date) errors.push("Data é obrigatória");
-
-            if (!mapped.type) mapped.type = "expense";
-            if (!mapped.method) mapped.method = "bank_transfer";
-            if (!mapped.status) mapped.status = "completed";
-
-            const { matchedPayment, matchScore } = findBestMatch(mapped, []);
-
-            return {
-                id: `import-${idx}`,
-                originalRow: row,
-                mappedData: mapped,
-                validationErrors: errors,
-                isValid: errors.length === 0,
-                matchedPayment,
-                matchScore,
-                selected: errors.length === 0,
-            } as ParsedTransaction;
-        });
-
-        setParsedTransactions(txs);
-        setIsProcessing(false);
-        setStep("preview");
-    }, [columnMappings, fileData, findBestMatch, mutateProcessCsv]);
+        mutateProcessCsv({ headers: columnMappings, data: fileData.data, importType });
+    }, [columnMappings, fileData, importType, mutateProcessCsv]);
 
     const toggleSelection = useCallback((id: string) => {
         setParsedTransactions((prev) => prev.map((t) => (t.id === id ? { ...t, selected: !t.selected } : t)));
     }, []);
 
     const toggleAllSelection = useCallback((selected: boolean) => {
-        setParsedTransactions((prev) => prev.map((t) => ({ ...t, selected: t.isValid ? selected : false })));
+        setParsedTransactions((prev) => prev.map((t) => ({ ...t, selected: t.is_valid ? selected : false })));
     }, []);
 
     const linkPayment = useCallback((transactionId: string, payment?: IPaymentDetail) => {
         setParsedTransactions((prev) =>
             prev.map((t) =>
-                t.id === transactionId ? { ...t, matchedPayment: payment, matchScore: payment ? 100 : undefined } : t,
+                t.id === transactionId ? { ...t, matched_payment: payment, matchScore: payment ? 100 : undefined } : t,
             ),
         );
     }, []);
 
     const handleImport = useCallback(async () => {
-        setIsProcessing(true);
         setStep("confirm");
-        const selectedTx = parsedTransactions.filter((t) => t.selected && t.isValid && !t.matchedPayment);
+        const selectedTx = parsedTransactions.filter((t) => t.selected && t.is_valid && !t.matched_payment);
         const total = selectedTx.length;
         for (let i = 0; i < selectedTx.length; i++) {
             const tx = selectedTx[i];
             try {
                 console.log({
-                    amount: tx.mappedData.value!,
-                    date: tx.mappedData.date!,
-                    name: tx.mappedData.name || "Imported transaction",
+                    amount: tx.mapped_data.value!,
+                    date: tx.mapped_data.date!,
+                    name: tx.mapped_data.name || "Imported transaction",
                     method: importType,
-                    status: tx.mappedData.status || "completed",
-                    type: tx.mappedData.type || "expense",
+                    status: tx.mapped_data.status || "completed",
+                    type: tx.mapped_data.type || "expense",
                 });
             } catch (err) {
                 console.error("Import error", err);
@@ -351,22 +255,21 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             setImportProgress(((i + 1) / Math.max(total, 1)) * 100);
             await new Promise((r) => setTimeout(r, 50));
         }
-        setIsProcessing(false);
     }, [importType, parsedTransactions]);
 
     const filteredTransactions = useMemo(() => {
         return parsedTransactions.filter((t) => {
-            if (showOnlyMatches && !t.matchedPayment) return false;
+            if (showOnlyMatches && !t.matched_payment) return false;
             if (searchTerm) {
                 const s = searchTerm.toLowerCase();
                 return (
-                    String(t.mappedData.name ?? "")
+                    String(t.mapped_data.name ?? "")
                         .toLowerCase()
                         .includes(s) ||
-                    String(t.mappedData.date ?? "")
+                    String(t.mapped_data.date ?? "")
                         .toLowerCase()
                         .includes(s) ||
-                    String(t.mappedData.value ?? "").includes(s)
+                    String(t.mapped_data.value ?? "").includes(s)
                 );
             }
             return true;
@@ -374,10 +277,10 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }, [parsedTransactions, searchTerm, showOnlyMatches]);
 
     const stats = useMemo(() => {
-        const valid = parsedTransactions.filter((t) => t.isValid);
+        const valid = parsedTransactions.filter((t) => t.is_valid);
         const selected = parsedTransactions.filter((t) => t.selected);
-        const matched = parsedTransactions.filter((t) => t.matchedPayment);
-        const toImport = parsedTransactions.filter((t) => t.selected && t.isValid && !t.matchedPayment);
+        const matched = parsedTransactions.filter((t) => t.matched_payment);
+        const toImport = parsedTransactions.filter((t) => t.selected && t.is_valid && !t.matched_payment);
         return {
             total: parsedTransactions.length,
             valid: valid.length,
@@ -389,6 +292,7 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }, [parsedTransactions]);
 
     const selectAllState = stats.selected === stats.valid && stats.valid > 0;
+    const isProcessing = isPedingProcessCsv;
 
     const value: CsvImportContextValue = {
         openModal,

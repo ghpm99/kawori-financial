@@ -44,7 +44,7 @@ export default function SelectTypeStep() {
 
                 {/* FATURAS */}
                 <Col xs={24} md={12}>
-                    <Card hoverable className={styles.card} onClick={() => handleSelectImportType("invoices")}>
+                    <Card hoverable className={styles.card} onClick={() => handleSelectImportType("card_payments")}>
                         <div className={styles.iconWrapper}>
                             <FontAwesomeIcon icon={faCreditCard} className={styles.icon} />
                         </div>

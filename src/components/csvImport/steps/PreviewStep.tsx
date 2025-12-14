@@ -31,7 +31,7 @@ export default function PreviewStep() {
             render: (_: boolean, record: DataSourceType) => (
                 <Checkbox
                     checked={record.selected}
-                    disabled={!record.isValid}
+                    disabled={!record.is_valid}
                     onChange={() => toggleSelection(record.id)}
                 />
             ),
@@ -44,9 +44,9 @@ export default function PreviewStep() {
             render: (v: string, record: DataSourceType) => (
                 <div>
                     <div style={{ fontWeight: 700 }}>{v ?? "-"}</div>
-                    {record.validationErrors?.length > 0 && (
+                    {record.validation_errors?.length > 0 && (
                         <div style={{ marginTop: 6 }}>
-                            {record.validationErrors.map((e: string, i: number) => (
+                            {record.validation_errors.map((e: string, i: number) => (
                                 <Tag color="error" key={i} style={{ marginBottom: 6 }}>
                                     {e}
                                 </Tag>
@@ -68,10 +68,8 @@ export default function PreviewStep() {
             title: "Valor",
             dataIndex: ["mappedData", "value"],
             key: "value",
-            render: (value: number, record: DataSourceType) => (
-                <div style={{ fontWeight: 700 }}>
-                    {record.mappedData.type === 0 ? "+" : "-"} {value != null ? formatMoney(value) : "-"}
-                </div>
+            render: (value: number) => (
+                <div style={{ fontWeight: 700 }}>{value != null ? formatMoney(value) : "-"}</div>
             ),
             width: 140,
         },
