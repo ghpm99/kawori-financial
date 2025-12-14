@@ -9,12 +9,12 @@ import styles from "../steps/steps.module.scss";
 const { Option } = Select;
 
 export default function ReconciliationStep() {
-    const { parsedTransactions, filteredTransactions, showOnlyMatches, setShowOnlyMatches, linkPayment } =
+    const { importType, parsedTransactions, filteredTransactions, showOnlyMatches, setShowOnlyMatches, linkPayment } =
         useCsvImportProvider();
-    const matchedCount = parsedTransactions.filter((t) => t.matchedPayment).length;
+    const matchedCount = parsedTransactions.filter((t) => t?.possibly_matched_payment_list?.length > 0).length;
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        <div style={{ display: "flex", flexDirection: "column", height: "620px" }}>
             <Alert
                 message="Reconciliação de Pagamentos"
                 description={`Encontramos ${matchedCount} possíveis correspondências com pagamentos existentes.`}
@@ -40,13 +40,13 @@ export default function ReconciliationStep() {
 
             <div style={{ overflow: "auto", padding: 12 }}>
                 {filteredTransactions
-                    .filter((t) => t.isValid)
+                    .filter((t) => t.is_valid)
                     .map((transaction) => (
                         <Card
                             key={transaction.id}
                             className={styles.reconciliationCard}
                             style={
-                                transaction.matchedPayment
+                                transaction.matched_payment
                                     ? { borderColor: "#bae7ff", background: "rgba(186,231,255,0.12)" }
                                     : undefined
                             }
@@ -56,25 +56,25 @@ export default function ReconciliationStep() {
                                     <div style={{ fontSize: 12, color: "var(--ant-text-color-secondary)" }}>
                                         Transação importada
                                     </div>
-                                    <div style={{ fontWeight: 700 }}>{transaction.mappedData.name}</div>
+                                    <div style={{ fontWeight: 700 }}>{transaction.mapped_data.name}</div>
                                     <div style={{ color: "var(--ant-text-color-secondary)" }}>
-                                        {formatterDate(transaction.mappedData.date || "")} •{" "}
+                                        {formatterDate(transaction.mapped_data.date || "")} •{" "}
                                         <span
                                             style={{
-                                                color: transaction.mappedData.type === 0 ? "#237804" : "#a8071a",
+                                                color: transaction.mapped_data.type === 0 ? "#237804" : "#a8071a",
                                             }}
                                         >
-                                            {formatMoney(transaction.mappedData.value || 0)}
+                                            {formatMoney(transaction.mapped_data.value || 0)}
                                         </span>
                                     </div>
                                 </div>
 
                                 <div style={{ width: 64, textAlign: "center" }}>
-                                    {transaction.matchedPayment ? (
+                                    {transaction.matched_payment ? (
                                         <div>
                                             <LinkOutlined style={{ fontSize: 20, color: "#1890ff" }} />
                                             <div style={{ fontSize: 12, color: "#1890ff" }}>
-                                                {transaction.matchScore ?? 0}%
+                                                {transaction.match_score ?? 0}%
                                             </div>
                                         </div>
                                     ) : (
@@ -85,15 +85,15 @@ export default function ReconciliationStep() {
                                 </div>
 
                                 <div style={{ flex: 1 }}>
-                                    {transaction.matchedPayment ? (
+                                    {transaction.matched_payment ? (
                                         <>
                                             <div style={{ fontSize: 12, color: "var(--ant-text-color-secondary)" }}>
                                                 Pagamento existente
                                             </div>
-                                            <div style={{ fontWeight: 700 }}>{transaction.matchedPayment.name}</div>
+                                            <div style={{ fontWeight: 700 }}>{transaction.matched_payment.name}</div>
                                             <div style={{ color: "var(--ant-text-color-secondary)" }}>
-                                                {formatterDate(transaction.matchedPayment.date)} •{" "}
-                                                {formatMoney(transaction.matchedPayment.value)}
+                                                {formatterDate(transaction.matched_payment.date)} •{" "}
+                                                {formatMoney(transaction.matched_payment.value)}
                                             </div>
                                         </>
                                     ) : (
@@ -104,7 +104,7 @@ export default function ReconciliationStep() {
                                 </div>
 
                                 <div style={{ display: "flex", gap: 8 }}>
-                                    {transaction.matchedPayment ? (
+                                    {transaction.matched_payment ? (
                                         <Button
                                             onClick={() => linkPayment(transaction.id, undefined)}
                                             icon={<LinkOutlined />}
@@ -116,16 +116,19 @@ export default function ReconciliationStep() {
                                             style={{ width: 220 }}
                                             placeholder="Vincular a..."
                                             onChange={(paymentId) => {
-                                                const p = transaction.possiblyMatchedPaymentList.find(
+                                                const p = transaction.possibly_matched_payment_list.find(
                                                     (pp) => pp.id === paymentId,
                                                 );
                                                 linkPayment(transaction.id, p);
                                             }}
                                             allowClear
                                         >
-                                            {transaction.possiblyMatchedPaymentList.map((p) => (
+                                            {transaction.possibly_matched_payment_list?.map((p) => (
                                                 <Option key={p.id} value={p.id}>
-                                                    {p.name} - {formatMoney(p.value)}
+                                                    {importType === "card_payments"
+                                                        ? formatterDate(p.date)
+                                                        : formatterDate(p.payment_date)}{" "}
+                                                    - {p.name} - {formatMoney(p.value)}
                                                 </Option>
                                             ))}
                                         </Select>

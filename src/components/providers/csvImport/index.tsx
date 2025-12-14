@@ -59,6 +59,7 @@ type CsvImportContextValue = {
     totalDataLoaded: number;
     goToStep: (stepKey: ImportStep) => void;
     goToPreviousStep: () => void;
+    importType: ImportType;
     handleSelectImportType: (type: ImportType) => void;
     handleFileParsed: (fileName: string, headers: string[], data: CSVRow[]) => void;
     columnMappings: ColumnMapping[];
@@ -306,6 +307,7 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         totalDataLoaded,
         goToPreviousStep,
         goToStep,
+        importType,
         handleSelectImportType,
         handleFileParsed,
         columnMappings,

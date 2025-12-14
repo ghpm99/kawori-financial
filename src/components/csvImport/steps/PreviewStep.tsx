@@ -39,7 +39,7 @@ export default function PreviewStep() {
         },
         {
             title: "Descrição",
-            dataIndex: ["mappedData", "description"],
+            dataIndex: ["mapped_data", "description"],
             key: "desc",
             render: (v: string, record: DataSourceType) => (
                 <div>
@@ -59,14 +59,14 @@ export default function PreviewStep() {
         },
         {
             title: "Data",
-            dataIndex: ["mappedData", "date"],
+            dataIndex: ["mapped_data", "date"],
             key: "date",
             render: (date: string) => (date ? formatterDate(date) : "-"),
             width: 120,
         },
         {
             title: "Valor",
-            dataIndex: ["mappedData", "value"],
+            dataIndex: ["mapped_data", "value"],
             key: "value",
             render: (value: number) => (
                 <div style={{ fontWeight: 700 }}>{value != null ? formatMoney(value) : "-"}</div>
@@ -75,7 +75,7 @@ export default function PreviewStep() {
         },
         {
             title: "Tipo",
-            dataIndex: ["mappedData", "type"],
+            dataIndex: ["mapped_data", "type"],
             key: "type",
             render: (type: number) => (
                 <Tag color={type === 0 ? "success" : "error"}>{type === 0 ? "Receita" : "Despesa"}</Tag>
@@ -84,8 +84,8 @@ export default function PreviewStep() {
         },
         {
             title: "Status",
-            dataIndex: "isValid",
-            key: "isValid",
+            dataIndex: "is_valid",
+            key: "is_valid",
             render: (isValid: boolean) => (isValid ? <Tag color="success">Válido</Tag> : <Tag color="error">Erro</Tag>),
             width: 120,
         },
