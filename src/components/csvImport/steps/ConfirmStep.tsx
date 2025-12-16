@@ -1,13 +1,51 @@
 "use client";
 
 import { ResolvedImports, useCsvImportProvider } from "@/components/providers/csvImport";
-import { ITags } from "@/components/providers/tags";
+import { ITags, useTags } from "@/components/providers/tags";
 import { formatMoney } from "@/util";
 import { CheckCircleOutlined, LoadingOutlined } from "@ant-design/icons";
-import { Button, Progress, Table, Tag } from "antd";
+import { Button, Progress, Select, SelectProps, Table, Tag } from "antd";
+
+type TagRender = SelectProps["tagRender"];
 
 export default function ConfirmStep() {
-    const { isProcessing, importProgress, stats, handleCloseModal, resolvedImportsWithoutTag } = useCsvImportProvider();
+    const { isProcessing, importProgress, stats, handleCloseModal, resolvedImportsWithoutTag, handleChangeTags } =
+        useCsvImportProvider();
+    const { data: tags, loading: isLoadingTags } = useTags();
+
+    const tagRender: TagRender = (props) => {
+        const { label, value, closable, onClose } = props;
+        const onPreventMouseDown = (event: React.MouseEvent<HTMLSpanElement>) => {
+            event.preventDefault();
+            event.stopPropagation();
+        };
+        const color = tags.find((tag) => tag.name === value)?.color || "blue";
+        return (
+            <Tag
+                color={color}
+                onMouseDown={onPreventMouseDown}
+                closable={closable}
+                onClose={onClose}
+                style={{ marginInlineEnd: 4 }}
+            >
+                {label}
+            </Tag>
+        );
+    };
+
+    const tagsOptions = (tagSelection: ITags[]) => {
+        const hasAlreadySelectedBudget =
+            tags.filter((tag) => tagSelection.map((tag) => tag.name).includes(tag.name) && tag.is_budget).length > 0;
+
+        return tags
+            .filter((tag) => !tagSelection.map((tag) => tag.name).includes(tag.name))
+            .map((tag) => ({
+                ...tag,
+                value: tag.name,
+                label: tag.name,
+                disabled: tag.is_budget && hasAlreadySelectedBudget,
+            }));
+    };
 
     return (
         <div style={{ padding: 24, textAlign: "center" }}>
@@ -44,12 +82,20 @@ export default function ConfirmStep() {
                                         title: "Tags",
                                         dataIndex: ["tags"],
                                         key: "tags",
-                                        render: (_: ITags[], { tags }: ResolvedImports) =>
-                                            tags.map((tag) => (
-                                                <Tag color={tag.color} key={`invoice-tags-${tag.id}`}>
-                                                    {tag.name}
-                                                </Tag>
-                                            )),
+                                        render: (_: ITags[], { import_payment_id, tags }: ResolvedImports) => (
+                                            <Select
+                                                mode="multiple"
+                                                style={{ width: "100%" }}
+                                                placeholder="Etiquetas"
+                                                data-testid="invoice-tags"
+                                                onChange={(_, tags: ITags[]) =>
+                                                    handleChangeTags(import_payment_id, tags)
+                                                }
+                                                value={tags.map((tag) => tag.name)}
+                                                tagRender={tagRender}
+                                                options={tagsOptions(tags)}
+                                            />
+                                        ),
                                     },
                                 ]}
                                 dataSource={resolvedImportsWithoutTag}

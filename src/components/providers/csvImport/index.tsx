@@ -69,6 +69,7 @@ export type ResolvedImports = {
     payment_date: string;
     tags: ITags[];
     has_budget_tag: boolean;
+    isDirty: boolean;
 };
 
 type CsvImportContextValue = {
@@ -111,6 +112,7 @@ type CsvImportContextValue = {
     unmergePayments: (mergeGroupId?: string) => void;
     resolvedImports: ResolvedImports[];
     resolvedImportsWithoutTag: ResolvedImports[];
+    handleChangeTags: (id: number, tags: ITags[]) => void;
 };
 
 const CsvImportContext = createContext<CsvImportContextValue | undefined>(undefined);
@@ -350,9 +352,17 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         };
     }, [parsedTransactions]);
 
+    const handleChangeTags = (id: number, tags: ITags[]) => {
+        setResolvedImports((prev) =>
+            prev.map((resolved) =>
+                resolved.import_payment_id === id ? { ...resolved, tags: tags, isDirty: true } : resolved,
+            ),
+        );
+    };
+
     const selectAllState = stats.selected === stats.valid && stats.valid > 0;
     const isProcessing = isPendingProcessCsv || isPedingResolveImport;
-    const resolvedImportsWithoutTag = resolvedImports.filter((x) => !x.has_budget_tag);
+    const resolvedImportsWithoutTag = resolvedImports.filter((x) => !x.has_budget_tag || !x.isDirty);
 
     const value: CsvImportContextValue = {
         openModal,
@@ -394,6 +404,7 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         unmergePayments,
         resolvedImports,
         resolvedImportsWithoutTag,
+        handleChangeTags,
     };
 
     return <CsvImportContext.Provider value={value}>{children}</CsvImportContext.Provider>;
