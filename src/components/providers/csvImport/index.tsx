@@ -5,6 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { IPaymentDetail } from "../payments";
+import { ITags } from "../tags";
 
 export type CSVRow = { [key: string]: string };
 
@@ -57,16 +58,16 @@ export const PAYMENT_FIELDS: FieldOption[] = [
     { value: "ignore", label: "Ignorar coluna" },
 ];
 
-type ResolvedImports = {
+export type ResolvedImports = {
     import_payment_id: number;
     reference: string;
-    action: "merge" | "split" | "new";
+    action: number;
     payment_id: number;
     name: string;
     value: number;
     date: string;
     payment_date: string;
-    tags: number[];
+    tags: ITags[];
     has_budget_tag: boolean;
 };
 
@@ -108,6 +109,8 @@ type CsvImportContextValue = {
     selectAllState: boolean;
     mergePayments: () => void;
     unmergePayments: (mergeGroupId?: string) => void;
+    resolvedImports: ResolvedImports[];
+    resolvedImportsWithoutTag: ResolvedImports[];
 };
 
 const CsvImportContext = createContext<CsvImportContextValue | undefined>(undefined);
@@ -123,6 +126,7 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const [fileData, setFileData] = useState<{ fileName: string; headers: string[]; data: CSVRow[] } | null>(null);
     const [columnMappings, setColumnMappings] = useState<ColumnMapping[]>([]);
     const [parsedTransactions, setParsedTransactions] = useState<ParsedTransaction[]>([]);
+    const [resolvedImports, setResolvedImports] = useState<ResolvedImports[]>([]);
 
     const [importProgress, setImportProgress] = useState(0);
     const [searchTerm, setSearchTerm] = useState("");
@@ -194,7 +198,7 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         },
     });
 
-    const { mutate: mutateResolveImport } = useMutation({
+    const { mutate: mutateResolveImport, isPending: isPedingResolveImport } = useMutation({
         mutationFn: async ({ data }: { data: ParsedTransaction[] }) => {
             const response = await apiDjango.post<{
                 data: ResolvedImports[];
@@ -209,6 +213,7 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         },
         onSuccess: (data) => {
             console.log("Resolved imports:", data);
+            setResolvedImports(data.data);
             setStep("confirm");
         },
     });
@@ -346,7 +351,8 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }, [parsedTransactions]);
 
     const selectAllState = stats.selected === stats.valid && stats.valid > 0;
-    const isProcessing = isPendingProcessCsv;
+    const isProcessing = isPendingProcessCsv || isPedingResolveImport;
+    const resolvedImportsWithoutTag = resolvedImports.filter((x) => !x.has_budget_tag);
 
     const value: CsvImportContextValue = {
         openModal,
@@ -386,6 +392,8 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         selectAllState,
         mergePayments,
         unmergePayments,
+        resolvedImports,
+        resolvedImportsWithoutTag,
     };
 
     return <CsvImportContext.Provider value={value}>{children}</CsvImportContext.Provider>;
