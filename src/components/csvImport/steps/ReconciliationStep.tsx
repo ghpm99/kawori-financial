@@ -3,12 +3,10 @@
 import { ParsedTransaction, useCsvImportProvider } from "@/components/providers/csvImport";
 import { formatMoney, formatterDate } from "@/util";
 import { ArrowRightOutlined, LinkOutlined } from "@ant-design/icons";
-import { Alert, Button, Card, Checkbox, Divider, Select } from "antd";
-import styles from "../steps/steps.module.scss";
-import { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLink, faUnlink } from "@fortawesome/free-solid-svg-icons";
-import { calc } from "antd/es/theme/internal";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Alert, Button, Card, Checkbox, Select } from "antd";
+import styles from "../steps/steps.module.scss";
 
 const { Option } = Select;
 
@@ -17,7 +15,6 @@ export default function ReconciliationStep() {
         selectedTransactionsToMerge,
         toggleSelectionTransactionsToMerge,
         importType,
-        parsedTransactions,
         filteredTransactions,
         showOnlyMatches,
         setShowOnlyMatches,

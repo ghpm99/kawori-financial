@@ -57,6 +57,19 @@ export const PAYMENT_FIELDS: FieldOption[] = [
     { value: "ignore", label: "Ignorar coluna" },
 ];
 
+type ResolvedImports = {
+    import_payment_id: number;
+    reference: string;
+    action: "merge" | "split" | "new";
+    payment_id: number;
+    name: string;
+    value: number;
+    date: string;
+    payment_date: string;
+    tags: number[];
+    has_budget_tag: boolean;
+};
+
 type CsvImportContextValue = {
     openModal: boolean;
     setOpenModal: (open: boolean) => void;
@@ -181,6 +194,25 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         },
     });
 
+    const { mutate: mutateResolveImport } = useMutation({
+        mutationFn: async ({ data }: { data: ParsedTransaction[] }) => {
+            const response = await apiDjango.post<{
+                data: ResolvedImports[];
+            }>("/financial/payment/csv-resolve-imports/", {
+                import: data.map((transaction) => ({
+                    mapped_payment: transaction.mapped_data,
+                    matched_payment_id: transaction.matched_payment?.id || null,
+                    merge_group: transaction.merge_group || null,
+                })),
+            });
+            return response.data;
+        },
+        onSuccess: (data) => {
+            console.log("Resolved imports:", data);
+            setStep("confirm");
+        },
+    });
+
     const resetState = useCallback(() => {
         setStep("type");
         setFileData(null);
@@ -251,7 +283,9 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const linkPayment = useCallback((transactionId: string, payment?: PaymentMatchCandidate) => {
         setParsedTransactions((prev) =>
             prev.map((t) =>
-                t.id === transactionId ? { ...t, matched_payment: payment, match_score: payment.score } : t,
+                t.id === transactionId
+                    ? { ...t, matched_payment: payment, match_score: payment ? payment.score : undefined }
+                    : t,
             ),
         );
     }, []);
@@ -273,26 +307,8 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }, []);
 
     const handleImport = useCallback(async () => {
-        setStep("confirm");
-        const selectedTx = parsedTransactions.filter((t) => t.selected && t.is_valid);
-        const total = selectedTx.length;
-        console.log(
-            selectedTx.map((t) => ({
-                mapped_payment: t.mapped_data,
-                matched_payment_id: t.matched_payment?.id || null,
-            })),
-        );
-        for (let i = 0; i < selectedTx.length; i++) {
-            const tx = selectedTx[i];
-            // try {
-            //     console.log(tx);
-            // } catch (err) {
-            //     console.error("Import error", err);
-            // }
-            setImportProgress(((i + 1) / Math.max(total, 1)) * 100);
-            await new Promise((r) => setTimeout(r, 50));
-        }
-    }, [parsedTransactions]);
+        mutateResolveImport({ data: parsedTransactions.filter((t) => t.selected && t.is_valid) });
+    }, [mutateResolveImport, parsedTransactions]);
 
     const filteredTransactions = useMemo(() => {
         return parsedTransactions.filter((t) => {
