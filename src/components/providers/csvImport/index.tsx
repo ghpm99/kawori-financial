@@ -3,20 +3,30 @@ import { faArrowRotateRight, faCheck, faFile, faLink, faListAlt, faUpload } from
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useMutation } from "@tanstack/react-query";
 import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { IPaymentDetail } from "../payments";
 
 export type CSVRow = { [key: string]: string };
 
+interface PaymentMatchCandidate {
+    id: number;
+    name: string;
+    date: string;
+    payment_date: string;
+    value: number;
+    score: number;
+}
 export interface ParsedTransaction {
     id: string;
     original_row: CSVRow;
     mapped_data: Partial<IPaymentDetail>;
     validation_errors: string[];
     is_valid: boolean;
-    matched_payment?: IPaymentDetail;
+    matched_payment?: PaymentMatchCandidate;
     match_score?: number;
+    merge_group?: string;
     selected: boolean;
-    possibly_matched_payment_list?: IPaymentDetail[];
+    possibly_matched_payment_list?: PaymentMatchCandidate[];
 }
 
 export interface ColumnMapping {
@@ -72,7 +82,9 @@ type CsvImportContextValue = {
     importProgress: number;
     toggleSelection: (id: string) => void;
     toggleAllSelection: (selected: boolean) => void;
-    linkPayment: (transactionId: string, payment?: IPaymentDetail) => void;
+    toggleSelectionTransactionsToMerge: (id: string) => void;
+    linkPayment: (transactionId: string, payment?: PaymentMatchCandidate) => void;
+    selectedTransactionsToMerge: string[];
     handleImport: () => Promise<void>;
     filteredTransactions: ParsedTransaction[];
     stats: { total: number; valid: number; invalid: number; selected: number; matched: number; toImport: number };
@@ -81,6 +93,8 @@ type CsvImportContextValue = {
     showOnlyMatches: boolean;
     setShowOnlyMatches: (show: boolean) => void;
     selectAllState: boolean;
+    mergePayments: () => void;
+    unmergePayments: (mergeGroupId?: string) => void;
 };
 
 const CsvImportContext = createContext<CsvImportContextValue | undefined>(undefined);
@@ -100,6 +114,7 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const [importProgress, setImportProgress] = useState(0);
     const [searchTerm, setSearchTerm] = useState("");
     const [showOnlyMatches, setShowOnlyMatches] = useState(false);
+    const [selectedTransactionsToMerge, setSelectedTransactionsToMerge] = useState<string[]>([]);
 
     const steps: Step[] = [
         { key: "type", title: "Tipo", icon: <FontAwesomeIcon icon={faListAlt} /> },
@@ -136,7 +151,7 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         },
     });
 
-    const { mutate: mutateProcessCsv, isPending: isPedingProcessCsv } = useMutation({
+    const { mutate: mutateProcessCsv, isPending: isPendingProcessCsv } = useMutation({
         mutationFn: async ({
             headers,
             data,
@@ -227,36 +242,57 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setParsedTransactions((prev) => prev.map((t) => ({ ...t, selected: t.is_valid ? selected : false })));
     }, []);
 
-    const linkPayment = useCallback((transactionId: string, payment?: IPaymentDetail) => {
+    const toggleSelectionTransactionsToMerge = (id: string) => {
+        setSelectedTransactionsToMerge((prev) =>
+            prev.includes(id) ? prev.filter((pid) => pid !== id) : [...prev, id],
+        );
+    };
+
+    const linkPayment = useCallback((transactionId: string, payment?: PaymentMatchCandidate) => {
         setParsedTransactions((prev) =>
             prev.map((t) =>
-                t.id === transactionId ? { ...t, matched_payment: payment, matchScore: payment ? 100 : undefined } : t,
+                t.id === transactionId ? { ...t, matched_payment: payment, match_score: payment.score } : t,
             ),
         );
     }, []);
 
+    const mergePayments = useCallback(() => {
+        const mergeGroup = uuidv4();
+        setParsedTransactions((prev) =>
+            prev.map((t) => (selectedTransactionsToMerge.includes(t.id) ? { ...t, merge_group: mergeGroup } : t)),
+        );
+        setSelectedTransactionsToMerge([]);
+    }, [selectedTransactionsToMerge]);
+
+    const unmergePayments = useCallback((mergeGroupId?: string) => {
+        if (!mergeGroupId) return;
+        setParsedTransactions((prev) =>
+            prev.map((t) => (t.merge_group === mergeGroupId ? { ...t, merge_group: undefined } : t)),
+        );
+        setSelectedTransactionsToMerge([]);
+    }, []);
+
     const handleImport = useCallback(async () => {
         setStep("confirm");
-        const selectedTx = parsedTransactions.filter((t) => t.selected && t.is_valid && !t.matched_payment);
+        const selectedTx = parsedTransactions.filter((t) => t.selected && t.is_valid);
         const total = selectedTx.length;
+        console.log(
+            selectedTx.map((t) => ({
+                mapped_payment: t.mapped_data,
+                matched_payment_id: t.matched_payment?.id || null,
+            })),
+        );
         for (let i = 0; i < selectedTx.length; i++) {
             const tx = selectedTx[i];
-            try {
-                console.log({
-                    amount: tx.mapped_data.value!,
-                    date: tx.mapped_data.date!,
-                    name: tx.mapped_data.name || "Imported transaction",
-                    method: importType,
-                    status: tx.mapped_data.status || "completed",
-                    type: tx.mapped_data.type || "expense",
-                });
-            } catch (err) {
-                console.error("Import error", err);
-            }
+            // try {
+            //     console.log(tx);
+            // } catch (err) {
+            //     console.error("Import error", err);
+            // }
             setImportProgress(((i + 1) / Math.max(total, 1)) * 100);
             await new Promise((r) => setTimeout(r, 50));
         }
-    }, [importType, parsedTransactions]);
+    }, [parsedTransactions]);
 
     const filteredTransactions = useMemo(() => {
         return parsedTransactions.filter((t) => {
@@ -273,15 +309,16 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                     String(t.mapped_data.value ?? "").includes(s)
                 );
             }
+            if ((step === "reconciliation" && !t.selected) || !t.is_valid) return false;
             return true;
         });
-    }, [parsedTransactions, searchTerm, showOnlyMatches]);
+    }, [parsedTransactions, searchTerm, showOnlyMatches, step]);
 
     const stats = useMemo(() => {
         const valid = parsedTransactions.filter((t) => t.is_valid);
         const selected = parsedTransactions.filter((t) => t.selected);
         const matched = parsedTransactions.filter((t) => t.matched_payment);
-        const toImport = parsedTransactions.filter((t) => t.selected && t.is_valid && !t.matched_payment);
+        const toImport = parsedTransactions.filter((t) => t.selected && t.is_valid);
         return {
             total: parsedTransactions.length,
             valid: valid.length,
@@ -293,7 +330,7 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }, [parsedTransactions]);
 
     const selectAllState = stats.selected === stats.valid && stats.valid > 0;
-    const isProcessing = isPedingProcessCsv;
+    const isProcessing = isPendingProcessCsv;
 
     const value: CsvImportContextValue = {
         openModal,
@@ -315,11 +352,13 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         csvHeaders: fileData?.headers || [],
         csvDataSample: fileData?.data.slice(0, 3) || [],
         processTransactions,
+        selectedTransactionsToMerge,
         parsedTransactions,
         isProcessing,
         importProgress,
         toggleSelection,
         toggleAllSelection,
+        toggleSelectionTransactionsToMerge,
         linkPayment,
         handleImport,
         filteredTransactions,
@@ -329,6 +368,8 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         showOnlyMatches,
         setShowOnlyMatches,
         selectAllState,
+        mergePayments,
+        unmergePayments,
     };
 
     return <CsvImportContext.Provider value={value}>{children}</CsvImportContext.Provider>;
