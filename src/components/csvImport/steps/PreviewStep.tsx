@@ -139,13 +139,7 @@ export default function PreviewStep() {
             </div>
 
             <div style={{ padding: 12 }}>
-                <Table
-                    scroll={{ y: "380px" }}
-                    columns={columns}
-                    dataSource={dataSource}
-                    pagination={false}
-                    rowKey="id"
-                />
+                <Table scroll={{ y: 285 }} columns={columns} dataSource={dataSource} pagination={false} rowKey="id" />
             </div>
         </div>
     );

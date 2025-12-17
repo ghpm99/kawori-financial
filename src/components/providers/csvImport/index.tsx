@@ -217,6 +217,7 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                     matched_payment_id: transaction.matched_payment?.id || null,
                     merge_group: transaction.merge_group || null,
                 })),
+                import_type: importType,
             });
             return response.data;
         },
@@ -321,15 +322,28 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         );
     };
 
-    const linkPayment = useCallback((transactionId: string, payment?: PaymentMatchCandidate) => {
-        setParsedTransactions((prev) =>
-            prev.map((t) =>
-                t.id === transactionId
-                    ? { ...t, matched_payment: payment, match_score: payment ? payment.score : undefined }
-                    : t,
-            ),
-        );
-    }, []);
+    const linkPayment = useCallback(
+        (transactionId: string, payment?: PaymentMatchCandidate) => {
+            const targetTransaction = parsedTransactions.filter((transaction) => transaction.id === transactionId)[0];
+            let listTransactionId = [targetTransaction.id];
+            const mergeGroup = targetTransaction?.merge_group;
+            const hasMergeGroup = mergeGroup?.length > 0;
+            if (hasMergeGroup) {
+                const transactionWithMergeGroup = parsedTransactions
+                    .filter((transaction) => transaction.merge_group === mergeGroup)
+                    .map((transaction) => transaction.id);
+                listTransactionId = [...listTransactionId, ...transactionWithMergeGroup];
+            }
+            setParsedTransactions((prev) =>
+                prev.map((t) =>
+                    listTransactionId.includes(t.id)
+                        ? { ...t, matched_payment: payment, match_score: payment ? payment.score : undefined }
+                        : t,
+                ),
+            );
+        },
+        [parsedTransactions],
+    );
 
     const mergePayments = useCallback(() => {
         const mergeGroup = uuidv4();
