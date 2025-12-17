@@ -14,7 +14,6 @@ type TagRender = SelectProps["tagRender"];
 export default function ConfirmStep() {
     const {
         isProcessing,
-        importProgress,
         stats,
         handleCloseModal,
         resolvedImportsWithoutTag,
@@ -71,10 +70,7 @@ export default function ConfirmStep() {
                     <LoadingOutlined style={{ fontSize: 48 }} spin />
                     <h3 style={{ marginTop: 12 }}>Importando transações...</h3>
                     <div style={{ width: 320, margin: "16px auto" }}>
-                        <Progress percent={Math.round(importProgress)} />
-                    </div>
-                    <div style={{ color: "var(--ant-text-color-secondary)" }}>
-                        {Math.round(importProgress)}% concluído
+                        <Progress />
                     </div>
                 </>
             ) : (
@@ -164,10 +160,11 @@ export default function ConfirmStep() {
                             >
                                 <CheckCircleOutlined style={{ fontSize: 36, color: "#237804" }} />
                             </div>
-                            <h3 style={{ marginTop: 12 }}>Importação concluída!</h3>
+                            <h3 style={{ marginTop: 12 }}>Importação iniciada!</h3>
                             <div style={{ color: "var(--ant-text-color-secondary)", marginBottom: 16 }}>
-                                {stats.toImport} transações importadas.{" "}
-                                {stats.matched > 0 && `${stats.matched} foram vinculadas.`}
+                                Os pagamentos estão sendo processados e aparecerão em instantes.
+                                <div>{stats.toImport} serão importadas. </div>
+                                <div>{stats.matched > 0 && `${stats.matched} foram vinculadas.`}</div>
                             </div>
                             <Button type="primary" onClick={handleCloseModal}>
                                 Fechar

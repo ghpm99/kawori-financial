@@ -2,13 +2,12 @@ import { apiDjango } from "@/services";
 import { faArrowRotateRight, faCheck, faFile, faLink, faListAlt, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useMutation } from "@tanstack/react-query";
+import { message } from "antd";
+import axios from "axios";
 import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { IPaymentDetail } from "../payments";
 import { ITags } from "../tags";
-import { ifError } from "node:assert";
-import { message } from "antd";
-import axios from "axios";
 
 const messageKey = "csv_import";
 
@@ -99,7 +98,6 @@ type CsvImportContextValue = {
     processTransactions: () => void;
     parsedTransactions: ParsedTransaction[];
     isProcessing: boolean;
-    importProgress: number;
     toggleSelection: (id: string) => void;
     toggleAllSelection: (selected: boolean) => void;
     toggleSelectionTransactionsToMerge: (id: string) => void;
@@ -137,10 +135,10 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const [parsedTransactions, setParsedTransactions] = useState<ParsedTransaction[]>([]);
     const [resolvedImports, setResolvedImports] = useState<ResolvedImports[]>([]);
 
-    const [importProgress, setImportProgress] = useState(0);
     const [searchTerm, setSearchTerm] = useState("");
     const [showOnlyMatches, setShowOnlyMatches] = useState(false);
     const [selectedTransactionsToMerge, setSelectedTransactionsToMerge] = useState<string[]>([]);
+    const [isProcessingImport, setIsProcessingImport] = useState(false);
 
     const steps: Step[] = [
         { key: "type", title: "Tipo", icon: <FontAwesomeIcon icon={faListAlt} /> },
@@ -222,14 +220,20 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             return response.data;
         },
         onSuccess: (data) => {
-            setResolvedImports(data.data);
-            setStep("confirm");
+            const needsManualAdjust = data.data.some((item) => !item.has_budget_tag);
+
+            if (needsManualAdjust) {
+                setResolvedImports(data.data);
+                setIsProcessingImport(false);
+            } else {
+                mutateFinishImport({ data: data.data });
+            }
         },
     });
 
-    const { mutate: mutateFinishImport } = useMutation({
+    const { mutate: mutateFinishImport, isPending: isPendingFinishImport } = useMutation({
         mutationFn: async ({ data }: { data: ResolvedImports[] }) => {
-            const response = await apiDjango.post<{ msg: string }>("/financial/payment/csv-import/", {
+            const response = await apiDjango.post<{ msg: string; total: number }>("/financial/payment/csv-import/", {
                 data: data.map((transaction) => ({
                     import_payment_id: transaction.import_payment_id,
                     tags: transaction.tags.map((tag) => tag.id),
@@ -238,12 +242,15 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             return response.data;
         },
         onSuccess: (data) => {
+            setIsProcessingImport(false);
             message.success({
                 content: data.msg,
                 key: messageKey,
             });
+            setResolvedImports([]);
         },
         onError: (error) => {
+            setIsProcessingImport(false);
             let msgError = "Falhou em importar";
             if (axios.isAxiosError(error)) {
                 msgError = error?.response?.data?.msg || error?.message;
@@ -256,14 +263,17 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     });
 
     const resetState = useCallback(() => {
+        setDragActive(false);
         setStep("type");
+        setImportType("transactions");
         setFileData(null);
         setColumnMappings([]);
         setParsedTransactions([]);
-        setImportProgress(0);
+        setResolvedImports([]);
         setSearchTerm("");
         setShowOnlyMatches(false);
-        setDragActive(false);
+        setSelectedTransactionsToMerge([]);
+        setIsProcessingImport(false);
     }, []);
 
     const handleCloseModal = () => {
@@ -362,8 +372,25 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }, []);
 
     const handleImport = useCallback(async () => {
+        setIsProcessingImport(true);
+        setStep("confirm");
         mutateResolveImport({ data: parsedTransactions.filter((t) => t.selected && t.is_valid) });
     }, [mutateResolveImport, parsedTransactions]);
+
+    const handleChangeTags = (id: number, tags: ITags[]) => {
+        const hasAlreadySelectedBudget = tags.filter((tag) => tag.is_budget).length > 0;
+        setResolvedImports((prev) =>
+            prev.map((resolved) =>
+                resolved.import_payment_id === id
+                    ? { ...resolved, tags: tags, isDirty: true, has_budget_tag: hasAlreadySelectedBudget }
+                    : resolved,
+            ),
+        );
+    };
+
+    const handleConfirmImport = () => {
+        mutateFinishImport({ data: resolvedImports });
+    };
 
     const filteredTransactions = useMemo(() => {
         return parsedTransactions.filter((t) => {
@@ -400,23 +427,8 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         };
     }, [parsedTransactions]);
 
-    const handleChangeTags = (id: number, tags: ITags[]) => {
-        const hasAlreadySelectedBudget = tags.filter((tag) => tag.is_budget).length > 0;
-        setResolvedImports((prev) =>
-            prev.map((resolved) =>
-                resolved.import_payment_id === id
-                    ? { ...resolved, tags: tags, isDirty: true, has_budget_tag: hasAlreadySelectedBudget }
-                    : resolved,
-            ),
-        );
-    };
-
-    const handleConfirmImport = () => {
-        mutateFinishImport({ data: resolvedImports });
-    };
-
     const selectAllState = stats.selected === stats.valid && stats.valid > 0;
-    const isProcessing = isPendingProcessCsv || isPedingResolveImport;
+    const isProcessing = isPendingProcessCsv || isPedingResolveImport || isPendingFinishImport || isProcessingImport;
     const resolvedImportsWithoutTag = resolvedImports.filter((x) => !x.has_budget_tag);
     const resolvedImportsToSelectTag = resolvedImports.filter((x) => !x.has_budget_tag || x.isDirty);
 
@@ -443,7 +455,6 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         selectedTransactionsToMerge,
         parsedTransactions,
         isProcessing,
-        importProgress,
         toggleSelection,
         toggleAllSelection,
         toggleSelectionTransactionsToMerge,
