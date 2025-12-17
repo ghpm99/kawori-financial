@@ -1,8 +1,9 @@
-import { Button, DatePicker, Input, Select } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
-import styles from "./filterDropdown.module.scss";
+import { Button, DatePicker, DatePickerProps, Input, Select } from "antd";
 import dayjs from "dayjs";
+import { ChangeEventHandler } from "react";
 import { customFormat } from "../constants";
+import styles from "./filterDropdown.module.scss";
 
 const { RangePicker } = DatePicker;
 type RangeValue = NonNullable<React.ComponentProps<typeof DatePicker.RangePicker>["value"]>;
@@ -16,19 +17,35 @@ export const makeSearchFilterIcon = (filtered: boolean) => (
     <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
 );
 
-export const makeFilterDropdownInput = (name: string, value: string, onChange: any) => (
+export const makeFilterDropdownInput = (
+    name: string,
+    value: string,
+    onChange: ChangeEventHandler<HTMLInputElement>,
+) => (
     <FilterDropdown applyFilter={() => {}}>
         <Input name={name} style={{ width: 220 }} onChange={onChange} value={value} />
     </FilterDropdown>
 );
 
-export const makeFilterDropdownSelect = (value: string, options: any[], onChange: any) => (
+export const makeFilterDropdownSelect = (
+    value: string,
+    options: unknown[],
+    onChange: (value: string, option?: unknown) => void,
+) => (
     <FilterDropdown applyFilter={() => {}}>
         <Select style={{ width: 220 }} options={options} value={value} onChange={onChange} />
     </FilterDropdown>
 );
 
-export const makeFilterDropdownDateRange = (name: string, value: RangeValue | null | undefined, onChange: any) => (
+export const makeFilterDropdownDateRange = ({
+    name,
+    value,
+    onChange,
+}: {
+    name: string;
+    value: RangeValue | null | undefined;
+    onChange: DatePickerProps["onChange"];
+}) => (
     <FilterDropdown applyFilter={() => {}}>
         <RangePicker
             name={name}

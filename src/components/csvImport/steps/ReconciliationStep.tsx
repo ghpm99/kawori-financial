@@ -89,7 +89,7 @@ export default function ReconciliationStep() {
                         </Button>
                     ) : (
                         <Select
-                            style={{ width: 220 }}
+                            style={{ width: 320 }}
                             placeholder="Vincular a..."
                             onChange={(paymentId) => {
                                 const p = transaction.possibly_matched_payment_list.find((pp) => pp.id === paymentId);
@@ -102,7 +102,7 @@ export default function ReconciliationStep() {
                                     {importType === "card_payments"
                                         ? formatterDate(p.date)
                                         : formatterDate(p.payment_date)}{" "}
-                                    - {p.name} - {formatMoney(p.value)}
+                                    - {formatMoney(p.value)} - {p.name}
                                 </Option>
                             ))}
                         </Select>
@@ -113,7 +113,7 @@ export default function ReconciliationStep() {
     );
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", height: "620px" }}>
+        <div style={{ display: "flex", flexDirection: "column", height: "535px" }}>
             <Alert
                 title="Reconciliação de Pagamentos"
                 description={`Encontramos ${matchedCount} possíveis correspondências com pagamentos existentes.`}

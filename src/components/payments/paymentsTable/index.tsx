@@ -128,11 +128,11 @@ const PaymentsTable = ({
             key: "payment_date",
             render: formatterDate,
             filterDropdown: () =>
-                makeFilterDropdownDateRange(
-                    "payment_date",
-                    [dayjs(paymentFilters?.payment_date__gte), dayjs(paymentFilters?.payment_date__lte)],
-                    (_, formatString) => handleDateRangedFilter("payment_date", formatString),
-                ),
+                makeFilterDropdownDateRange({
+                    name: "payment_date",
+                    value: [dayjs(paymentFilters?.payment_date__gte), dayjs(paymentFilters?.payment_date__lte)],
+                    onChange: (_, formatString) => handleDateRangedFilter("payment_date", formatString),
+                }),
             filterIcon: makeSearchFilterIcon,
         }),
 
@@ -190,11 +190,11 @@ const PaymentsTable = ({
             key: "date",
             render: formatterDate,
             filterDropdown: () =>
-                makeFilterDropdownDateRange(
-                    "date",
-                    [dayjs(paymentFilters?.date__gte), dayjs(paymentFilters?.date__lte)],
-                    (_, formatString) => handleDateRangedFilter("date", formatString),
-                ),
+                makeFilterDropdownDateRange({
+                    name: "date",
+                    value: [dayjs(paymentFilters?.date__gte), dayjs(paymentFilters?.date__lte)],
+                    onChange: (_, formatString) => handleDateRangedFilter("date", formatString),
+                }),
             filterIcon: makeSearchFilterIcon,
         }),
 

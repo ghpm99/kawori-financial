@@ -6,6 +6,11 @@ import React, { createContext, useCallback, useContext, useMemo, useState } from
 import { v4 as uuidv4 } from "uuid";
 import { IPaymentDetail } from "../payments";
 import { ITags } from "../tags";
+import { ifError } from "node:assert";
+import { message } from "antd";
+import axios from "axios";
+
+const messageKey = "csv_import";
 
 export type CSVRow = { [key: string]: string };
 
@@ -112,7 +117,9 @@ type CsvImportContextValue = {
     unmergePayments: (mergeGroupId?: string) => void;
     resolvedImports: ResolvedImports[];
     resolvedImportsWithoutTag: ResolvedImports[];
+    resolvedImportsToSelectTag: ResolvedImports[];
     handleChangeTags: (id: number, tags: ITags[]) => void;
+    handleConfirmImport: () => void;
 };
 
 const CsvImportContext = createContext<CsvImportContextValue | undefined>(undefined);
@@ -214,9 +221,36 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             return response.data;
         },
         onSuccess: (data) => {
-            console.log("Resolved imports:", data);
             setResolvedImports(data.data);
             setStep("confirm");
+        },
+    });
+
+    const { mutate: mutateFinishImport } = useMutation({
+        mutationFn: async ({ data }: { data: ResolvedImports[] }) => {
+            const response = await apiDjango.post<{ msg: string }>("/financial/payment/csv-import/", {
+                data: data.map((transaction) => ({
+                    import_payment_id: transaction.import_payment_id,
+                    tags: transaction.tags.map((tag) => tag.id),
+                })),
+            });
+            return response.data;
+        },
+        onSuccess: (data) => {
+            message.success({
+                content: data.msg,
+                key: messageKey,
+            });
+        },
+        onError: (error) => {
+            let msgError = "Falhou em importar";
+            if (axios.isAxiosError(error)) {
+                msgError = error?.response?.data?.msg || error?.message;
+            }
+            message.error({
+                content: msgError,
+                key: messageKey,
+            });
         },
     });
 
@@ -353,16 +387,24 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }, [parsedTransactions]);
 
     const handleChangeTags = (id: number, tags: ITags[]) => {
+        const hasAlreadySelectedBudget = tags.filter((tag) => tag.is_budget).length > 0;
         setResolvedImports((prev) =>
             prev.map((resolved) =>
-                resolved.import_payment_id === id ? { ...resolved, tags: tags, isDirty: true } : resolved,
+                resolved.import_payment_id === id
+                    ? { ...resolved, tags: tags, isDirty: true, has_budget_tag: hasAlreadySelectedBudget }
+                    : resolved,
             ),
         );
     };
 
+    const handleConfirmImport = () => {
+        mutateFinishImport({ data: resolvedImports });
+    };
+
     const selectAllState = stats.selected === stats.valid && stats.valid > 0;
     const isProcessing = isPendingProcessCsv || isPedingResolveImport;
-    const resolvedImportsWithoutTag = resolvedImports.filter((x) => !x.has_budget_tag || !x.isDirty);
+    const resolvedImportsWithoutTag = resolvedImports.filter((x) => !x.has_budget_tag);
+    const resolvedImportsToSelectTag = resolvedImports.filter((x) => !x.has_budget_tag || x.isDirty);
 
     const value: CsvImportContextValue = {
         openModal,
@@ -404,7 +446,9 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         unmergePayments,
         resolvedImports,
         resolvedImportsWithoutTag,
+        resolvedImportsToSelectTag,
         handleChangeTags,
+        handleConfirmImport,
     };
 
     return <CsvImportContext.Provider value={value}>{children}</CsvImportContext.Provider>;

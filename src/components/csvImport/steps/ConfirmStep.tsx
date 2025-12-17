@@ -5,13 +5,24 @@ import { ITags, useTags } from "@/components/providers/tags";
 import { formatMoney } from "@/util";
 import { CheckCircleOutlined, LoadingOutlined } from "@ant-design/icons";
 import { Button, Progress, Select, SelectProps, Table, Tag } from "antd";
+import styles from "./steps.module.scss";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faClose } from "@fortawesome/free-solid-svg-icons";
 
 type TagRender = SelectProps["tagRender"];
 
 export default function ConfirmStep() {
-    const { isProcessing, importProgress, stats, handleCloseModal, resolvedImportsWithoutTag, handleChangeTags } =
-        useCsvImportProvider();
-    const { data: tags, loading: isLoadingTags } = useTags();
+    const {
+        isProcessing,
+        importProgress,
+        stats,
+        handleCloseModal,
+        resolvedImportsWithoutTag,
+        resolvedImportsToSelectTag,
+        handleChangeTags,
+        handleConfirmImport,
+    } = useCsvImportProvider();
+    const { data: tagsQuery, loading: isLoadingTags } = useTags();
 
     const tagRender: TagRender = (props) => {
         const { label, value, closable, onClose } = props;
@@ -19,7 +30,7 @@ export default function ConfirmStep() {
             event.preventDefault();
             event.stopPropagation();
         };
-        const color = tags.find((tag) => tag.name === value)?.color || "blue";
+        const color = tagsQuery.find((tag) => tag.name === value)?.color || "blue";
         return (
             <Tag
                 color={color}
@@ -27,6 +38,7 @@ export default function ConfirmStep() {
                 closable={closable}
                 onClose={onClose}
                 style={{ marginInlineEnd: 4 }}
+                closeIcon={<FontAwesomeIcon className={styles["close-icon-tag"]} icon={faClose} />}
             >
                 {label}
             </Tag>
@@ -35,9 +47,10 @@ export default function ConfirmStep() {
 
     const tagsOptions = (tagSelection: ITags[]) => {
         const hasAlreadySelectedBudget =
-            tags.filter((tag) => tagSelection.map((tag) => tag.name).includes(tag.name) && tag.is_budget).length > 0;
+            tagsQuery.filter((tag) => tagSelection.map((tag) => tag.name).includes(tag.name) && tag.is_budget).length >
+            0;
 
-        return tags
+        return tagsQuery
             .filter((tag) => !tagSelection.map((tag) => tag.name).includes(tag.name))
             .map((tag) => ({
                 ...tag,
@@ -45,6 +58,10 @@ export default function ConfirmStep() {
                 label: tag.name,
                 disabled: tag.is_budget && hasAlreadySelectedBudget,
             }));
+    };
+
+    const findTagsByName = (tagsName: string[]) => {
+        return tagsQuery.filter((tag) => tagsName.includes(tag.name));
     };
 
     return (
@@ -62,9 +79,16 @@ export default function ConfirmStep() {
                 </>
             ) : (
                 <>
-                    {resolvedImportsWithoutTag?.length > 0 ? (
-                        <>
+                    {resolvedImportsToSelectTag?.length > 0 ? (
+                        <div className={styles["confirm-card-select-tag"]}>
+                            <h3 style={{ marginBottom: 4 }}>Classifique as transações</h3>
+
+                            <div style={{ color: "var(--ant-text-color-secondary)", marginBottom: 16 }}>
+                                Algumas transações ainda não possuem uma etiqueta de orçamento. Selecione uma etiqueta
+                                para cada uma antes de concluir a importação.
+                            </div>
                             <Table
+                                scroll={{ x: "max-content", y: 340 }}
                                 columns={[
                                     { title: "Nome", dataIndex: ["name"], key: "name" },
                                     {
@@ -79,7 +103,14 @@ export default function ConfirmStep() {
                                         width: 140,
                                     },
                                     {
-                                        title: "Tags",
+                                        title: (
+                                            <>
+                                                Tags
+                                                <div style={{ fontSize: 12, color: "var(--ant-text-color-secondary)" }}>
+                                                    Obrigatório
+                                                </div>
+                                            </>
+                                        ),
                                         dataIndex: ["tags"],
                                         key: "tags",
                                         render: (_: ITags[], { import_payment_id, tags }: ResolvedImports) => (
@@ -88,20 +119,35 @@ export default function ConfirmStep() {
                                                 style={{ width: "100%" }}
                                                 placeholder="Etiquetas"
                                                 data-testid="invoice-tags"
-                                                onChange={(_, tags: ITags[]) =>
-                                                    handleChangeTags(import_payment_id, tags)
+                                                onChange={(value: string[]) =>
+                                                    handleChangeTags(import_payment_id, findTagsByName(value))
                                                 }
                                                 value={tags.map((tag) => tag.name)}
                                                 tagRender={tagRender}
                                                 options={tagsOptions(tags)}
+                                                loading={isLoadingTags}
                                             />
                                         ),
                                     },
                                 ]}
-                                dataSource={resolvedImportsWithoutTag}
+                                dataSource={resolvedImportsToSelectTag}
                                 pagination={false}
                             />
-                        </>
+                            <div style={{ marginTop: 16, display: "flex", justifyContent: "space-between" }}>
+                                <div style={{ color: "var(--ant-text-color-secondary)" }}>
+                                    {resolvedImportsWithoutTag.length} transações aguardando classificação
+                                </div>
+
+                                <Button
+                                    type="primary"
+                                    disabled={resolvedImportsWithoutTag.length > 0}
+                                    onClick={handleConfirmImport}
+                                    title="Classifique todas as transações antes de concluir"
+                                >
+                                    Concluir importação
+                                </Button>
+                            </div>
+                        </div>
                     ) : (
                         <>
                             <div
