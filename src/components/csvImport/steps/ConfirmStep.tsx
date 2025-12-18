@@ -45,9 +45,9 @@ export default function ConfirmStep() {
     };
 
     const tagsOptions = (tagSelection: ITags[]) => {
-        const hasAlreadySelectedBudget =
-            tagsQuery.filter((tag) => tagSelection.map((tag) => tag.name).includes(tag.name) && tag.is_budget).length >
-            0;
+        const hasAlreadySelectedBudget = tagsQuery.some(
+            (tag) => tag.is_budget && tagSelection.some((selected) => selected.name === tag.name),
+        );
 
         return tagsQuery
             .filter((tag) => !tagSelection.map((tag) => tag.name).includes(tag.name))

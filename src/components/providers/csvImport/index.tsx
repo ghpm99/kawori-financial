@@ -378,7 +378,7 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }, [mutateResolveImport, parsedTransactions]);
 
     const handleChangeTags = (id: number, tags: ITags[]) => {
-        const hasAlreadySelectedBudget = tags.filter((tag) => tag.is_budget).length > 0;
+        const hasAlreadySelectedBudget = tags.some((tag) => tag.is_budget);
         setResolvedImports((prev) =>
             prev.map((resolved) =>
                 resolved.import_payment_id === id
