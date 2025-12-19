@@ -12,6 +12,7 @@ interface INewInvoiceRequest {
     active: boolean;
     value: number;
     tags: number[];
+    type: string;
 }
 
 interface ISaveInvoiceRequest {

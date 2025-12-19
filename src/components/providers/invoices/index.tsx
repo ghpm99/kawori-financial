@@ -18,6 +18,7 @@ import { ITags } from "../tags";
 
 const messageKey = "invoice_pagination_message";
 
+type InvoiceType = "credit" | "debit";
 export interface IInvoiceDetail {
     id: number;
     status: number;
@@ -149,7 +150,8 @@ export const InvoicesProvider: React.FC<{
     children: React.ReactNode;
     customDefaultFilters?: IInvoiceFilters;
     enableUpdateSearchParams?: boolean;
-}> = ({ children, customDefaultFilters = {}, enableUpdateSearchParams = true }) => {
+    invoiceTypeByNewInvoice?: InvoiceType;
+}> = ({ children, customDefaultFilters = {}, enableUpdateSearchParams = true, invoiceTypeByNewInvoice = "debit" }) => {
     const queryClient = useQueryClient();
     const router = useRouter();
     const pathname = usePathname();
@@ -241,6 +243,7 @@ export const InvoicesProvider: React.FC<{
                 payment_date: data.next_payment,
                 fixed: false,
                 tags: data.tags.map((tag) => tag.id),
+                type: invoiceTypeByNewInvoice,
             });
 
             return response.msg;

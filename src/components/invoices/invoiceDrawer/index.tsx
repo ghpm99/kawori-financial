@@ -133,6 +133,7 @@ const InvoiceDrawer = ({
         } else {
             onSaveNewInvoice(values);
         }
+        setTagSelection([]);
         onClose();
     };
 

@@ -15,6 +15,7 @@ const EarningsLayout = ({ children }: { children: React.ReactNode }) => (
                         page: 1,
                         page_size: 10,
                     }}
+                    invoiceTypeByNewInvoice="credit"
                 >
                     <PayoffProvider>{children}</PayoffProvider>
                 </InvoicesProvider>
