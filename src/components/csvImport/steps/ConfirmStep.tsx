@@ -86,7 +86,7 @@ export default function ConfirmStep() {
                             <Table
                                 scroll={{ x: "max-content", y: 340 }}
                                 columns={[
-                                    { title: "Nome", dataIndex: ["name"], key: "name" },
+                                    { title: "Nome", dataIndex: ["name"], key: "name", width: 140 },
                                     {
                                         title: "Valor",
                                         dataIndex: ["value"],

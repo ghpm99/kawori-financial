@@ -64,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 localStorage.setItem(LOCAL_STORE_ITEM_NAME, expiry);
             }
 
-            queryClient.invalidateQueries({ queryKey: ["auth"] });
+            refetchAuth();
         },
     });
 
