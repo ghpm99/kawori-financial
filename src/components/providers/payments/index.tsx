@@ -13,6 +13,7 @@ import {
 } from "@/services/financial/payments";
 import { getStringValue } from "@/util";
 import { AxiosError } from "axios";
+import { ITags } from "../tags";
 
 export interface IPaymentPagination {
     id: number;
@@ -70,6 +71,7 @@ export interface PaymentItem {
     value: number;
     invoice_id: number;
     invoice_name: string;
+    tags: ITags[];
 }
 
 export interface PaymentsPage {

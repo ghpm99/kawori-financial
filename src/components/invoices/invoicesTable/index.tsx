@@ -57,6 +57,7 @@ const InvoicesTable = ({
                 title: "Nome",
                 dataIndex: "name",
                 key: "name",
+                width: 520,
                 filterDropdown: () => (
                     <FilterDropdown applyFilter={() => {}}>
                         <Input

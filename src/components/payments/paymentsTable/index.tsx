@@ -2,7 +2,7 @@
 
 import { faEllipsis, faFileCircleCheck, faFilePen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { DatePicker, Dropdown, MenuProps, Space, Table, TableProps, Typography } from "antd";
+import { DatePicker, Dropdown, MenuProps, Space, Table, TableProps, Tag, Typography } from "antd";
 import dayjs from "dayjs";
 import Link from "next/link";
 
@@ -16,6 +16,7 @@ import {
 } from "@/components/filterDropdown/Index";
 import { IPaymentFilters, IPaymentPagination, PaymentItem, PaymentsPage } from "@/components/providers/payments";
 import { SelectedRowType } from "@/components/providers/selectPayments";
+import { ITags } from "@/components/providers/tags";
 
 const { RangePicker } = DatePicker;
 
@@ -43,6 +44,7 @@ type ColumnKey =
     | "date"
     | "installments"
     | "fixed"
+    | "tags"
     | "actions";
 
 type Columns = NonNullable<TableProps<PaymentItem>["columns"]>;
@@ -53,7 +55,6 @@ const simplifiedOrder: ColumnKey[] = ["name", "value", "paymentDate", "actions"]
 
 const fullOrder: ColumnKey[] = [
     "name",
-    "invoice",
     "value",
     "paymentDate",
     "status",
@@ -61,6 +62,7 @@ const fullOrder: ColumnKey[] = [
     "date",
     "installments",
     "fixed",
+    "tags",
     "actions",
 ];
 
@@ -111,6 +113,7 @@ const PaymentsTable = ({
             title: "Nome",
             dataIndex: "name",
             key: "name",
+            width: 520,
             filterDropdown: () =>
                 makeFilterDropdownInput("name__icontains", paymentFilters?.name__icontains ?? "", handleChangeFilter),
             filterIcon: makeSearchFilterIcon,
@@ -140,6 +143,7 @@ const PaymentsTable = ({
             title: "Nota",
             dataIndex: "invoice",
             key: "invoice",
+            width: 520,
             render: (_, record) => (
                 <Link href={`/internal/financial/invoices/details/${record.invoice_id}`}>{record.invoice_name}</Link>
             ),
@@ -209,6 +213,18 @@ const PaymentsTable = ({
             dataIndex: "fixed",
             key: "fixed",
             render: (value) => (value ? "Sim" : "Não"),
+        }),
+
+        tags: (): SingleColumn => ({
+            title: "Tags",
+            dataIndex: "tags",
+            key: "tags",
+            render: (_: ITags[], { tags }: PaymentItem) =>
+                tags.map((tag) => (
+                    <Tag color={tag.color} key={`invoice-tags-${tag.id}`}>
+                        {tag.name}
+                    </Tag>
+                )),
         }),
 
         actions: (): SingleColumn => ({

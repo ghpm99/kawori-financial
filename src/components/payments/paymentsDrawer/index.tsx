@@ -103,10 +103,7 @@ const PaymentsDrawer = ({ open, onClose, paymentDetail, isLoading, onUpdatePayme
                             label="Nota"
                             rules={[{ required: true, message: "Please select an owner" }]}
                         >
-                            <Select placeholder="Please select an owner" disabled>
-                                <Option value="xiao">Xiaoxiao Fu</Option>
-                                <Option value="mao">Maomao Zhou</Option>
-                            </Select>
+                            <Input disabled />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
