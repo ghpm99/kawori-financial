@@ -32,6 +32,7 @@ export interface ParsedTransaction {
     merge_group?: string;
     selected: boolean;
     possibly_matched_payment_list?: PaymentMatchCandidate[];
+    isMatchedPaymentReadOnly: boolean;
 }
 
 export interface ColumnMapping {
@@ -199,6 +200,8 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 data.data.map((d) => ({
                     ...d,
                     selected: false,
+                    isMatchedPaymentReadOnly: !!d.matched_payment,
+                    match_score: 100,
                 })),
             );
             setStep("preview");

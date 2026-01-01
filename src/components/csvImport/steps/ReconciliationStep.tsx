@@ -27,6 +27,8 @@ export default function ReconciliationStep() {
         (b.merge_group ?? "").localeCompare(a.merge_group ?? ""),
     );
 
+    console.log(sortedTransactions);
+
     const RenderCard = (transaction: ParsedTransaction) => (
         <Card
             className={`${styles.reconciliationCard} ${transaction.matched_payment ? styles["matched"] : ""} ${transaction.merge_group ? styles["merged"] : ""}`}
@@ -84,7 +86,11 @@ export default function ReconciliationStep() {
 
                 <div style={{ display: "flex", gap: 8 }}>
                     {transaction.matched_payment ? (
-                        <Button onClick={() => linkPayment(transaction.id, undefined)} icon={<LinkOutlined />}>
+                        <Button
+                            onClick={() => linkPayment(transaction.id, undefined)}
+                            icon={<LinkOutlined />}
+                            disabled={transaction.isMatchedPaymentReadOnly}
+                        >
                             Desvincular
                         </Button>
                     ) : (
