@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { message } from "antd";
 import { AxiosError } from "axios";
@@ -38,6 +38,7 @@ const verifyLocalStore = (): boolean => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const router = useRouter();
     const queryClient = useQueryClient();
+    const [authState, setAuthState] = useState<"unknown" | "authenticated" | "unauthenticated">("unknown");
 
     const {
         data: verifyTokenData,
@@ -47,8 +48,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } = useQuery({
         queryKey: ["auth"],
         queryFn: verifyTokenService,
-        enabled: verifyLocalStore(),
+        enabled: authState === "unknown",
+        retry: false,
     });
+
+    useEffect(() => {
+        if (verifyTokenData?.data?.msg === "Token válido") {
+            setAuthState("authenticated");
+        }
+    }, [verifyTokenData]);
+
+    useEffect(() => {
+        if (verifyError) {
+            setAuthState("unauthenticated");
+        }
+    }, [verifyError]);
 
     const isAuthenticated = verifyTokenData?.data?.msg === "Token válido";
 
@@ -71,8 +85,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { mutate: logout } = useMutation({
         mutationFn: signoutService,
         onSuccess: () => {
+            setAuthState("unauthenticated");
             localStorage.removeItem(LOCAL_STORE_ITEM_NAME);
-            queryClient.clear();
+            queryClient.removeQueries({ queryKey: ["auth"] });
             router.push("/");
         },
     });
