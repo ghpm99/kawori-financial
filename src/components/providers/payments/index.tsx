@@ -313,6 +313,7 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode; customDefau
 
     const onClosePaymentDetail = () => {
         setPaymentDetailVisible(false);
+        setPaymentDetailId(undefined);
     };
 
     const onOpenPaymentDetail = (paymentId?: number) => {

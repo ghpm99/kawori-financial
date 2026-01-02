@@ -82,9 +82,6 @@ export const PayoffProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             const response = await payoffPaymentService(id);
             return response;
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["payments"] });
-        },
     });
 
     const paymentPayoffBatchProgressText = () => {
@@ -129,6 +126,7 @@ export const PayoffProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 content: msg,
                 key: messageKey,
             });
+            queryClient.invalidateQueries({ queryKey: ["payments", "paymentDetail"] });
         } catch (err: unknown) {
             let msgError = "";
 

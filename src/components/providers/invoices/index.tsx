@@ -36,7 +36,7 @@ export interface IInvoiceDetail {
 export interface IInvoiceFilters {
     page: number;
     page_size: number;
-    status?: string;
+    status?: "all" | "open" | "done";
     name__icontains?: string;
     installments?: number;
     date__gte?: string;
@@ -301,7 +301,7 @@ export const InvoicesProvider: React.FC<{
             installments: getNumberValue(searchParams.installments),
             name__icontains: getStringValue(searchParams.name__icontains),
 
-            status: getStringValue(searchParams.status),
+            status: getStringValue(searchParams.status) as "all" | "open" | "done" | undefined,
         };
 
         const cleanedFilters = {

@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import type { SelectProps } from "antd";
 import { Button, Col, DatePicker, Drawer, Form, Input, InputNumber, Row, Select, Space, Switch, Tag } from "antd";
 import dayjs from "dayjs";
 
-import { InvoicePayments } from "../payments";
-import { ITags } from "@/components/providers/tags";
 import { IInvoiceDetail } from "@/components/providers/invoices";
+import { ITags } from "@/components/providers/tags";
+import { InvoicePayments } from "../payments";
 
 interface InvoiceDrawerProps {
     open: boolean;
@@ -22,6 +22,9 @@ interface InvoiceDrawerProps {
 
 const { Option } = Select;
 type TagRender = SelectProps["tagRender"];
+interface InvoiceFormValues extends Omit<IInvoiceDetail, "tags"> {
+    tags: number[];
+}
 
 const InvoiceDrawer = ({
     open,
@@ -36,24 +39,20 @@ const InvoiceDrawer = ({
 }: InvoiceDrawerProps) => {
     const [form] = Form.useForm();
     const isEdit = Boolean(invoiceDetail && invoiceDetail.id);
+    const selectedTagIds = Form.useWatch("tags", form) || [];
+    const hasBudgetSelected = tags_data.some((tag) => selectedTagIds.includes(tag.id) && tag.is_budget);
+
+    const tagOptions = tags_data.map((tag) => ({
+        label: tag.name,
+        value: tag.id,
+        disabled: tag.is_budget && hasBudgetSelected && !selectedTagIds.includes(tag.id),
+    }));
 
     const tags = tags_data.map((tag) => ({
         ...tag,
-        value: tag.name,
+        value: tag.id,
         label: tag.name,
     }));
-
-    const [tagSelection, setTagSelection] = useState<ITags[]>(invoiceDetail?.tags || []);
-
-    const hasAlreadySelectedBudget =
-        tags.filter((tag) => tagSelection.map((tag) => tag.name).includes(tag.name) && tag.is_budget).length > 0;
-
-    const tagsOptions = tags
-        .filter((tag) => !tagSelection.map((tag) => tag.name).includes(tag.name))
-        .map((tag) => ({
-            ...tag,
-            disabled: tag.is_budget && hasAlreadySelectedBudget,
-        }));
 
     useEffect(() => {
         if (open && invoiceDetail) {
@@ -62,7 +61,7 @@ const InvoiceDrawer = ({
                 value: typeof invoiceDetail.value === "number" ? Math.round(invoiceDetail.value * 100) : 0,
                 date: invoiceDetail.date ? dayjs(invoiceDetail.date) : undefined,
                 next_payment: invoiceDetail.next_payment ? dayjs(invoiceDetail.next_payment) : undefined,
-                tags: invoiceDetail.tags.map((tag) => tag.name),
+                tags: invoiceDetail.tags.map((tag) => tag.id),
             };
 
             form.setFieldsValue(init);
@@ -106,43 +105,28 @@ const InvoiceDrawer = ({
         return Number(digits);
     };
 
-    const onSaveEditInvoice = (values: IInvoiceDetail) => {
+    const onFinish = (values: InvoiceFormValues) => {
+        console.log(values);
+        const selectedTags = tags.filter((tag) => values.tags.includes(tag.id));
         const payload = {
             ...values,
-            value: typeof values.value === "number" ? Number((values.value / 100).toFixed(2)) : 0,
+            value: Number((values.value / 100).toFixed(2)),
             date: values.date ? dayjs(values.date).format("YYYY-MM-DD") : null,
             next_payment: values.next_payment ? dayjs(values.next_payment).format("YYYY-MM-DD") : null,
-        } as IInvoiceDetail;
-        onUpdateInvoiceDetail(payload);
-    };
+            tags: selectedTags,
+        };
 
-    const onSaveNewInvoice = (values: IInvoiceDetail) => {
-        const payload = {
-            ...values,
-            value: typeof values.value === "number" ? Number((values.value / 100).toFixed(2)) : 0,
-            date: values.date ? dayjs(values.date).format("YYYY-MM-DD") : null,
-            next_payment: values.next_payment ? dayjs(values.next_payment).format("YYYY-MM-DD") : null,
-            tags: tagSelection,
-        } as IInvoiceDetail;
-        onCreateNewInvoice(payload);
-    };
-
-    const onFinish = (values: IInvoiceDetail) => {
         if (isEdit) {
-            onSaveEditInvoice(values);
+            onUpdateInvoiceDetail(payload);
         } else {
-            onSaveNewInvoice(values);
+            onCreateNewInvoice(payload);
         }
-        setTagSelection([]);
+
         onClose();
     };
 
     const handleSubmitForm = () => {
         form.submit();
-    };
-
-    const handleChangeTags = (values: string[]) => {
-        setTagSelection(tags.filter((tag) => values.includes(tag.name)));
     };
 
     const tagRender: TagRender = (props) => {
@@ -151,7 +135,7 @@ const InvoiceDrawer = ({
             event.preventDefault();
             event.stopPropagation();
         };
-        const color = tags.find((tag) => tag.name === value)?.color || "blue";
+        const color = tags.find((tag) => tag.id === value)?.color || "blue";
         return (
             <Tag
                 color={color}
@@ -276,15 +260,18 @@ const InvoiceDrawer = ({
                 <Row gutter={16}>
                     <Col span={24}>
                         <Form.Item
-                            label="Etiquetas"
                             name="tags"
+                            label="Etiquetas"
                             rules={[
                                 { required: true, message: "Selecione ao menos uma etiqueta" },
                                 {
-                                    validator: () => {
-                                        if (!hasAlreadySelectedBudget) {
+                                    validator: (_, value: number[]) => {
+                                        const selectedTags = tags.filter((tag) => value?.includes(tag.id));
+                                        const hasBudget = selectedTags.some((tag) => tag.is_budget);
+
+                                        if (!hasBudget) {
                                             return Promise.reject(
-                                                new Error("Selecione ao menos uma etiqueta orcamentaria"),
+                                                new Error("Selecione ao menos uma etiqueta orçamentária"),
                                             );
                                         }
                                         return Promise.resolve();
@@ -294,18 +281,10 @@ const InvoiceDrawer = ({
                         >
                             <Select
                                 mode="multiple"
-                                style={{ width: "100%" }}
                                 placeholder="Etiquetas"
-                                data-testid="invoice-tags"
                                 loading={isLoadingTags}
-                                onChange={handleChangeTags}
-                                value={tagSelection.map((tag) => tag.name)}
                                 tagRender={tagRender}
-                                options={tagsOptions?.map((item) => ({
-                                    value: item.name,
-                                    label: item.name,
-                                    disabled: item.disabled,
-                                }))}
+                                options={tagOptions}
                             />
                         </Form.Item>
                     </Col>
@@ -323,7 +302,9 @@ const InvoiceDrawer = ({
                     </Col>
                 </Row>
             </Form>
-            {isEdit && invoiceDetail && <InvoicePayments invoice={invoiceDetail} />}
+            {isEdit && invoiceDetail && (
+                <InvoicePayments invoiceData={invoiceDetail} page={1} page_size={20} status="all" />
+            )}
         </Drawer>
     );
 };

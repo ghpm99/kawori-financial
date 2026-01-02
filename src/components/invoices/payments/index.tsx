@@ -4,17 +4,16 @@ import { useEffect } from "react";
 
 import PaymentsDrawer from "@/components/payments/paymentsDrawer";
 import PaymentsTable from "@/components/payments/paymentsTable";
-import { PaymentsProvider, usePayments } from "@/components/providers/payments";
+import { IPaymentFilters, PaymentsProvider, usePayments } from "@/components/providers/payments";
 import { usePayoff } from "@/components/providers/payoff";
 import { useSelectPayments } from "@/components/providers/selectPayments";
 import { IInvoicePagination } from "@/components/providers/invoices";
 
-interface PaymentsProps {
-    invoice: IInvoicePagination;
-    pageSize?: number;
+interface PaymentsProps extends IPaymentFilters {
+    invoiceData: IInvoicePagination;
 }
 
-const Payments = ({ invoice }: PaymentsProps) => {
+const Payments = (invoiceData: PaymentsProps["invoiceData"]) => {
     const {
         paymentsData,
         isLoading,
@@ -36,10 +35,10 @@ const Payments = ({ invoice }: PaymentsProps) => {
     const { payOffPayment } = usePayoff();
 
     useEffect(() => {
-        if (invoice) {
-            handleSelectFilter("invoice_id", invoice.id);
+        if (invoiceData) {
+            handleSelectFilter("invoice_id", invoiceData.id);
         }
-    }, [handleSelectFilter, invoice]);
+    }, [handleSelectFilter, invoiceData]);
 
     return (
         <>
@@ -68,10 +67,10 @@ const Payments = ({ invoice }: PaymentsProps) => {
     );
 };
 
-export const InvoicePayments = ({ invoice, pageSize }: PaymentsProps) => {
+export const InvoicePayments = ({ invoiceData, ...filters }: PaymentsProps) => {
     return (
-        <PaymentsProvider customDefaultFilters={{ page_size: pageSize ?? 10, page: 1 }}>
-            <Payments invoice={invoice} />
+        <PaymentsProvider customDefaultFilters={filters}>
+            <Payments {...invoiceData} />
         </PaymentsProvider>
     );
 };
