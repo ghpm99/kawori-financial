@@ -153,7 +153,7 @@ const InvoicesTable = ({
             loading={isLoading}
             summary={simplifiedView ? undefined : (invoiceData) => <TableSummary invoiceData={invoiceData} />}
             expandable={{
-                expandedRowRender: (record) => <InvoicePayments invoice={record} pageSize={2} />,
+                expandedRowRender: (record) => <InvoicePayments invoiceData={record} page_size={2} page={1} />,
                 rowExpandable: (record) => {
                     return record?.installments > 0;
                 },
