@@ -3,10 +3,23 @@ import { Button } from "antd";
 import Link from "next/link";
 
 import styles from "./MenuHeader.module.scss";
+import { AuthState } from "../providers/auth";
 
-export default function MenuHeader({ isAuthenticated, signOut }: { isAuthenticated: boolean; signOut: () => void }) {
+export default function MenuHeader({
+    authState,
+    isLoading,
+    signOut,
+}: {
+    authState: AuthState;
+    isLoading: boolean;
+    signOut: () => void;
+}) {
     const renderMenu = () => {
-        if (!isAuthenticated) {
+        if (isLoading || authState === "unknown") {
+            return <></>;
+        }
+
+        if (authState !== "authenticated") {
             return (
                 <>
                     <Link href={"/signin"} className={styles["button"]}>

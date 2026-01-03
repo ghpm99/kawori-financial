@@ -31,6 +31,7 @@ export interface IInvoiceDetail {
     next_payment: string;
     tags: ITags[];
     active: boolean;
+    fixed: boolean;
 }
 
 export interface IInvoiceFilters {
@@ -144,6 +145,7 @@ const defaultInvoiceDetail: IInvoiceDetail = {
     next_payment: "",
     tags: [],
     active: false,
+    fixed: false,
 };
 
 export const InvoicesProvider: React.FC<{
@@ -241,7 +243,6 @@ export const InvoicesProvider: React.FC<{
             const response = await includeNewInvoiceService({
                 ...data,
                 payment_date: data.next_payment,
-                fixed: false,
                 tags: data.tags.map((tag) => tag.id),
                 type: invoiceTypeByNewInvoice,
             });

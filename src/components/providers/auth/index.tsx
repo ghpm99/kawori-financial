@@ -14,13 +14,19 @@ import {
 } from "@/services/auth";
 
 import { LOCAL_STORE_ITEM_NAME } from "@/components/constants";
+import { sessionGate } from "@/sessionGate";
+
+export type AuthState = "unknown" | "authenticated" | "unauthenticated";
 
 type AuthContextType = {
     isAuthenticated: boolean;
+    authState: AuthState;
     isLoading: boolean;
     errorMessage?: string;
     signIn: (args: ISigninArgs) => Promise<void>;
+    signInMessage?: string;
     signUp: (user: INewUser) => Promise<void>;
+    signUpMessage?: string;
     signOut: () => void;
     refetchAuth: () => Promise<unknown>;
 };
@@ -38,7 +44,7 @@ const verifyLocalStore = (): boolean => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const router = useRouter();
     const queryClient = useQueryClient();
-    const [authState, setAuthState] = useState<"unknown" | "authenticated" | "unauthenticated">("unknown");
+    const [authState, setAuthState] = useState<AuthState>("unknown");
 
     const {
         data: verifyTokenData,
@@ -83,8 +89,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     const { mutate: logout } = useMutation({
-        mutationFn: signoutService,
+        mutationFn: async () => {
+            sessionGate.startInvalidation();
+            return signoutService();
+        },
         onSuccess: () => {
+            sessionGate.invalidate();
             setAuthState("unauthenticated");
             localStorage.removeItem(LOCAL_STORE_ITEM_NAME);
             queryClient.removeQueries({ queryKey: ["auth"] });
@@ -92,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
     });
 
-    const { mutateAsync: signup } = useMutation({
+    const { mutateAsync: signup, error: signupError } = useMutation({
         mutationFn: signupService,
     });
 
@@ -146,22 +156,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
     }, [logout, router]);
 
-    const value = useMemo(
+    const value: AuthContextType = useMemo(
         () => ({
+            authState,
             isAuthenticated,
             isLoading: isVerifying || isLoggingIn,
-            errorMessage: getErrorMessage(loginError) || getErrorMessage(verifyError),
+            errorMessage: getErrorMessage(verifyError),
             signIn: handleSignIn,
+            signInMessage: getErrorMessage(loginError),
             signUp: handleSignUp,
+            signUpMessage: getErrorMessage(signupError),
             signOut: logout,
             refetchAuth,
         }),
         [
+            authState,
             isAuthenticated,
             isVerifying,
             isLoggingIn,
             loginError,
             verifyError,
+            signupError,
             handleSignIn,
             handleSignUp,
             logout,

@@ -1,4 +1,5 @@
 "use client";
+import { sessionGate } from "@/sessionGate";
 import * as Sentry from "@sentry/nextjs";
 import axios, { AxiosError, AxiosResponse, HttpStatusCode } from "axios";
 
@@ -27,7 +28,7 @@ const errorInterceptor = async (error: AxiosError) => {
     }
     const originalRequest = config;
 
-    if (response.status === HttpStatusCode.Unauthorized) {
+    if (response.status === HttpStatusCode.Unauthorized && sessionGate.isActive()) {
         try {
             await refreshTokenAsync();
             return apiAuth(originalRequest);

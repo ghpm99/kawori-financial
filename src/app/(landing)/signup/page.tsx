@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-import { Button, Card, ConfigProvider, Form, Input } from "antd";
+import { Alert, Button, Card, ConfigProvider, Form, Input } from "antd";
 import { createStyles } from "antd-style";
 import { useRouter } from "next/navigation";
 
@@ -37,7 +37,7 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
 const SignupPage = () => {
     const { styles: antdStyle } = useStyle();
     const [form] = Form.useForm();
-    const { signUp, isAuthenticated } = useAuth();
+    const { signUp, isAuthenticated, signUpMessage } = useAuth();
     const navigate = useRouter();
 
     useEffect(() => {
@@ -64,6 +64,7 @@ const SignupPage = () => {
                         onFinish={signUp}
                         requiredMark={false}
                     >
+                        {signUpMessage && <Alert title={signUpMessage} type="error" />}
                         <Form.Item label="Usuario" name="username" rules={[{ required: true }]}>
                             <Input />
                         </Form.Item>

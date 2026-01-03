@@ -12,7 +12,7 @@ import styles from "./signin.module.scss";
 
 const SigninPage = () => {
     const [form] = Form.useForm();
-    const { signIn, isAuthenticated, isLoading, errorMessage } = useAuth();
+    const { signIn, isAuthenticated, isLoading, signInMessage } = useAuth();
     const navigate = useRouter();
     console.log("isAuthenticated", isAuthenticated);
 
@@ -27,7 +27,7 @@ const SigninPage = () => {
             <Card className={styles.card} bordered={false}>
                 <h1 className={styles.title}>Entrar</h1>
                 <Form form={form} name="login" layout="vertical" onFinish={signIn} requiredMark={false}>
-                    {errorMessage && <Alert message={errorMessage} type="error" />}
+                    {signInMessage && <Alert title={signInMessage} type="error" />}
                     <Form.Item name="username" rules={[{ required: true, message: "Digite seu usuário" }]}>
                         <Input prefix={<UserOutlined />} placeholder="Usuário" size="large" />
                     </Form.Item>
