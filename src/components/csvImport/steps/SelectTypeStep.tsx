@@ -1,15 +1,29 @@
-import { Card, Col, Row, Typography } from "antd";
+import { Alert, Card, Col, DatePicker, Row, Typography } from "antd";
 
 import { faCreditCard, faMoneyBillTransfer } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
+import { useCsvImportProvider } from "@/components/providers/csvImport";
+import { useState } from "react";
 import styles from "./steps.module.scss";
-import { ImportType, useCsvImportProvider } from "@/components/providers/csvImport";
 
 const { Title, Paragraph } = Typography;
 
 export default function SelectTypeStep() {
-    const { handleSelectImportType } = useCsvImportProvider();
+    const { handleSelectImportType, paymentDate, setPaymentDate } = useCsvImportProvider();
+    const [errorMessage, setErrorMessage] = useState("");
+
+    console.log(paymentDate);
+    console.log(errorMessage);
+    const handleSelectCardImport = () => {
+        console.log("handleSelectCardImport", paymentDate);
+        if (!paymentDate) {
+            setErrorMessage("Selecione uma data de pagamento");
+            return;
+        }
+        setErrorMessage("");
+        handleSelectImportType("card_payments");
+    };
     return (
         <div className={styles.container}>
             <Title level={4} className={styles.title}>
@@ -44,7 +58,7 @@ export default function SelectTypeStep() {
 
                 {/* FATURAS */}
                 <Col xs={24} md={12}>
-                    <Card hoverable className={styles.card} onClick={() => handleSelectImportType("card_payments")}>
+                    <Card hoverable className={styles.card} onClick={() => handleSelectCardImport()}>
                         <div className={styles.iconWrapper}>
                             <FontAwesomeIcon icon={faCreditCard} className={styles.icon} />
                         </div>
@@ -58,6 +72,18 @@ export default function SelectTypeStep() {
                             <br />
                             Contém: compras, parcelamentos, IOF, juros e apenas{" "}
                             <strong>saídas relacionadas ao cartão de crédito</strong>.
+                        </Paragraph>
+                        <Paragraph type="warning">
+                            Dia de pagamento da fatura:
+                            <DatePicker
+                                variant="underlined"
+                                placeholder="Selecione a data de pagamento"
+                                style={{ width: "100%" }}
+                                format={"DD/MM/YYYY"}
+                                value={paymentDate}
+                                onChange={setPaymentDate}
+                            />
+                            {errorMessage && <Alert title={errorMessage} type="error" />}
                         </Paragraph>
                     </Card>
                 </Col>

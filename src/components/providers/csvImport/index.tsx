@@ -8,6 +8,7 @@ import React, { createContext, useCallback, useContext, useMemo, useState } from
 import { v4 as uuidv4 } from "uuid";
 import { IPaymentDetail } from "../payments";
 import { ITags } from "../tags";
+import dayjs, { Dayjs } from "dayjs";
 
 const messageKey = "csv_import";
 
@@ -119,6 +120,8 @@ type CsvImportContextValue = {
     resolvedImportsToSelectTag: ResolvedImports[];
     handleChangeTags: (id: number, tags: ITags[]) => void;
     handleConfirmImport: () => void;
+    paymentDate: Dayjs;
+    setPaymentDate: (date: Dayjs | null) => void;
 };
 
 const CsvImportContext = createContext<CsvImportContextValue | undefined>(undefined);
@@ -131,6 +134,7 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const [dragActive, setDragActive] = useState(false);
     const [step, setStep] = useState<ImportStep>(FIRST_STEP);
     const [importType, setImportType] = useState<ImportType>("transactions");
+    const [paymentDate, setPaymentDate] = useState<Dayjs | null>();
     const [fileData, setFileData] = useState<{ fileName: string; headers: string[]; data: CSVRow[] } | null>(null);
     const [columnMappings, setColumnMappings] = useState<ColumnMapping[]>([]);
     const [parsedTransactions, setParsedTransactions] = useState<ParsedTransaction[]>([]);
@@ -192,6 +196,7 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 headers: headers.map((h) => ({ csv_column: h.csvColumn, system_field: h.systemField })),
                 body: data,
                 import_type: importType,
+                payment_date: (paymentDate ?? dayjs())?.format("YYYY-MM-DD"),
             });
             return response.data;
         },
@@ -269,6 +274,7 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setDragActive(false);
         setStep("type");
         setImportType("transactions");
+        setPaymentDate(null);
         setFileData(null);
         setColumnMappings([]);
         setParsedTransactions([]);
@@ -477,6 +483,8 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         resolvedImportsToSelectTag,
         handleChangeTags,
         handleConfirmImport,
+        paymentDate,
+        setPaymentDate,
     };
 
     return <CsvImportContext.Provider value={value}>{children}</CsvImportContext.Provider>;
