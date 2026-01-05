@@ -43,7 +43,7 @@ export default function ReconciliationStep() {
                     <div style={{ fontSize: 12, color: "var(--ant-text-color-secondary)" }}>Transação importada</div>
                     <div style={{ fontWeight: 700 }}>{transaction.mapped_data.name}</div>
                     <div style={{ color: "var(--ant-text-color-secondary)" }}>
-                        Pagamento: {formatterDate(transaction.mapped_data.date || "")} •{" "}
+                        Pagamento: {formatterDate(transaction.mapped_data.payment_date || "")} •{" "}
                         <span
                             style={{
                                 color: transaction.mapped_data.type === 0 ? "#237804" : "#a8071a",
