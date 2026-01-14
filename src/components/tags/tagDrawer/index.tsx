@@ -14,6 +14,7 @@ interface TagDrawerProps {
 
 const TagDrawer = ({ open, onClose, tagDetails, isLoading, onUpdateTagDetail, onCreateNewTag }: TagDrawerProps) => {
     const [form] = Form.useForm();
+    const isEdit = Boolean(tagDetails && tagDetails.id);
     useEffect(() => {
         if (open && tagDetails) {
             form.setFieldsValue(tagDetails);
@@ -23,12 +24,12 @@ const TagDrawer = ({ open, onClose, tagDetails, isLoading, onUpdateTagDetail, on
     }, [form, open, tagDetails]);
 
     const onFinish = (values: ITags) => {
-        onClose();
-        if (!tagDetails && !values.id) {
-            onCreateNewTag(values);
-        } else {
+        if (isEdit) {
             onUpdateTagDetail(values);
+        } else {
+            onCreateNewTag(values);
         }
+        onClose();
     };
 
     const handleSubmitForm = () => {
@@ -36,7 +37,7 @@ const TagDrawer = ({ open, onClose, tagDetails, isLoading, onUpdateTagDetail, on
     };
     return (
         <Drawer
-            title={tagDetails ? `Tag #${tagDetails.id}` : "Nova Tag"}
+            title={isEdit ? `Tag #${tagDetails.id}` : "Nova Tag"}
             size="large"
             onClose={onClose}
             open={open}
