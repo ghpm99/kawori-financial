@@ -3,7 +3,12 @@ import { createContext, useContext, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { message } from "antd";
 
-import { fetchDetailTagService, fetchTagsService, saveTagService } from "@/services/financial/tag";
+import {
+    fetchDetailTagService,
+    fetchTagsService,
+    includeNewTagService,
+    saveTagService,
+} from "@/services/financial/tag";
 
 const messageKey = "tag_pagination_message";
 
@@ -27,6 +32,7 @@ type TagsContextValue = {
     tagDetails: ITags;
     isLoadingTagDetails: boolean;
     onUpdateTagDetail: (values: ITags) => void;
+    onCreateNewTag: (values: { name: string; color: string }) => void;
 };
 
 const TagsContext = createContext<TagsContextValue | undefined>(undefined);
@@ -66,6 +72,20 @@ export const TagsProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
     });
 
+    const { mutate: mutateNewTag } = useMutation({
+        mutationFn: async (tag: { name: string; color: string }) => {
+            const response = await includeNewTagService(tag);
+            return response;
+        },
+        onSuccess: (data) => {
+            message.success({
+                content: data.msg,
+                key: messageKey,
+            });
+            refetch();
+        },
+    });
+
     const handleOnOpenDrawer = (id?: number) => {
         setDetailTagId(id);
         setOpenDrawer(true);
@@ -78,6 +98,10 @@ export const TagsProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const onUpdateTagDetail = (values: ITags) => {
         mutate(values);
     };
+
+    const onCreateNewTag = (values: { name: string; color: string }) => {
+        mutateNewTag(values);
+    };
     return (
         <TagsContext.Provider
             value={{
@@ -89,6 +113,7 @@ export const TagsProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 tagDetails: tagDetails || ({} as ITags),
                 isLoadingTagDetails,
                 onUpdateTagDetail,
+                onCreateNewTag,
             }}
         >
             {children}

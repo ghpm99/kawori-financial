@@ -15,3 +15,7 @@ export async function saveTagService(tag: ITags) {
     const response = await apiDjango.post<CommonApiResponse>(`/financial/tag/${tag.id}/save`, tag);
     return response;
 }
+export async function includeNewTagService(tag: { name: string; color: string }) {
+    const response = await apiDjango.post("/financial/tag/new", tag);
+    return response.data;
+}

@@ -9,9 +9,10 @@ interface TagDrawerProps {
     tagDetails?: ITags;
     isLoading?: boolean;
     onUpdateTagDetail: (values: ITags) => void;
+    onCreateNewTag: (values: { name: string; color: string }) => void;
 }
 
-const TagDrawer = ({ open, onClose, tagDetails, isLoading, onUpdateTagDetail }: TagDrawerProps) => {
+const TagDrawer = ({ open, onClose, tagDetails, isLoading, onUpdateTagDetail, onCreateNewTag }: TagDrawerProps) => {
     const [form] = Form.useForm();
     useEffect(() => {
         if (open && tagDetails) {
@@ -23,7 +24,11 @@ const TagDrawer = ({ open, onClose, tagDetails, isLoading, onUpdateTagDetail }: 
 
     const onFinish = (values: ITags) => {
         onClose();
-        onUpdateTagDetail(values);
+        if (!tagDetails && !values.id) {
+            onCreateNewTag(values);
+        } else {
+            onUpdateTagDetail(values);
+        }
     };
 
     const handleSubmitForm = () => {

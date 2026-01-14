@@ -25,6 +25,7 @@ function TagPage() {
         loading,
         tagDetails,
         onUpdateTagDetail,
+        onCreateNewTag,
     } = useTags();
 
     const createDropdownMenu = (record: ITags): MenuProps => {
@@ -126,6 +127,7 @@ function TagPage() {
                     isLoading={isLoadingTagDetails}
                     tagDetails={tagDetails}
                     onUpdateTagDetail={onUpdateTagDetail}
+                    onCreateNewTag={onCreateNewTag}
                 />
             </Layout>
         </>
