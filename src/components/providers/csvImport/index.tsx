@@ -196,7 +196,8 @@ export const CsvImportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 headers: headers.map((h) => ({ csv_column: h.csvColumn, system_field: h.systemField })),
                 body: data,
                 import_type: importType,
-                payment_date: (paymentDate ?? dayjs())?.format("YYYY-MM-DD"),
+                payment_date:
+                    importType === "card_payments" ? (paymentDate ?? dayjs())?.format("YYYY-MM-DD") : undefined,
             });
             return response.data;
         },
