@@ -68,31 +68,50 @@ function ReportPage() {
     const { data: monthData, isLoading: isLoadingMonth } = useQuery({
         queryKey: ["month"],
         queryFn: async () => {
-            const response = await fetchMonthPayments();
+            try {
+                const response = await fetchMonthPayments();
 
-            if (!response && !response.data) {
+                if (!response?.data || response.data.length === 0) {
+                    return { data: [] };
+                }
+
+                const data = response.data
+                    // primeiro ordena na ordem correta para o acumulado
+                    .slice()
+                    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+                    // depois calcula o total acumulado
+                    .reduce<{ total: number; items: any[] }>(
+                        (acc, item) => {
+                            const net = item.total_value_credit - item.total_value_debit;
+
+                            const total = acc.total + net;
+
+                            acc.items.push({
+                                ...item,
+                                total,
+                                dateTimestamp: new Date(item.date).getTime(),
+                            });
+
+                            acc.total = total;
+                            return acc;
+                        },
+                        { total: 0, items: [] },
+                    )
+                    .items // por fim, ordena como quiser exibir
+                    .sort((a, b) => {
+                        if (b.dateTimestamp !== a.dateTimestamp) {
+                            return b.dateTimestamp - a.dateTimestamp;
+                        }
+                        return b.id - a.id;
+                    });
+
+                return { data };
+            } catch (error) {
+                console.error("Erro ao buscar pagamentos:", error);
                 return { data: [] };
             }
-
-            let total = 0;
-            const data = response.data
-                .map((item) => {
-                    total = total + item.total_value_credit - item.total_value_debit;
-
-                    return {
-                        ...item,
-                        total,
-                        dateTimestamp: new Date(item.date).getTime(),
-                    };
-                })
-                .sort((a, b) => b.id - a.id)
-                .sort((a, b) => b.dateTimestamp - a.dateTimestamp);
-
-            return { data };
         },
     });
-
-    console.log(monthData);
 
     return (
         <>
