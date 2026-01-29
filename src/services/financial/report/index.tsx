@@ -22,6 +22,9 @@ export interface IPaymentReportResponse {
 export interface IPaymentMonth {
     id: number;
     name: string;
+    date: string;
+    dateTimestamp: number;
+    total: number;
     total_value_credit: number;
     total_value_debit: number;
     total_value_open: number;
