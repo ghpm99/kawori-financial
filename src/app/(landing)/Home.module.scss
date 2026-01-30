@@ -28,7 +28,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 4rem;
     align-items: center;
-    min-height: 95vh;
+    min-height: 80vh;
 }
 
 .heroContent {
@@ -55,9 +55,74 @@
     margin: 0;
 }
 
+.badge {
+    width: fit-content;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
 .heroActions {
     display: flex;
     gap: 1rem;
+}
+
+.heroNote {
+    margin: 0;
+    opacity: 0.85;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.primaryButton,
+.secondaryButton {
+    height: 3rem;
+    padding: 0 1.5rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    transition:
+        transform 0.15s ease,
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.primaryButton {
+    background: #ffd700;
+    border: 1px solid #ffd700;
+    color: #333;
+
+    &:hover {
+        background: #ffed4e;
+        border-color: #ffed4e;
+        color: #333;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    }
+}
+
+.secondaryButton {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: rgba(255, 255, 255, 0.92);
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.14);
+        border-color: rgba(255, 255, 255, 0.35);
+        transform: translateY(-1px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    }
 }
 
 .ctaButton {
@@ -140,7 +205,6 @@
 .features {
     background: rgba(255, 255, 255, 0.05);
     padding: 4rem 0;
-    min-height: 95vh;
     margin: auto auto;
 }
 
@@ -155,6 +219,15 @@
     font-size: 2.5rem;
     font-weight: bold;
     margin-bottom: 3rem;
+}
+
+.sectionSubtitle {
+    max-width: 880px;
+    margin: -2rem auto 2.5rem;
+    text-align: center;
+    opacity: 0.9;
+    line-height: 1.7;
+    font-size: 1.1rem;
 }
 
 .featuresGrid {
@@ -193,6 +266,94 @@
     color: #ffd700;
 }
 
+.howItWorks {
+    padding: 4rem 0;
+}
+
+.howGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+}
+
+.howCard {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 1.75rem;
+
+    h3 {
+        font-size: 1.35rem;
+        margin: 0.75rem 0 0.5rem;
+    }
+
+    p {
+        margin: 0;
+        opacity: 0.9;
+        line-height: 1.6;
+    }
+}
+
+.howStep {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: #333;
+    background: #ffd700;
+}
+
+.centerCta {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.faq {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 4rem 0;
+}
+
+.faqGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.faqItem {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 14px;
+    padding: 1.25rem 1.25rem;
+
+    summary {
+        cursor: pointer;
+        font-weight: 700;
+        list-style: none;
+    }
+
+    summary::-webkit-details-marker {
+        display: none;
+    }
+
+    p {
+        margin: 0.85rem 0 0;
+        opacity: 0.9;
+        line-height: 1.6;
+    }
+}
+
+.finalCta {
+    padding: 4rem 0 5rem;
+}
+
 @media (max-width: 768px) {
     .hero {
         grid-template-columns: 1fr;
@@ -202,5 +363,18 @@
 
     .heroTitle {
         font-size: 2.5rem;
+    }
+
+    .heroActions {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .howGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .faqGrid {
+        grid-template-columns: 1fr;
     }
 }

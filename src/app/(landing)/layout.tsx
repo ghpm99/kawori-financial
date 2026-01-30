@@ -1,28 +1,17 @@
-"use client";
-
 import React from "react";
 
-import { Layout } from "antd";
-
-import MenuHeader from "@/components/menuHeader";
-import { useAuth } from "@/components/providers/auth";
+import LandingHeaderClient from "./LandingHeaderClient";
 
 import styles from "./landing.module.scss";
 
-const { Footer } = Layout;
-
 const LandingLayout = ({ children }: { children: React.ReactNode }) => {
-    const { authState, isLoading, signOut } = useAuth();
-
     return (
         <div className={styles["container"]}>
-            <MenuHeader authState={authState} isLoading={isLoading} signOut={signOut} />
+            <LandingHeaderClient />
             <div className={styles["body"]}>
                 <div className={styles["internal-page"]}>{children}</div>
             </div>
-            <Footer style={{ textAlign: "center", backgroundColor: "transparent", color: "white" }}>
-                &copy; 2025 Kawori Financial. All rights reserved.
-            </Footer>
+            <footer className={styles["footer"]}>&copy; 2025 Kawori Financial. All rights reserved.</footer>
         </div>
     );
 };

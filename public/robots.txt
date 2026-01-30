@@ -1,7 +1,8 @@
 # Block all crawlers for /accounts
 User-agent: *
 Disallow: /admin
+Disallow: /internal
 
-# Allow all crawlers
-User-agent: *
 Allow: /
+
+Sitemap: https://financeiro.kawori.site/sitemap.xml
