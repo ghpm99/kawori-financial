@@ -1,3 +1,5 @@
+"use client";
+
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 

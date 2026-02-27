@@ -52,6 +52,14 @@ const menuItems: MenuItem[] = [
         userGroup: "financial",
     },
     {
+        key: "mothly_overview",
+        label: "Visão Mensal",
+        path: "/internal/financial/monthly",
+        icon: <FontAwesomeIcon icon={faChartPie} />,
+        securePath: true,
+        userGroup: "financial",
+    },
+    {
         key: "report",
         label: "Relatorio",
         path: "/internal/financial/report",

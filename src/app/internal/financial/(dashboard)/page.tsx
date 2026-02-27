@@ -48,7 +48,7 @@ const DashBoardPage = () => {
                             filters={{
                                 page: 1,
                                 page_size: 3,
-                                payment_date__lte: "2025-12-08",
+                                payment_date__lte: new Date().toISOString().split("T")[0],
                             }}
                         />
 
@@ -57,8 +57,10 @@ const DashBoardPage = () => {
                             filters={{
                                 page: 1,
                                 page_size: 3,
-                                payment_date__lte: "2025-12-09",
-                                payment_date__gte: "2025-12-08",
+                                payment_date__lte: new Date(new Date().setDate(new Date().getDate() + 7))
+                                    .toISOString()
+                                    .split("T")[0],
+                                payment_date__gte: new Date().toISOString().split("T")[0],
                             }}
                         />
 
@@ -67,7 +69,9 @@ const DashBoardPage = () => {
                             filters={{
                                 page: 1,
                                 page_size: 3,
-                                payment_date__gte: "2025-12-09",
+                                payment_date__gte: new Date(new Date().setDate(new Date().getDate() + 7))
+                                    .toISOString()
+                                    .split("T")[0],
                             }}
                         />
                     </Row>
