@@ -17,11 +17,13 @@ const mockTagDetail: ITags = {
 
 const mockOnClose = jest.fn();
 const mockOnUpdateTagDetail = jest.fn();
+const mockOnCreateNewTag = jest.fn();
 
 const defaultProps = {
     open: true,
     onClose: mockOnClose,
     onUpdateTagDetail: mockOnUpdateTagDetail,
+    onCreateNewTag: mockOnCreateNewTag,
     tagDetails: undefined,
     isLoading: false,
 };
@@ -75,7 +77,7 @@ describe("TagDrawer", () => {
         expect(mockOnClose).toHaveBeenCalledTimes(1);
     });
 
-    it("6. Submissão — chama onClose e onUpdateTagDetail com dados do formulário", async () => {
+    it("6. Submissão — chama onClose e onCreateNewTag com dados do formulário no modo criação", async () => {
         render(<TagDrawer {...defaultProps} open={true} />);
 
         const newTagName = "Nova Tag Nome";
@@ -91,13 +93,24 @@ describe("TagDrawer", () => {
         fireEvent.click(screen.getByRole("button", { name: /Salvar/i }));
 
         await waitFor(() => {
-            expect(mockOnUpdateTagDetail).toHaveBeenCalledTimes(1);
-            expect(mockOnUpdateTagDetail).toHaveBeenCalledWith(
+            expect(mockOnCreateNewTag).toHaveBeenCalledTimes(1);
+            expect(mockOnCreateNewTag).toHaveBeenCalledWith(
                 expect.objectContaining({
                     name: newTagName,
                     color: newTagColor,
                 }),
             );
+            expect(mockOnClose).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    it("7. Submissão — chama onUpdateTagDetail no modo edição", async () => {
+        render(<TagDrawer {...defaultProps} open={true} tagDetails={mockTagDetail} />);
+
+        fireEvent.click(screen.getByRole("button", { name: /Salvar/i }));
+
+        await waitFor(() => {
+            expect(mockOnUpdateTagDetail).toHaveBeenCalledTimes(1);
             expect(mockOnClose).toHaveBeenCalledTimes(1);
         });
     });

@@ -45,7 +45,7 @@ describe("PaymentsDrawer", () => {
         render(<PaymentsDrawer {...defaultProps} paymentDetail={paymentDetail} />);
 
         expect(screen.getByDisplayValue(paymentDetail.name)).toBeInTheDocument();
-        expect(await screen.findByText(paymentDetail.invoice_name)).toBeInTheDocument();
+        expect(await screen.findByDisplayValue(paymentDetail.invoice_name)).toBeInTheDocument();
     });
 
     test("deve preencher o formulario corretamente", async () => {

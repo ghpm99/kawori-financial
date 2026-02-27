@@ -223,10 +223,10 @@ describe("InvoiceDrawer", () => {
         fireEvent.mouseDown(tagSelect);
 
         const tagOption = await screen.findAllByText(/comida/i);
-        tagOption[1].click();
+        tagOption[0].click();
 
         const tagBudgetOption = await screen.findAllByText(/orçamento/i);
-        tagBudgetOption[1].click();
+        tagBudgetOption[0].click();
 
         fireEvent.click(screen.getByText("Salvar"));
 
@@ -250,7 +250,7 @@ describe("InvoiceDrawer", () => {
                         total_open: 0,
                         total_payments: 0,
                         total_value: 0,
-                        value: "Orçamento",
+                        value: 1,
                     },
                     {
                         color: "green",
@@ -262,7 +262,7 @@ describe("InvoiceDrawer", () => {
                         total_open: 0,
                         total_payments: 0,
                         total_value: 0,
-                        value: "Comida",
+                        value: 2,
                     },
                 ],
                 status: 0,
