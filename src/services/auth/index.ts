@@ -127,3 +127,26 @@ export const signoutService = () => {
     const response = apiAuth.get("signout");
     return response;
 };
+
+export interface IPasswordResetRequestArgs {
+    email: string;
+}
+
+export interface IPasswordResetValidateResponse {
+    valid: boolean;
+    msg?: string;
+}
+
+export interface IPasswordResetConfirmArgs {
+    token: string;
+    new_password: string;
+}
+
+export const requestPasswordResetService = (args: IPasswordResetRequestArgs) =>
+    apiAuth.post<{ msg: string }>("password-reset/request/", args);
+
+export const validatePasswordResetTokenService = (token: string) =>
+    apiAuth.get<IPasswordResetValidateResponse>(`password-reset/validate/`, { params: { token } });
+
+export const confirmPasswordResetService = (args: IPasswordResetConfirmArgs) =>
+    apiAuth.post<{ msg: string | string[] }>("password-reset/confirm/", args);
