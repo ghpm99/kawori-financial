@@ -4,6 +4,7 @@ import { useEffect } from "react";
 
 import { Alert, Button, Card, ConfigProvider, Form, Input } from "antd";
 import { createStyles } from "antd-style";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/components/providers/auth";
@@ -88,6 +89,10 @@ const SignupPage = () => {
                             <Button block type="primary" htmlType="submit">
                                 Cadastrar
                             </Button>
+                        </Form.Item>
+
+                        <Form.Item style={{ textAlign: "center", marginBottom: 0 }}>
+                            <Link href="/reset-password">Esqueceu sua senha?</Link>
                         </Form.Item>
                     </Form>
                 </Card>
