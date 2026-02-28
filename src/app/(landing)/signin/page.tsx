@@ -4,6 +4,7 @@ import { useEffect } from "react";
 
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Alert, Button, Card, Form, Input } from "antd";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/components/providers/auth";
@@ -34,6 +35,10 @@ const SigninPage = () => {
 
                     <Form.Item name="password" rules={[{ required: true, message: "Digite sua senha" }]}>
                         <Input.Password prefix={<LockOutlined />} placeholder="Senha" size="large" />
+                    </Form.Item>
+
+                    <Form.Item style={{ textAlign: "right", marginBottom: 8 }}>
+                        <Link href="/reset-password">Esqueceu sua senha?</Link>
                     </Form.Item>
 
                     <Form.Item>

@@ -46,12 +46,24 @@ src/app/
       earnings/       # Receitas (income)
       budget/         # Budget goals
       invoices/       # Invoice management
+      monthly/        # Monthly financial view
       report/         # Financial overview report
       scheduled_bills/# Scheduled recurring payments
       tags/           # Tag management
 ```
 
 Path alias `@/*` maps to `src/*`.
+
+### Component File Convention
+
+Each component lives in its own directory with co-located files:
+
+```
+src/components/feature/ComponentName/
+  index.tsx                 # Component implementation
+  ComponentName.test.tsx    # Tests (co-located, not in __tests__)
+  ComponentName.module.scss # Scoped styles
+```
 
 ### Provider Pattern
 
@@ -73,6 +85,8 @@ State management uses React Context + TanStack Query. There are two tiers:
 - `CsvImportProvider` — multi-step CSV import wizard state
 
 Each provider exposes a typed `useXxx()` hook. Calling the hook outside its provider throws an error.
+
+Providers use a **filter reducer** internally with actions `SET_ALL`, `RESET`, `SET_FIELD`, and `SET_PAGINATION`. The TanStack Query list query is keyed by `["entity", localFilters]` — changing filters automatically triggers a refetch. URL query params are synced to filter state via `updateFiltersBySearchParams`.
 
 ### API / Service Layer
 
@@ -100,6 +114,23 @@ Tests use Jest + jsdom + `@testing-library/react`. Setup files are at:
 - `src/jest.setupFilesAfterEnv.js`
 
 `@faker-js/faker` is used for generating test data.
+
+Component tests mock the feature provider hook at the module level:
+
+```ts
+jest.mock("@/components/providers/payments", () => ({
+    usePayments: jest.fn(),
+}));
+// In beforeEach: (usePayments as jest.Mock).mockReturnValue({ ... });
+```
+
+Service tests mock `@/services` directly:
+
+```ts
+jest.mock("@/services", () => ({ apiDjango: { get: jest.fn(), post: jest.fn() } }));
+```
+
+Auth service tests use `jest.spyOn(apiAuth, 'method')` instead of `jest.mock` because service functions close over the module-level axios instance.
 
 ### CI
 
