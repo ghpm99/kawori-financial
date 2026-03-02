@@ -92,48 +92,48 @@ export function ReportProvider({ children }: ReportProviderProps) {
     // 1. Busca os pagamentos e valores fixos
     const { data: paymentData, isLoading: isLoadingPayments } = useQuery({
         queryKey: ["paymentReport"],
-        queryFn: fetchPaymentReportService,
+        queryFn: () => fetchPaymentReportService(),
     });
 
     const { data: monthData, isLoading: isLoadingMonth } = useQuery({
         queryKey: ["month"],
-        queryFn: fetchMonthPayments,
+        queryFn: () => fetchMonthPayments(),
     });
 
     // 2. Contagem de pagamentos
     const { data: countPayment, isLoading: isLoadingCountPayment } = useQuery({
         queryKey: ["countPayment"],
-        queryFn: fetchCountPaymentReportService,
+        queryFn: () => fetchCountPaymentReportService(),
     });
 
     // 3. Valor total dos pagamentos
     const { data: amountPayment, isLoading: isLoadingAmountPayment } = useQuery({
         queryKey: ["amountPayment"],
-        queryFn: fetchAmountPaymentReportService,
+        queryFn: () => fetchAmountPaymentReportService(),
     });
 
     // 4. Pagamentos em aberto
     const { data: amountPaymentOpen, isLoading: isLoadingAmountPaymentOpen } = useQuery({
         queryKey: ["amountPaymentOpen"],
-        queryFn: fetchAmountPaymentOpenReportService,
+        queryFn: () => fetchAmountPaymentOpenReportService(),
     });
 
     // 5. Pagamentos fechados
     const { data: amountPaymentClosed, isLoading: isLoadingAmountPaymentClosed } = useQuery({
         queryKey: ["amountPaymentClosed"],
-        queryFn: fetchAmountPaymentClosedReportService,
+        queryFn: () => fetchAmountPaymentClosedReportService(),
     });
 
     // 6. Faturas por tag
     const { data: invoiceByTag, isLoading: isLoadingInvoiceByTag } = useQuery({
         queryKey: ["invoiceByTag"],
-        queryFn: fetchAmountInvoiceByTagReportService,
+        queryFn: () => fetchAmountInvoiceByTagReportService(),
     });
 
     // 7. Valor previsto
     const { data: amountForecastValue, isLoading: isLoadingAmountForecastValue } = useQuery({
         queryKey: ["amountForecastValue"],
-        queryFn: fetchAmountForecastValueService,
+        queryFn: () => fetchAmountForecastValueService(),
     });
 
     const contextValue: ReportContextData = {
