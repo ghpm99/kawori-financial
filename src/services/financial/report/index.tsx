@@ -113,7 +113,10 @@ export interface FinancialMetricsResponse {
 
 // Atualizando as funcoes de servico com os tipos corretos
 export const fetchMonthPayments = async (filters?: FinancialReportFilters): Promise<IPaymentMonthResponse> => {
-    const response = await apiDjango.get<IPaymentMonthResponse>("/financial/payment/month/", withReportFilters(filters));
+    const response = await apiDjango.get<IPaymentMonthResponse>(
+        "/financial/payment/month/",
+        withReportFilters(filters),
+    );
     return response.data;
 };
 
@@ -133,7 +136,10 @@ export const fetchCountPaymentReportService = async (filters?: FinancialReportFi
 };
 
 export const fetchAmountPaymentReportService = async (filters?: FinancialReportFilters): Promise<number> => {
-    const response = await apiDjango.get<IAmountPaymentResponse>("/financial/report/amount_payment", withReportFilters(filters));
+    const response = await apiDjango.get<IAmountPaymentResponse>(
+        "/financial/report/amount_payment",
+        withReportFilters(filters),
+    );
     return response.data.data;
 };
 
@@ -174,6 +180,9 @@ export const fetchAmountForecastValueService = async (filters?: FinancialReportF
 export const fetchFinancialMetricsService = async (
     filters?: FinancialReportFilters,
 ): Promise<FinancialMetricsResponse> => {
-    const response = await apiDjango.get<FinancialMetricsResponse>("/financial/report/metrics/", withReportFilters(filters));
+    const response = await apiDjango.get<FinancialMetricsResponse>(
+        "/financial/report/metrics/",
+        withReportFilters(filters),
+    );
     return response.data;
 };

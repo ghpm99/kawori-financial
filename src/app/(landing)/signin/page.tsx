@@ -15,7 +15,6 @@ const SigninPage = () => {
     const [form] = Form.useForm();
     const { signIn, isAuthenticated, isLoading, signInMessage } = useAuth();
     const navigate = useRouter();
-    console.log("isAuthenticated", isAuthenticated);
 
     useEffect(() => {
         if (isAuthenticated) {

@@ -27,8 +27,6 @@ export default function ReconciliationStep() {
         (b.merge_group ?? "").localeCompare(a.merge_group ?? ""),
     );
 
-    console.log(sortedTransactions);
-
     const RenderCard = (transaction: ParsedTransaction) => (
         <Card
             className={`${styles.reconciliationCard} ${transaction.matched_payment ? styles["matched"] : ""} ${transaction.merge_group ? styles["merged"] : ""}`}

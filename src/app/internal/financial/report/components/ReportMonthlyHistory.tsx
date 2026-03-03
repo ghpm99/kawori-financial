@@ -39,7 +39,8 @@ export function ReportMonthlyHistory() {
                                     title: "Saldo",
                                     key: "balance",
                                     render: (_: unknown, record: IPaymentMonth) => {
-                                        const balance = (record.total_value_credit || 0) - (record.total_value_debit || 0);
+                                        const balance =
+                                            (record.total_value_credit || 0) - (record.total_value_debit || 0);
                                         const color = balance >= 0 ? "green" : "red";
 
                                         return <Tag color={color}>{formatMoney(balance)}</Tag>;

@@ -27,7 +27,16 @@ describe("invoicesService", () => {
     describe("fetchAllInvoiceService", () => {
         it("chama GET /financial/invoice/ com filtros e retorna data", async () => {
             const filters: IInvoiceFilters = { page: 1, page_size: 10 };
-            const mockData = { data: { current_page: 1, total_pages: 1, page_size: 10, has_previous: false, has_next: false, data: [] } };
+            const mockData = {
+                data: {
+                    current_page: 1,
+                    total_pages: 1,
+                    page_size: 10,
+                    has_previous: false,
+                    has_next: false,
+                    data: [],
+                },
+            };
             mockedGet.mockResolvedValueOnce({ data: mockData });
 
             const result = await fetchAllInvoiceService(filters);
@@ -52,7 +61,9 @@ describe("invoicesService", () => {
     describe("fetchDetailInvoicePaymentsService", () => {
         it("chama GET /financial/invoice/:id/payments/ com filtros e retorna data", async () => {
             const filters: IPaymentFilters = { page: 1, page_size: 5 };
-            const mockData = { data: { current_page: 1, total_pages: 1, page_size: 5, has_previous: false, has_next: false, data: [] } };
+            const mockData = {
+                data: { current_page: 1, total_pages: 1, page_size: 5, has_previous: false, has_next: false, data: [] },
+            };
             mockedGet.mockResolvedValueOnce({ data: mockData });
 
             const result = await fetchDetailInvoicePaymentsService(3, filters);

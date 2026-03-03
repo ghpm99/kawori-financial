@@ -15,7 +15,10 @@ export function ReportStats() {
             <Row gutter={[16, 16]} className={styles.statsRow}>
                 {executiveCards.map((card) => (
                     <Col key={card.id} xs={24} md={8}>
-                        <Card className={`${styles.executiveCard} ${styles[`executiveCard_${card.status}`]}`} loading={isLoadingPage}>
+                        <Card
+                            className={`${styles.executiveCard} ${styles[`executiveCard_${card.status}`]}`}
+                            loading={isLoadingPage}
+                        >
                             <Text className={styles.executiveLabel}>{card.title}</Text>
                             <div className={styles.executiveValue}>{card.value}</div>
                             <Text type="secondary">{card.caption}</Text>

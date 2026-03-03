@@ -19,8 +19,8 @@ export function ReportHeader() {
             <div className={styles.header}>
                 <Title level={3}>Relatorios Financeiros</Title>
                 <Paragraph>
-                    Painel de decisao para acompanhar saude financeira, priorizar pendencias e ajustar o planejamento
-                    do proximo ciclo.
+                    Painel de decisao para acompanhar saude financeira, priorizar pendencias e ajustar o planejamento do
+                    proximo ciclo.
                 </Paragraph>
                 <Space wrap>
                     <Tag color="blue">Periodo: {periodLabel}</Tag>

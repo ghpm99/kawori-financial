@@ -106,7 +106,6 @@ const InvoiceDrawer = ({
     };
 
     const onFinish = (values: InvoiceFormValues) => {
-        console.log(values);
         const selectedTags = tags.filter((tag) => values.tags.includes(tag.id));
         const payload = {
             ...values,

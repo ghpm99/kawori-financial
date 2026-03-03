@@ -13,10 +13,7 @@ export default function SelectTypeStep() {
     const { handleSelectImportType, paymentDate, setPaymentDate } = useCsvImportProvider();
     const [errorMessage, setErrorMessage] = useState("");
 
-    console.log(paymentDate);
-    console.log(errorMessage);
     const handleSelectCardImport = () => {
-        console.log("handleSelectCardImport", paymentDate);
         if (!paymentDate) {
             setErrorMessage("Selecione uma data de pagamento");
             return;
