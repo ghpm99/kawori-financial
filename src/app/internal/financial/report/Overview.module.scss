@@ -27,6 +27,37 @@
     margin: 0 8px 8px 8px;
 }
 
+.executiveCard {
+    border-left: 4px solid transparent;
+}
+
+.executiveCard_positive {
+    border-left-color: #52c41a;
+}
+
+.executiveCard_attention {
+    border-left-color: #faad14;
+}
+
+.executiveCard_negative {
+    border-left-color: #ff4d4f;
+}
+
+.executiveCard_neutral {
+    border-left-color: #1677ff;
+}
+
+.executiveLabel {
+    font-size: 13px;
+}
+
+.executiveValue {
+    font-size: 26px;
+    line-height: 1.2;
+    margin: 4px 0 8px;
+    font-weight: 600;
+}
+
 .chartCard,
 .tableCard {
     height: 100%;

@@ -48,6 +48,27 @@ type CoverageRow = {
     value: string;
 };
 
+type PrioritySeverity = "critical" | "attention" | "good";
+
+type PriorityInsight = {
+    id: string;
+    title: string;
+    severity: PrioritySeverity;
+    metric: string;
+    context: string;
+    action: string;
+};
+
+type ExecutiveStatus = "positive" | "attention" | "negative" | "neutral";
+
+type ExecutiveCard = {
+    id: string;
+    title: string;
+    value: string;
+    caption: string;
+    status: ExecutiveStatus;
+};
+
 type ReportKpis = {
     revenues: number;
     expenses: number;
@@ -110,6 +131,7 @@ type ReportContextData = {
         isLoading: boolean;
     };
     activeFilters: FinancialReportFilters;
+    periodLabel: string;
     applyDateRange: (period?: [Dayjs, Dayjs]) => void;
     clearFilters: () => void;
     isLoadingPage: boolean;
@@ -121,6 +143,8 @@ type ReportContextData = {
     invoiceByTagData: Awaited<ReturnType<typeof fetchAmountInvoiceByTagReportService>>;
     paymentStatusData: PaymentStatusPoint[];
     insights: string[];
+    priorityInsights: PriorityInsight[];
+    executiveCards: ExecutiveCard[];
     coverageData: CoverageRow[];
     kpis: ReportKpis;
 };
@@ -173,6 +197,28 @@ const toMonthTable = (rows: IPaymentMonth[]): ReportMonthTableRow[] =>
         key: entry.id,
         month: formatterMonthYearDate(entry.date || entry.name),
     }));
+
+const buildPeriodLabel = (filters: FinancialReportFilters): string => {
+    if (filters.date_from && filters.date_to) {
+        return `${filters.date_from} ate ${filters.date_to}`;
+    }
+
+    if (filters.date_from) {
+        return `A partir de ${filters.date_from}`;
+    }
+
+    if (filters.date_to) {
+        return `Ate ${filters.date_to}`;
+    }
+
+    return "Todo o historico disponivel";
+};
+
+const severityOrder: Record<PrioritySeverity, number> = {
+    critical: 3,
+    attention: 2,
+    good: 1,
+};
 
 export function ReportProvider({ children }: { children: ReactNode }) {
     const router = useRouter();
@@ -266,6 +312,7 @@ export function ReportProvider({ children }: { children: ReactNode }) {
     const savingsRate = percentage(profit, revenues);
     const forecastAccuracy = forecast > 0 ? percentage(totalPayments, forecast) : 0;
     const forecastGap = totalPayments - forecast;
+    const periodLabel = buildPeriodLabel(activeFilters);
 
     const paymentStatusData: PaymentStatusPoint[] = [
         { name: "Pagamentos fechados", value: totalClosed },
@@ -282,6 +329,88 @@ export function ReportProvider({ children }: { children: ReactNode }) {
         forecast > 0
             ? `Aderencia ao previsto: ${forecastAccuracy.toFixed(1)}%. Diferenca absoluta de ${formatMoney(forecastGap)}.`
             : "Nao ha base prevista para comparar realizado x planejado neste periodo.",
+    ];
+
+    const priorityInsights = [
+        {
+            id: "profit-health",
+            title: "Saude do resultado",
+            severity: profit < 0 ? "critical" : "good",
+            metric: formatMoney(profit),
+            context:
+                profit < 0
+                    ? "O periodo fechou com resultado negativo."
+                    : "O periodo fechou com resultado positivo.",
+            action:
+                profit < 0
+                    ? "Reduzir despesas recorrentes e renegociar compromissos fixos imediatamente."
+                    : "Direcionar parte do saldo para reserva e amortizacao de custos futuros.",
+        },
+        {
+            id: "open-balance",
+            title: "Risco de pendencias",
+            severity: openShare >= 40 ? "critical" : openShare >= 25 ? "attention" : "good",
+            metric: `${openShare.toFixed(1)}% em aberto`,
+            context:
+                openShare >= 40
+                    ? "Percentual em aberto elevado para o volume movimentado."
+                    : openShare >= 25
+                      ? "Existem pendencias relevantes no periodo."
+                      : "Volume em aberto em faixa controlada.",
+            action:
+                openShare >= 40
+                    ? "Priorizar liquidacao das maiores pendencias nesta semana."
+                    : openShare >= 25
+                      ? "Criar um plano quinzenal para reduzir pendencias gradualmente."
+                      : "Manter rotina de acompanhamento para preservar liquidez.",
+        },
+        {
+            id: "forecast-track",
+            title: "Aderencia ao planejamento",
+            severity:
+                forecast <= 0
+                    ? "attention"
+                    : forecastAccuracy < 85
+                      ? "attention"
+                      : forecastAccuracy > 110
+                        ? "attention"
+                        : "good",
+            metric: forecast > 0 ? `${forecastAccuracy.toFixed(1)}%` : "Sem previsao",
+            context:
+                forecast <= 0
+                    ? "Nao existe valor previsto para comparar com o realizado."
+                    : `Diferenca entre previsto e realizado de ${formatMoney(forecastGap)}.`,
+            action:
+                forecast <= 0
+                    ? "Definir meta financeira para habilitar controle de desvio."
+                    : "Ajustar o planejamento do proximo ciclo usando o desvio atual.",
+        },
+    ] satisfies PriorityInsight[];
+
+    priorityInsights.sort((a, b) => severityOrder[b.severity] - severityOrder[a.severity]);
+
+    const executiveCards: ExecutiveCard[] = [
+        {
+            id: "period-result",
+            title: "Resultado do periodo",
+            value: formatMoney(profit),
+            caption: `Taxa de poupanca: ${savingsRate.toFixed(1)}%`,
+            status: profit < 0 ? "negative" : "positive",
+        },
+        {
+            id: "liquidity",
+            title: "Liquidez das contas",
+            value: `${closedShare.toFixed(1)}% fechado`,
+            caption: `${formatMoney(totalOpen)} ainda em aberto`,
+            status: openShare >= 40 ? "negative" : openShare >= 25 ? "attention" : "positive",
+        },
+        {
+            id: "planning",
+            title: "Aderencia ao planejamento",
+            value: forecast > 0 ? `${forecastAccuracy.toFixed(1)}%` : "Sem previsao",
+            caption: forecast > 0 ? `Gap: ${formatMoney(forecastGap)}` : "Cadastre meta para comparar previsto x realizado",
+            status: forecast <= 0 ? "neutral" : forecastAccuracy < 85 ? "attention" : "positive",
+        },
     ];
 
     const coverageData: CoverageRow[] = [
@@ -390,6 +519,7 @@ export function ReportProvider({ children }: { children: ReactNode }) {
                 isLoading: monthQuery.isLoading,
             },
             activeFilters,
+            periodLabel,
             applyDateRange,
             clearFilters,
             isLoadingPage,
@@ -401,6 +531,8 @@ export function ReportProvider({ children }: { children: ReactNode }) {
             invoiceByTagData,
             paymentStatusData,
             insights,
+            priorityInsights,
+            executiveCards,
             coverageData,
             kpis,
         }),
@@ -416,6 +548,7 @@ export function ReportProvider({ children }: { children: ReactNode }) {
             monthQuery.data?.data,
             monthQuery.isLoading,
             activeFilters,
+            periodLabel,
             applyDateRange,
             clearFilters,
             isLoadingPage,
@@ -428,6 +561,8 @@ export function ReportProvider({ children }: { children: ReactNode }) {
             invoiceByTagData,
             paymentStatusData,
             insights,
+            priorityInsights,
+            executiveCards,
             coverageData,
             kpis,
         ],
