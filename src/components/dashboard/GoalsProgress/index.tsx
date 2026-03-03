@@ -1,4 +1,4 @@
-import { Card, Col, Progress } from "antd";
+import { Card, Col } from "antd";
 import styles from "./GoalsProgress.module.scss";
 
 const GoalsProgress = () => {

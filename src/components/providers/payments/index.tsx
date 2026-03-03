@@ -304,7 +304,7 @@ export const PaymentsProvider: React.FC<{ children: React.ReactNode; customDefau
         const cleanedFilters = {
             ...defaultFilters,
             ...(Object.fromEntries(
-                Object.entries(filters).filter(([_, v]) => v !== undefined),
+                Object.entries(filters).filter(([, v]) => v !== undefined),
             ) as Partial<IPaymentFilters>),
         };
 

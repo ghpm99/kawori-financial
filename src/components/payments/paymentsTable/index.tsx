@@ -2,7 +2,7 @@
 
 import { faEllipsis, faFileCircleCheck, faFilePen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { DatePicker, Dropdown, MenuProps, Space, Table, TableProps, Tag, Typography } from "antd";
+import { Dropdown, MenuProps, Space, Table, TableProps, Tag, Typography } from "antd";
 import dayjs from "dayjs";
 import Link from "next/link";
 
@@ -17,8 +17,6 @@ import {
 import { IPaymentFilters, IPaymentPagination, PaymentItem, PaymentsPage } from "@/components/providers/payments";
 import { SelectedRowType } from "@/components/providers/selectPayments";
 import { ITags } from "@/components/providers/tags";
-
-const { RangePicker } = DatePicker;
 
 interface IPaymentsTableProps {
     paymentsData: PaymentsPage;

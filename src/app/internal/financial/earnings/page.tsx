@@ -35,10 +35,8 @@ function EarningsPage({ searchParams }: { searchParams: { [key: string]: string 
     } = useInvoices();
 
     useEffect(() => {
-        Promise.resolve(searchParams).then((params) => {
-            updateFiltersBySearchParams(params);
-        });
-    }, []);
+        updateFiltersBySearchParams(searchParams);
+    }, [searchParams, updateFiltersBySearchParams]);
 
     const { selectedRow } = useSelectPayments();
 

@@ -1,9 +1,8 @@
-import { render, screen, fireEvent, waitFor, findByRole, getByRole, within } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import InvoiceDrawer from ".";
 import { ITags } from "@/components/providers/tags";
 import { IInvoiceDetail } from "@/components/providers/invoices";
 import userEvent from "@testing-library/user-event";
-import dayjs from "dayjs";
 
 // Mock simples do InvoicePayments
 jest.mock("../payments", () => ({

@@ -293,7 +293,7 @@ export function ReportProvider({ children }: { children: ReactNode }) {
 
     const trendData = useMemo(() => toMonthTrend(paymentsQuery.data?.payments || []), [paymentsQuery.data?.payments]);
     const tableData = useMemo(() => toMonthTable(monthQuery.data?.data || []), [monthQuery.data?.data]);
-    const invoiceByTagData = invoiceByTagQuery.data || [];
+    const invoiceByTagData = useMemo(() => invoiceByTagQuery.data || [], [invoiceByTagQuery.data]);
 
     const revenues = metricsQuery.data?.revenues.value ?? trendData.reduce((acc, curr) => acc + curr.credit, 0);
     const expenses = metricsQuery.data?.expenses.value ?? trendData.reduce((acc, curr) => acc + curr.debit, 0);
@@ -315,151 +315,191 @@ export function ReportProvider({ children }: { children: ReactNode }) {
     const forecastGap = totalPayments - forecast;
     const periodLabel = buildPeriodLabel(activeFilters);
 
-    const paymentStatusData: PaymentStatusPoint[] = [
-        { name: "Pagamentos fechados", value: totalClosed },
-        { name: "Pagamentos em aberto", value: totalOpen },
-    ];
+    const paymentStatusData = useMemo<PaymentStatusPoint[]>(
+        () => [
+            { name: "Pagamentos fechados", value: totalClosed },
+            { name: "Pagamentos em aberto", value: totalOpen },
+        ],
+        [totalClosed, totalOpen],
+    );
 
-    const insights = [
-        profit >= 0
-            ? "Resultado liquido positivo no periodo. Mantenha o ritmo de sobra mensal para criar reserva."
-            : "Resultado liquido negativo no periodo. Revisar despesas recorrentes e gastos variaveis e prioridade imediata.",
-        openShare > 35
-            ? "Alto volume financeiro em aberto. Priorize liquidacao para reduzir risco de atraso e juros."
-            : "Volume em aberto controlado para o periodo selecionado.",
-        forecast > 0
-            ? `Aderencia ao previsto: ${forecastAccuracy.toFixed(1)}%. Diferenca absoluta de ${formatMoney(forecastGap)}.`
-            : "Nao ha base prevista para comparar realizado x planejado neste periodo.",
-    ];
+    const insights = useMemo(
+        () => [
+            profit >= 0
+                ? "Resultado liquido positivo no periodo. Mantenha o ritmo de sobra mensal para criar reserva."
+                : "Resultado liquido negativo no periodo. Revisar despesas recorrentes e gastos variaveis e prioridade imediata.",
+            openShare > 35
+                ? "Alto volume financeiro em aberto. Priorize liquidacao para reduzir risco de atraso e juros."
+                : "Volume em aberto controlado para o periodo selecionado.",
+            forecast > 0
+                ? `Aderencia ao previsto: ${forecastAccuracy.toFixed(1)}%. Diferenca absoluta de ${formatMoney(forecastGap)}.`
+                : "Nao ha base prevista para comparar realizado x planejado neste periodo.",
+        ],
+        [profit, openShare, forecast, forecastAccuracy, forecastGap],
+    );
 
-    const priorityInsights = [
-        {
-            id: "profit-health",
-            title: "Saude do resultado",
-            severity: profit < 0 ? "critical" : "good",
-            metric: formatMoney(profit),
-            context:
-                profit < 0 ? "O periodo fechou com resultado negativo." : "O periodo fechou com resultado positivo.",
-            action:
-                profit < 0
-                    ? "Reduzir despesas recorrentes e renegociar compromissos fixos imediatamente."
-                    : "Direcionar parte do saldo para reserva e amortizacao de custos futuros.",
-        },
-        {
-            id: "open-balance",
-            title: "Risco de pendencias",
-            severity: openShare >= 40 ? "critical" : openShare >= 25 ? "attention" : "good",
-            metric: `${openShare.toFixed(1)}% em aberto`,
-            context:
-                openShare >= 40
-                    ? "Percentual em aberto elevado para o volume movimentado."
-                    : openShare >= 25
-                      ? "Existem pendencias relevantes no periodo."
-                      : "Volume em aberto em faixa controlada.",
-            action:
-                openShare >= 40
-                    ? "Priorizar liquidacao das maiores pendencias nesta semana."
-                    : openShare >= 25
-                      ? "Criar um plano quinzenal para reduzir pendencias gradualmente."
-                      : "Manter rotina de acompanhamento para preservar liquidez.",
-        },
-        {
-            id: "forecast-track",
-            title: "Aderencia ao planejamento",
-            severity:
-                forecast <= 0
-                    ? "attention"
-                    : forecastAccuracy < 85
-                      ? "attention"
-                      : forecastAccuracy > 110
-                        ? "attention"
-                        : "good",
-            metric: forecast > 0 ? `${forecastAccuracy.toFixed(1)}%` : "Sem previsao",
-            context:
-                forecast <= 0
-                    ? "Nao existe valor previsto para comparar com o realizado."
-                    : `Diferenca entre previsto e realizado de ${formatMoney(forecastGap)}.`,
-            action:
-                forecast <= 0
-                    ? "Definir meta financeira para habilitar controle de desvio."
-                    : "Ajustar o planejamento do proximo ciclo usando o desvio atual.",
-        },
-    ] satisfies PriorityInsight[];
+    const priorityInsights = useMemo<PriorityInsight[]>(
+        () => {
+            const items: PriorityInsight[] = [
+                {
+                    id: "profit-health",
+                    title: "Saude do resultado",
+                    severity: profit < 0 ? "critical" : "good",
+                    metric: formatMoney(profit),
+                    context:
+                        profit < 0
+                            ? "O periodo fechou com resultado negativo."
+                            : "O periodo fechou com resultado positivo.",
+                    action:
+                        profit < 0
+                            ? "Reduzir despesas recorrentes e renegociar compromissos fixos imediatamente."
+                            : "Direcionar parte do saldo para reserva e amortizacao de custos futuros.",
+                },
+                {
+                    id: "open-balance",
+                    title: "Risco de pendencias",
+                    severity: openShare >= 40 ? "critical" : openShare >= 25 ? "attention" : "good",
+                    metric: `${openShare.toFixed(1)}% em aberto`,
+                    context:
+                        openShare >= 40
+                            ? "Percentual em aberto elevado para o volume movimentado."
+                            : openShare >= 25
+                              ? "Existem pendencias relevantes no periodo."
+                              : "Volume em aberto em faixa controlada.",
+                    action:
+                        openShare >= 40
+                            ? "Priorizar liquidacao das maiores pendencias nesta semana."
+                            : openShare >= 25
+                              ? "Criar um plano quinzenal para reduzir pendencias gradualmente."
+                              : "Manter rotina de acompanhamento para preservar liquidez.",
+                },
+                {
+                    id: "forecast-track",
+                    title: "Aderencia ao planejamento",
+                    severity:
+                        forecast <= 0
+                            ? "attention"
+                            : forecastAccuracy < 85
+                              ? "attention"
+                              : forecastAccuracy > 110
+                                ? "attention"
+                                : "good",
+                    metric: forecast > 0 ? `${forecastAccuracy.toFixed(1)}%` : "Sem previsao",
+                    context:
+                        forecast <= 0
+                            ? "Nao existe valor previsto para comparar com o realizado."
+                            : `Diferenca entre previsto e realizado de ${formatMoney(forecastGap)}.`,
+                    action:
+                        forecast <= 0
+                            ? "Definir meta financeira para habilitar controle de desvio."
+                            : "Ajustar o planejamento do proximo ciclo usando o desvio atual.",
+                },
+            ];
 
-    priorityInsights.sort((a, b) => severityOrder[b.severity] - severityOrder[a.severity]);
+            return items.sort((a, b) => severityOrder[b.severity] - severityOrder[a.severity]);
+        },
+        [profit, openShare, forecast, forecastAccuracy, forecastGap],
+    );
 
-    const executiveCards: ExecutiveCard[] = [
-        {
-            id: "period-result",
-            title: "Resultado do periodo",
-            value: formatMoney(profit),
-            caption: `Taxa de poupanca: ${savingsRate.toFixed(1)}%`,
-            status: profit < 0 ? "negative" : "positive",
-        },
-        {
-            id: "liquidity",
-            title: "Liquidez das contas",
-            value: `${closedShare.toFixed(1)}% fechado`,
-            caption: `${formatMoney(totalOpen)} ainda em aberto`,
-            status: openShare >= 40 ? "negative" : openShare >= 25 ? "attention" : "positive",
-        },
-        {
-            id: "planning",
-            title: "Aderencia ao planejamento",
-            value: forecast > 0 ? `${forecastAccuracy.toFixed(1)}%` : "Sem previsao",
-            caption:
-                forecast > 0 ? `Gap: ${formatMoney(forecastGap)}` : "Cadastre meta para comparar previsto x realizado",
-            status: forecast <= 0 ? "neutral" : forecastAccuracy < 85 ? "attention" : "positive",
-        },
-    ];
+    const executiveCards = useMemo<ExecutiveCard[]>(
+        () => [
+            {
+                id: "period-result",
+                title: "Resultado do periodo",
+                value: formatMoney(profit),
+                caption: `Taxa de poupanca: ${savingsRate.toFixed(1)}%`,
+                status: profit < 0 ? "negative" : "positive",
+            },
+            {
+                id: "liquidity",
+                title: "Liquidez das contas",
+                value: `${closedShare.toFixed(1)}% fechado`,
+                caption: `${formatMoney(totalOpen)} ainda em aberto`,
+                status: openShare >= 40 ? "negative" : openShare >= 25 ? "attention" : "positive",
+            },
+            {
+                id: "planning",
+                title: "Aderencia ao planejamento",
+                value: forecast > 0 ? `${forecastAccuracy.toFixed(1)}%` : "Sem previsao",
+                caption:
+                    forecast > 0 ? `Gap: ${formatMoney(forecastGap)}` : "Cadastre meta para comparar previsto x realizado",
+                status: forecast <= 0 ? "neutral" : forecastAccuracy < 85 ? "attention" : "positive",
+            },
+        ],
+        [profit, savingsRate, closedShare, totalOpen, openShare, forecast, forecastAccuracy, forecastGap],
+    );
 
-    const coverageData: CoverageRow[] = [
-        {
-            key: "total-payments",
-            label: "Total movimentado",
-            value: formatMoney(totalPayments),
-        },
-        {
-            key: "total-open",
-            label: "Total em aberto",
-            value: `${formatMoney(totalOpen)} (${openShare.toFixed(1)}%)`,
-        },
-        {
-            key: "total-closed",
-            label: "Total fechado",
-            value: `${formatMoney(totalClosed)} (${closedShare.toFixed(1)}%)`,
-        },
-        {
-            key: "forecast-accuracy",
-            label: "Aderencia ao previsto",
-            value: `${forecastAccuracy.toFixed(1)}%`,
-        },
-        {
-            key: "total-count",
-            label: "Quantidade de lancamentos",
-            value: String(totalCount),
-        },
-    ];
+    const coverageData = useMemo<CoverageRow[]>(
+        () => [
+            {
+                key: "total-payments",
+                label: "Total movimentado",
+                value: formatMoney(totalPayments),
+            },
+            {
+                key: "total-open",
+                label: "Total em aberto",
+                value: `${formatMoney(totalOpen)} (${openShare.toFixed(1)}%)`,
+            },
+            {
+                key: "total-closed",
+                label: "Total fechado",
+                value: `${formatMoney(totalClosed)} (${closedShare.toFixed(1)}%)`,
+            },
+            {
+                key: "forecast-accuracy",
+                label: "Aderencia ao previsto",
+                value: `${forecastAccuracy.toFixed(1)}%`,
+            },
+            {
+                key: "total-count",
+                label: "Quantidade de lancamentos",
+                value: String(totalCount),
+            },
+        ],
+        [totalPayments, totalOpen, openShare, totalClosed, closedShare, forecastAccuracy, totalCount],
+    );
 
-    const kpis: ReportKpis = {
-        revenues,
-        expenses,
-        profit,
-        growth,
-        savingsRate,
-        averageTicket,
-        openShare,
-        closedShare,
-        totalPayments,
-        totalOpen,
-        totalClosed,
-        totalCount,
-        forecast,
-        forecastAccuracy,
-        forecastGap,
-        fixedCredit,
-        fixedDebit,
-    };
+    const kpis = useMemo<ReportKpis>(
+        () => ({
+            revenues,
+            expenses,
+            profit,
+            growth,
+            savingsRate,
+            averageTicket,
+            openShare,
+            closedShare,
+            totalPayments,
+            totalOpen,
+            totalClosed,
+            totalCount,
+            forecast,
+            forecastAccuracy,
+            forecastGap,
+            fixedCredit,
+            fixedDebit,
+        }),
+        [
+            revenues,
+            expenses,
+            profit,
+            growth,
+            savingsRate,
+            averageTicket,
+            openShare,
+            closedShare,
+            totalPayments,
+            totalOpen,
+            totalClosed,
+            totalCount,
+            forecast,
+            forecastAccuracy,
+            forecastGap,
+            fixedCredit,
+            fixedDebit,
+        ],
+    );
 
     const hasAnyData = trendData.length > 0 || tableData.length > 0 || invoiceByTagData.length > 0;
 
