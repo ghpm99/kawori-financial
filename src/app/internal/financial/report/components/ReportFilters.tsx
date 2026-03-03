@@ -36,13 +36,41 @@ export function ReportFilters() {
 
     const presets = useMemo(
         () => [
-            { label: "Ultimos 30 dias", value: [dayjs().subtract(29, "day"), dayjs()] as [Dayjs, Dayjs] },
             { label: "Mes atual", value: [dayjs().startOf("month"), dayjs().endOf("month")] as [Dayjs, Dayjs] },
             {
-                label: "Ultimos 90 dias",
-                value: [dayjs().subtract(89, "day"), dayjs()] as [Dayjs, Dayjs],
+                label: "Proximo mes",
+                value: [dayjs().add(1, "month").startOf("month"), dayjs().add(1, "month").endOf("month")] as [
+                    Dayjs,
+                    Dayjs,
+                ],
             },
-            { label: "Ano atual", value: [dayjs().startOf("year"), dayjs().endOf("year")] as [Dayjs, Dayjs] },
+            {
+                label: "Mes passado",
+                value: [dayjs().subtract(1, "month").startOf("month"), dayjs().subtract(1, "month").endOf("month")] as [
+                    Dayjs,
+                    Dayjs,
+                ],
+            },
+            { label: "Ultimos 30 dias", value: [dayjs().subtract(29, "day"), dayjs()] as [Dayjs, Dayjs] },
+            (() => {
+                const now = dayjs();
+                const currentQuarter = Math.floor(now.month() / 3);
+                const quarterStartMonth = currentQuarter === 0 ? 9 : currentQuarter * 3 - 3;
+                const quarterYear = currentQuarter === 0 ? now.year() - 1 : now.year();
+                const quarterStart = dayjs().year(quarterYear).month(quarterStartMonth).startOf("month");
+
+                return {
+                    label: "Ultimo trimestre",
+                    value: [quarterStart, quarterStart.add(2, "month").endOf("month")] as [Dayjs, Dayjs],
+                };
+            })(),
+            {
+                label: "Ano passado",
+                value: [dayjs().subtract(1, "year").startOf("year"), dayjs().subtract(1, "year").endOf("year")] as [
+                    Dayjs,
+                    Dayjs,
+                ],
+            },
         ],
         [],
     );
@@ -62,11 +90,11 @@ export function ReportFilters() {
                         </Form.Item>
                     </Col>
                     <Col xs={24} md={12} lg={14} className={styles.filterActionsCol}>
-                        <Space wrap>
-                            <Button type="primary" htmlType="submit" loading={isFetchingPage}>
+                        <Space wrap className={styles.filterActions}>
+                            <Button type="primary" htmlType="submit" loading={isFetchingPage} className={styles.filterButton}>
                                 Atualizar relatorios
                             </Button>
-                            <Button onClick={handleClearFilters} disabled={isFetchingPage}>
+                            <Button onClick={handleClearFilters} disabled={isFetchingPage} className={styles.filterButton}>
                                 Limpar filtro
                             </Button>
                             {isFetchingPage ? <Text type="secondary">Atualizando dados...</Text> : null}

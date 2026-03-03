@@ -3,20 +3,32 @@
 }
 
 .breadcrumb {
-    margin: 16px;
+    margin: 16px 8px;
 }
 
 .header {
-    margin: 0 16px 16px 16px;
+    margin: 0 8px 16px 8px;
 }
 
 .filtersCard {
-    margin: 0 16px 16px 16px;
+    margin: 0 8px 16px 8px;
 }
 
 .filterActionsCol {
     display: flex;
     align-items: flex-end;
+}
+
+.filterActions {
+    width: 100%;
+}
+
+.filterActions :global(.ant-space-item) {
+    display: flex;
+}
+
+.filterButton {
+    min-width: 156px;
 }
 
 .filterTags {
@@ -84,6 +96,30 @@
 }
 
 @media (max-width: 768px) {
+    .breadcrumb,
+    .header,
+    .filtersCard {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .filterActionsCol {
+        align-items: flex-start;
+    }
+
+    .filterActions {
+        justify-content: flex-start;
+    }
+
+    .filterButton {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .filterActions :global(.ant-space-item) {
+        flex: 1;
+    }
+
     .chartArea {
         height: 280px;
     }
