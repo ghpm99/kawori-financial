@@ -6,6 +6,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { useReport } from "@/components/providers/report";
 
 import styles from "../Overview.module.scss";
+import { formatterDate } from "@/util";
 
 const { Text } = Typography;
 
@@ -77,7 +78,7 @@ export function ReportFilters() {
 
     return (
         <Card title="Filtro de periodo" className={styles.filtersCard}>
-            <Form form={form} layout="vertical" onFinish={onFinish}>
+            <Form form={form} layout="inline" onFinish={onFinish}>
                 <Row gutter={[16, 16]}>
                     <Col xs={24} md={12} lg={10}>
                         <Form.Item name="period" label="Periodo de analise">
@@ -91,10 +92,19 @@ export function ReportFilters() {
                     </Col>
                     <Col xs={24} md={12} lg={14} className={styles.filterActionsCol}>
                         <Space wrap className={styles.filterActions}>
-                            <Button type="primary" htmlType="submit" loading={isFetchingPage} className={styles.filterButton}>
+                            <Button
+                                type="primary"
+                                htmlType="submit"
+                                loading={isFetchingPage}
+                                className={styles.filterButton}
+                            >
                                 Atualizar relatorios
                             </Button>
-                            <Button onClick={handleClearFilters} disabled={isFetchingPage} className={styles.filterButton}>
+                            <Button
+                                onClick={handleClearFilters}
+                                disabled={isFetchingPage}
+                                className={styles.filterButton}
+                            >
                                 Limpar filtro
                             </Button>
                             {isFetchingPage ? <Text type="secondary">Atualizando dados...</Text> : null}
@@ -105,8 +115,10 @@ export function ReportFilters() {
 
             {(activeFilters.date_from || activeFilters.date_to) && (
                 <Space className={styles.filterTags} wrap>
-                    {activeFilters.date_from ? <Tag>{`Data inicial: ${activeFilters.date_from}`}</Tag> : null}
-                    {activeFilters.date_to ? <Tag>{`Data final: ${activeFilters.date_to}`}</Tag> : null}
+                    {activeFilters.date_from ? (
+                        <Tag>{`Data inicial: ${formatterDate(activeFilters.date_from)}`}</Tag>
+                    ) : null}
+                    {activeFilters.date_to ? <Tag>{`Data final: ${formatterDate(activeFilters.date_to)}`}</Tag> : null}
                 </Space>
             )}
         </Card>

@@ -22,7 +22,7 @@ import {
     fetchMonthPayments,
     fetchPaymentReportService,
 } from "@/services/financial/report";
-import { formatMoney, formatterMonthYearDate, getStringValue, updateSearchParams } from "@/util";
+import { formatMoney, formatterDate, formatterMonthYearDate, getStringValue, updateSearchParams } from "@/util";
 
 type ReportTrendPoint = {
     month: string;
@@ -200,7 +200,7 @@ const toMonthTable = (rows: IPaymentMonth[]): ReportMonthTableRow[] =>
 
 const buildPeriodLabel = (filters: FinancialReportFilters): string => {
     if (filters.date_from && filters.date_to) {
-        return `${filters.date_from} ate ${filters.date_to}`;
+        return `${formatterDate(filters.date_from)} ate ${formatterDate(filters.date_to)}`;
     }
 
     if (filters.date_from) {
@@ -288,7 +288,8 @@ export function ReportProvider({ children }: { children: ReactNode }) {
     const isFetchingPage = allQueries.some((query) => query.isFetching);
 
     const requestError = allQueries.find((query) => query.error)?.error as AxiosError<{ msg?: string }> | undefined;
-    const errorMessage = requestError?.response?.data?.msg || "Nao foi possivel consultar os endpoints de relatorio financeiro.";
+    const errorMessage =
+        requestError?.response?.data?.msg || "Nao foi possivel consultar os endpoints de relatorio financeiro.";
 
     const trendData = useMemo(() => toMonthTrend(paymentsQuery.data?.payments || []), [paymentsQuery.data?.payments]);
     const tableData = useMemo(() => toMonthTable(monthQuery.data?.data || []), [monthQuery.data?.data]);
@@ -338,9 +339,7 @@ export function ReportProvider({ children }: { children: ReactNode }) {
             severity: profit < 0 ? "critical" : "good",
             metric: formatMoney(profit),
             context:
-                profit < 0
-                    ? "O periodo fechou com resultado negativo."
-                    : "O periodo fechou com resultado positivo.",
+                profit < 0 ? "O periodo fechou com resultado negativo." : "O periodo fechou com resultado positivo.",
             action:
                 profit < 0
                     ? "Reduzir despesas recorrentes e renegociar compromissos fixos imediatamente."
@@ -408,7 +407,8 @@ export function ReportProvider({ children }: { children: ReactNode }) {
             id: "planning",
             title: "Aderencia ao planejamento",
             value: forecast > 0 ? `${forecastAccuracy.toFixed(1)}%` : "Sem previsao",
-            caption: forecast > 0 ? `Gap: ${formatMoney(forecastGap)}` : "Cadastre meta para comparar previsto x realizado",
+            caption:
+                forecast > 0 ? `Gap: ${formatMoney(forecastGap)}` : "Cadastre meta para comparar previsto x realizado",
             status: forecast <= 0 ? "neutral" : forecastAccuracy < 85 ? "attention" : "positive",
         },
     ];
@@ -463,14 +463,17 @@ export function ReportProvider({ children }: { children: ReactNode }) {
 
     const hasAnyData = trendData.length > 0 || tableData.length > 0 || invoiceByTagData.length > 0;
 
-    const applyDateRange = useCallback((period?: [Dayjs, Dayjs]) => {
-        const nextFilters: FinancialReportFilters = normalizeFilters({
-            date_from: period?.[0]?.format("YYYY-MM-DD"),
-            date_to: period?.[1]?.format("YYYY-MM-DD"),
-        });
+    const applyDateRange = useCallback(
+        (period?: [Dayjs, Dayjs]) => {
+            const nextFilters: FinancialReportFilters = normalizeFilters({
+                date_from: period?.[0]?.format("YYYY-MM-DD"),
+                date_to: period?.[1]?.format("YYYY-MM-DD"),
+            });
 
-        updateSearchParams(router, pathname, nextFilters);
-    }, [router, pathname]);
+            updateSearchParams(router, pathname, nextFilters);
+        },
+        [router, pathname],
+    );
 
     const clearFilters = useCallback(() => {
         updateSearchParams(router, pathname, {});
