@@ -79,6 +79,8 @@ const defaultPaymentDetail: IPaymentDetail = {
     status: 0,
     type: 0,
     name: "",
+    description: "",
+    reference: "",
     date: "",
     installments: 0,
     payment_date: "",

@@ -80,6 +80,10 @@ const PaymentsTable = ({
     updateSelectedRows,
     simplifiedView,
 }: IPaymentsTableProps) => {
+    const normalizeDateRange = (formatString: string | string[]): string[] => {
+        return Array.isArray(formatString) ? formatString : [formatString, formatString];
+    };
+
     const createDropdownMenu = (record: PaymentItem): MenuProps => {
         const items: MenuProps["items"] = [
             {
@@ -122,7 +126,7 @@ const PaymentsTable = ({
             title: "Valor",
             dataIndex: "value",
             key: "value",
-            render: formatMoney,
+            render: (value: number) => formatMoney(value),
         }),
 
         paymentDate: (): SingleColumn => ({
@@ -134,7 +138,8 @@ const PaymentsTable = ({
                 makeFilterDropdownDateRange({
                     name: "payment_date",
                     value: [dayjs(paymentFilters?.payment_date__gte), dayjs(paymentFilters?.payment_date__lte)],
-                    onChange: (_, formatString) => handleDateRangedFilter("payment_date", formatString),
+                    onChange: (_, formatString) =>
+                        handleDateRangedFilter("payment_date", normalizeDateRange(formatString)),
                 }),
             filterIcon: makeSearchFilterIcon,
         }),
@@ -177,7 +182,7 @@ const PaymentsTable = ({
             render: (value) => (value === 0 ? "Credito" : "Debito"),
             filterDropdown: () =>
                 makeFilterDropdownSelect(
-                    paymentFilters?.type ?? "",
+                    String(paymentFilters?.type ?? ""),
                     [
                         { label: "Todos", value: "" },
                         { label: "Credito", value: 0 },
@@ -197,7 +202,7 @@ const PaymentsTable = ({
                 makeFilterDropdownDateRange({
                     name: "date",
                     value: [dayjs(paymentFilters?.date__gte), dayjs(paymentFilters?.date__lte)],
-                    onChange: (_, formatString) => handleDateRangedFilter("date", formatString),
+                    onChange: (_, formatString) => handleDateRangedFilter("date", normalizeDateRange(formatString)),
                 }),
             filterIcon: makeSearchFilterIcon,
         }),

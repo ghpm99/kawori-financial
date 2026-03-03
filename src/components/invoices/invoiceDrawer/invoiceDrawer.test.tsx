@@ -55,6 +55,7 @@ describe("InvoiceDrawer", () => {
         ],
         status: 0,
         active: true,
+        fixed: false,
         value_open: 150.0,
         value_closed: 0,
     };
@@ -144,6 +145,7 @@ describe("InvoiceDrawer", () => {
                     tags: [tagsData[0]],
                     status: 0,
                     active: true,
+                    fixed: false,
                     value_open: 0,
                     value_closed: 0,
                 }}

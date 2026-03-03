@@ -10,6 +10,8 @@ describe("PaymentsDrawer", () => {
         status: faker.number.int({ min: 0, max: 1 }),
         type: faker.number.int({ min: 0, max: 1 }),
         name: `Pagamento ${faker.company.buzzPhrase()}`,
+        description: faker.lorem.sentence(),
+        reference: faker.string.alphanumeric(8),
         date: faker.date.past().toISOString().split("T")[0],
         installments: faker.number.int({ min: 1, max: 12 }),
         payment_date: faker.date.future().toISOString().split("T")[0],
