@@ -32,10 +32,7 @@ const NewPasswordStep = ({ onSuccess, errorMessage, isLoading }: NewPasswordStep
                 requiredMark={false}
             >
                 {renderError()}
-                <Form.Item
-                    name="new_password"
-                    rules={[{ required: true, message: "Digite a nova senha" }]}
-                >
+                <Form.Item name="new_password" rules={[{ required: true, message: "Digite a nova senha" }]}>
                     <Input.Password placeholder="Nova senha" size="large" />
                 </Form.Item>
                 <Form.Item

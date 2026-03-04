@@ -42,10 +42,8 @@ function FinancialPage({ searchParams }: { searchParams: { [key: string]: string
     const { setOpenModal: SetOpenCsvImportModal } = useCsvImportProvider();
 
     useEffect(() => {
-        Promise.resolve(searchParams).then((params) => {
-            updateFiltersBySearchParams(params);
-        });
-    }, []);
+        updateFiltersBySearchParams(searchParams);
+    }, [searchParams, updateFiltersBySearchParams]);
 
     const { selectedRow } = useSelectPayments();
 

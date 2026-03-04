@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { message } from "antd";
 import { AxiosError } from "axios";
@@ -33,18 +33,9 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const verifyLocalStore = (): boolean => {
-    const raw = localStorage.getItem(LOCAL_STORE_ITEM_NAME);
-    if (!raw) return false;
-    const dateNow = new Date();
-    const tokenDate = new Date(raw);
-    return dateNow < tokenDate;
-};
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const router = useRouter();
     const queryClient = useQueryClient();
-    const [authState, setAuthState] = useState<AuthState>("unknown");
 
     const {
         data: verifyTokenData,
@@ -54,23 +45,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } = useQuery({
         queryKey: ["auth"],
         queryFn: verifyTokenService,
-        enabled: authState === "unknown",
         retry: false,
     });
 
-    useEffect(() => {
-        if (verifyTokenData?.data?.msg === "Token válido") {
-            setAuthState("authenticated");
-        }
-    }, [verifyTokenData]);
-
-    useEffect(() => {
-        if (verifyError) {
-            setAuthState("unauthenticated");
-        }
-    }, [verifyError]);
-
-    const isAuthenticated = verifyTokenData?.data?.msg === "Token válido";
+    const isAuthenticated = verifyTokenData?.status === 200;
+    const authState: AuthState = isVerifying ? "unknown" : isAuthenticated ? "authenticated" : "unauthenticated";
 
     const {
         mutateAsync: login,
@@ -95,7 +74,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
         onSuccess: () => {
             sessionGate.invalidate();
-            setAuthState("unauthenticated");
             localStorage.removeItem(LOCAL_STORE_ITEM_NAME);
             queryClient.removeQueries({ queryKey: ["auth"] });
             router.push("/");

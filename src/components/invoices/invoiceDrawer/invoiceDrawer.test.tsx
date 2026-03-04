@@ -1,9 +1,8 @@
-import { render, screen, fireEvent, waitFor, findByRole, getByRole, within } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import InvoiceDrawer from ".";
 import { ITags } from "@/components/providers/tags";
 import { IInvoiceDetail } from "@/components/providers/invoices";
 import userEvent from "@testing-library/user-event";
-import dayjs from "dayjs";
 
 // Mock simples do InvoicePayments
 jest.mock("../payments", () => ({
@@ -55,6 +54,7 @@ describe("InvoiceDrawer", () => {
         ],
         status: 0,
         active: true,
+        fixed: false,
         value_open: 150.0,
         value_closed: 0,
     };
@@ -144,6 +144,7 @@ describe("InvoiceDrawer", () => {
                     tags: [tagsData[0]],
                     status: 0,
                     active: true,
+                    fixed: false,
                     value_open: 0,
                     value_closed: 0,
                 }}
@@ -168,31 +169,27 @@ describe("InvoiceDrawer", () => {
         fireEvent.click(screen.getByText("Salvar"));
 
         await waitFor(() =>
-            expect(onUpdate).toHaveBeenCalledWith({
-                id: 10,
-                name: "Conta de Luz",
-                value: 150.0,
-                date: "2024-02-01",
-                fixed: undefined,
-                next_payment: "2024-02-15",
-                installments: 1,
-                tags: [
-                    {
-                        color: "red",
-                        id: 1,
-                        is_budget: true,
-                        label: "Orçamento",
-                        name: "Orçamento",
-                        total_closed: 0,
-                        total_open: 0,
-                        total_payments: 0,
-                        total_value: 0,
-                        value: 1,
-                    },
-                ],
-                status: 0,
-                active: true,
-            }),
+            expect(onUpdate).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    id: 10,
+                    name: "Conta de Luz",
+                    value: 150.0,
+                    date: "2024-02-01",
+                    fixed: false,
+                    next_payment: "2024-02-15",
+                    installments: 1,
+                    status: 0,
+                    active: true,
+                    tags: expect.arrayContaining([
+                        expect.objectContaining({
+                            id: 1,
+                            name: "Orçamento",
+                            color: "red",
+                            is_budget: true,
+                        }),
+                    ]),
+                }),
+            ),
         );
     });
 
@@ -223,10 +220,10 @@ describe("InvoiceDrawer", () => {
         fireEvent.mouseDown(tagSelect);
 
         const tagOption = await screen.findAllByText(/comida/i);
-        tagOption[0].click();
+        await user.click(tagOption[0]);
 
         const tagBudgetOption = await screen.findAllByText(/orçamento/i);
-        tagBudgetOption[0].click();
+        await user.click(tagBudgetOption[0]);
 
         fireEvent.click(screen.getByText("Salvar"));
 

@@ -12,17 +12,9 @@ const EmailStep = ({ onSuccess, errorMessage, isLoading }: EmailStepProps) => {
 
     return (
         <>
-            <Form
-                form={form}
-                layout="vertical"
-                onFinish={(values) => onSuccess(values.email)}
-                requiredMark={false}
-            >
+            <Form form={form} layout="vertical" onFinish={(values) => onSuccess(values.email)} requiredMark={false}>
                 {errorMessage && <Alert type="error" message={errorMessage} style={{ marginBottom: 16 }} />}
-                <Form.Item
-                    name="email"
-                    rules={[{ type: "email", required: true, message: "Digite um e-mail válido" }]}
-                >
+                <Form.Item name="email" rules={[{ type: "email", required: true, message: "Digite um e-mail válido" }]}>
                     <Input prefix={<MailOutlined />} placeholder="E-mail" size="large" type="email" />
                 </Form.Item>
                 <Form.Item>

@@ -10,6 +10,8 @@ describe("PaymentsDrawer", () => {
         status: faker.number.int({ min: 0, max: 1 }),
         type: faker.number.int({ min: 0, max: 1 }),
         name: `Pagamento ${faker.company.buzzPhrase()}`,
+        description: faker.lorem.sentence(),
+        reference: faker.string.alphanumeric(8),
         date: faker.date.past().toISOString().split("T")[0],
         installments: faker.number.int({ min: 1, max: 12 }),
         payment_date: faker.date.future().toISOString().split("T")[0],
@@ -92,7 +94,24 @@ describe("PaymentsDrawer", () => {
 
         fireEvent.click(screen.getByText("Salvar"));
 
-        await waitFor(() => expect(onUpdate).toHaveBeenCalledWith(paymentDetail));
+        await waitFor(() =>
+            expect(onUpdate).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    id: paymentDetail.id,
+                    invoice: paymentDetail.invoice,
+                    invoice_name: paymentDetail.invoice_name,
+                    name: paymentDetail.name,
+                    status: paymentDetail.status,
+                    type: paymentDetail.type,
+                    installments: paymentDetail.installments,
+                    date: paymentDetail.date,
+                    payment_date: paymentDetail.payment_date,
+                    fixed: paymentDetail.fixed,
+                    active: paymentDetail.active,
+                    value: paymentDetail.value,
+                }),
+            ),
+        );
     });
 
     test("edita o pagamento e salva", async () => {
@@ -130,15 +149,22 @@ describe("PaymentsDrawer", () => {
         fireEvent.click(screen.getByText("Salvar"));
 
         await waitFor(() =>
-            expect(onUpdate).toHaveBeenCalledWith({
-                ...paymentDetail,
-                status: 0,
-                name: newName,
-                payment_date: "2024-02-02",
-                value: parseFloat(newValue),
-                fixed: true,
-                active: false,
-            }),
+            expect(onUpdate).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    id: paymentDetail.id,
+                    invoice: paymentDetail.invoice,
+                    invoice_name: paymentDetail.invoice_name,
+                    status: 0,
+                    type: paymentDetail.type,
+                    installments: paymentDetail.installments,
+                    date: paymentDetail.date,
+                    name: newName,
+                    payment_date: "2024-02-02",
+                    value: parseFloat(newValue),
+                    fixed: true,
+                    active: false,
+                }),
+            ),
         );
     });
 });

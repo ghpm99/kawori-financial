@@ -27,14 +27,12 @@ const config: Config = {
     ],
 
     coverageProvider: "v8",
-    // coverageThreshold: {
-    //     global: {
-    //         branches: 80,
-    //         functions: 65,
-    //         lines: 50,
-    //         statements: 50,
-    //     },
-    // },
+    coverageThreshold: {
+        global: {
+            lines: 85,
+            statements: 85,
+        },
+    },
 };
 
 export default createJestConfig(config);

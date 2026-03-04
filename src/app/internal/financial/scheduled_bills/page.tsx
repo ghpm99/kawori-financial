@@ -35,10 +35,8 @@ function ScheduledBillsPage({ searchParams }: { searchParams: { [key: string]: s
     } = useInvoices();
 
     useEffect(() => {
-        Promise.resolve(searchParams).then((params) => {
-            updateFiltersBySearchParams(params);
-        });
-    }, []);
+        updateFiltersBySearchParams(searchParams);
+    }, [searchParams, updateFiltersBySearchParams]);
 
     const { selectedRow } = useSelectPayments();
 

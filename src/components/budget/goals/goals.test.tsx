@@ -1,6 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 
-import BudgetItem from "./budgetItem";
 import Goals from ".";
 
 jest.mock("./budgetItem", () => jest.fn(() => <div data-testid="budget-item" />));

@@ -17,7 +17,6 @@ import {
 import { formatMoney, formatterDate } from "@/util/index";
 
 import { IPaymentMonth } from "@/components/providers/report";
-import { useTheme } from "@/components/providers/themeProvider/themeContext";
 import { fetchMonthPayments } from "@/services/financial/report";
 import { useQuery } from "@tanstack/react-query";
 import { ColumnType } from "antd/lib/table/interface";
@@ -80,7 +79,7 @@ function ReportPage() {
                     .slice()
                     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
                     // depois calcula o total acumulado
-                    .reduce<{ total: number; items: any[] }>(
+                    .reduce<{ total: number; items: IPaymentMonth[] }>(
                         (acc, item) => {
                             const net = item.total_value_credit - item.total_value_debit;
 

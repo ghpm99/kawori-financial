@@ -20,7 +20,16 @@ describe("paymentsService", () => {
     describe("fetchAllPaymentService", () => {
         it("chama GET /financial/payment/ com filtros e retorna data", async () => {
             const filters: IPaymentFilters = { page: 1, page_size: 10, status: "open" };
-            const mockData = { data: { current_page: 1, total_pages: 1, page_size: 10, has_previous: false, has_next: false, data: [] } };
+            const mockData = {
+                data: {
+                    current_page: 1,
+                    total_pages: 1,
+                    page_size: 10,
+                    has_previous: false,
+                    has_next: false,
+                    data: [],
+                },
+            };
             mockedGet.mockResolvedValueOnce({ data: mockData });
 
             const result = await fetchAllPaymentService(filters);

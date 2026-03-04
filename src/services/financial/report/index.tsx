@@ -1,5 +1,27 @@
 import { apiDjango } from "@/services";
 
+export interface FinancialReportFilters {
+    date_from?: string;
+    date_to?: string;
+}
+
+const withReportFilters = (filters?: FinancialReportFilters) => {
+    if (!filters) {
+        return undefined;
+    }
+
+    const params: FinancialReportFilters = {};
+
+    if (filters.date_from) {
+        params.date_from = filters.date_from;
+    }
+    if (filters.date_to) {
+        params.date_to = filters.date_to;
+    }
+
+    return Object.keys(params).length > 0 ? { params } : undefined;
+};
+
 // Tipos para /financial/report/
 export interface IPaymentChartData {
     label: string;
@@ -73,64 +95,94 @@ export interface IAmountForecastValueResponse {
     data: number;
 }
 
-// Atualizando as funções de serviço com os tipos corretos
-export const fetchMonthPayments = async (): Promise<IPaymentMonthResponse> => {
-    const response = await apiDjango.get<IPaymentMonthResponse>("/financial/payment/month/");
-    return response.data;
-};
-
-export const fetchPaymentReportService = async (): Promise<IPaymentReportResponse["data"]> => {
-    const response = await apiDjango.get<IPaymentReportResponse>("/financial/report/");
-    return response.data.data;
-};
-
-export const fetchCountPaymentReportService = async (): Promise<number> => {
-    const response = await apiDjango.get<ICountPaymentResponse>("/financial/report/count_payment");
-    return response.data.data;
-};
-
-export const fetchAmountPaymentReportService = async (): Promise<number> => {
-    const response = await apiDjango.get<IAmountPaymentResponse>("/financial/report/amount_payment");
-    return response.data.data;
-};
-
-export const fetchAmountPaymentOpenReportService = async (): Promise<number> => {
-    const response = await apiDjango.get<IAmountPaymentOpenResponse>("/financial/report/amount_payment_open");
-    return response.data.data;
-};
-
-export const fetchAmountPaymentClosedReportService = async (): Promise<number> => {
-    const response = await apiDjango.get<IAmountPaymentClosedResponse>("/financial/report/amount_payment_closed");
-    return response.data.data;
-};
-
-export const fetchAmountInvoiceByTagReportService = async (): Promise<IInvoiceByTag[]> => {
-    const response = await apiDjango.get<IInvoiceByTagResponse>("/financial/report/amount_invoice_by_tag");
-    return response.data.data;
-};
-
-export const fetchAmountForecastValueService = async (): Promise<number> => {
-    const response = await apiDjango.get<IAmountForecastValueResponse>("/financial/report/amount_forecast_value");
-    return response.data.data;
-};
-
-interface MetricData {
+export interface MetricData {
     value: number;
     metric_value: number;
 }
 
-interface GrowthData {
+export interface GrowthData {
     value: number;
 }
 
-interface FinancialMetricsResponse {
+export interface FinancialMetricsResponse {
     revenues: MetricData;
     expenses: MetricData;
     profit: MetricData;
     growth: GrowthData;
 }
 
-export const fetchFinancialMetricsService = async (): Promise<FinancialMetricsResponse> => {
-    const response = await apiDjango.get<FinancialMetricsResponse>("/financial/report/metrics/");
+// Atualizando as funcoes de servico com os tipos corretos
+export const fetchMonthPayments = async (filters?: FinancialReportFilters): Promise<IPaymentMonthResponse> => {
+    const response = await apiDjango.get<IPaymentMonthResponse>(
+        "/financial/payment/month/",
+        withReportFilters(filters),
+    );
+    return response.data;
+};
+
+export const fetchPaymentReportService = async (
+    filters?: FinancialReportFilters,
+): Promise<IPaymentReportResponse["data"]> => {
+    const response = await apiDjango.get<IPaymentReportResponse>("/financial/report/", withReportFilters(filters));
+    return response.data.data;
+};
+
+export const fetchCountPaymentReportService = async (filters?: FinancialReportFilters): Promise<number> => {
+    const response = await apiDjango.get<ICountPaymentResponse>(
+        "/financial/report/count_payment",
+        withReportFilters(filters),
+    );
+    return response.data.data;
+};
+
+export const fetchAmountPaymentReportService = async (filters?: FinancialReportFilters): Promise<number> => {
+    const response = await apiDjango.get<IAmountPaymentResponse>(
+        "/financial/report/amount_payment",
+        withReportFilters(filters),
+    );
+    return response.data.data;
+};
+
+export const fetchAmountPaymentOpenReportService = async (filters?: FinancialReportFilters): Promise<number> => {
+    const response = await apiDjango.get<IAmountPaymentOpenResponse>(
+        "/financial/report/amount_payment_open",
+        withReportFilters(filters),
+    );
+    return response.data.data;
+};
+
+export const fetchAmountPaymentClosedReportService = async (filters?: FinancialReportFilters): Promise<number> => {
+    const response = await apiDjango.get<IAmountPaymentClosedResponse>(
+        "/financial/report/amount_payment_closed",
+        withReportFilters(filters),
+    );
+    return response.data.data;
+};
+
+export const fetchAmountInvoiceByTagReportService = async (
+    filters?: FinancialReportFilters,
+): Promise<IInvoiceByTag[]> => {
+    const response = await apiDjango.get<IInvoiceByTagResponse>(
+        "/financial/report/amount_invoice_by_tag",
+        withReportFilters(filters),
+    );
+    return response.data.data;
+};
+
+export const fetchAmountForecastValueService = async (filters?: FinancialReportFilters): Promise<number> => {
+    const response = await apiDjango.get<IAmountForecastValueResponse>(
+        "/financial/report/amount_forecast_value",
+        withReportFilters(filters),
+    );
+    return response.data.data;
+};
+
+export const fetchFinancialMetricsService = async (
+    filters?: FinancialReportFilters,
+): Promise<FinancialMetricsResponse> => {
+    const response = await apiDjango.get<FinancialMetricsResponse>(
+        "/financial/report/metrics/",
+        withReportFilters(filters),
+    );
     return response.data;
 };

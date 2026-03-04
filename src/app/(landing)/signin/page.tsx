@@ -3,11 +3,12 @@
 import { useEffect } from "react";
 
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
-import { Alert, Button, Card, Form, Input } from "antd";
+import { Alert, Button, Card, Divider, Form, Input } from "antd";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/components/providers/auth";
+import SocialAuthButtons from "@/components/socialAuthButtons";
 
 import styles from "./signin.module.scss";
 
@@ -15,7 +16,6 @@ const SigninPage = () => {
     const [form] = Form.useForm();
     const { signIn, isAuthenticated, isLoading, signInMessage } = useAuth();
     const navigate = useRouter();
-    console.log("isAuthenticated", isAuthenticated);
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -40,6 +40,9 @@ const SigninPage = () => {
                     <Form.Item style={{ textAlign: "right", marginBottom: 8 }}>
                         <Link href="/reset-password">Esqueceu sua senha?</Link>
                     </Form.Item>
+
+                    <Divider plain>ou</Divider>
+                    <SocialAuthButtons mode="login" title="Acesse sua conta com" className={styles.socialButtons} />
 
                     <Form.Item>
                         <Button

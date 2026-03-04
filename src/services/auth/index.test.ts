@@ -1,4 +1,17 @@
-import { apiAuth, signinService, signupService, verifyTokenService, signoutService, refreshTokenService } from ".";
+import {
+    apiAuth,
+    refreshTokenService,
+    resendEmailVerificationService,
+    signinService,
+    socialAccountsService,
+    socialAuthorizeService,
+    socialProvidersService,
+    signoutService,
+    signupService,
+    unlinkSocialAccountService,
+    verifyEmailService,
+    verifyTokenService,
+} from ".";
 
 describe("authService", () => {
     let postSpy: jest.SpyInstance;
@@ -20,7 +33,7 @@ describe("authService", () => {
 
             await signinService(args);
 
-            expect(postSpy).toHaveBeenCalledWith("token/", args);
+            expect(postSpy).toHaveBeenCalledWith("token/", { username: "user", password: "pass" });
         });
     });
 
@@ -37,7 +50,7 @@ describe("authService", () => {
 
     describe("verifyTokenService", () => {
         it("chama POST token/verify/", async () => {
-            postSpy.mockResolvedValueOnce({ data: { msg: "Token válido" } });
+            postSpy.mockResolvedValueOnce({ data: { msg: "Token valido" } });
 
             await verifyTokenService();
 
@@ -70,6 +83,82 @@ describe("authService", () => {
             postSpy.mockRejectedValueOnce(err);
 
             await expect(refreshTokenService()).rejects.toThrow("Refresh failed");
+        });
+    });
+
+    describe("email verification services", () => {
+        it("chama POST email/verify/ com token", async () => {
+            postSpy.mockResolvedValueOnce({ data: { msg: "ok" }, status: 200 } as any);
+
+            await verifyEmailService({ token: "abc123" });
+
+            expect(postSpy).toHaveBeenCalledWith("email/verify/", { token: "abc123" });
+        });
+
+        it("chama POST email/resend-verification/ sem payload", async () => {
+            postSpy.mockResolvedValueOnce({ data: { msg: "ok" }, status: 200 } as any);
+
+            await resendEmailVerificationService();
+
+            expect(postSpy).toHaveBeenCalledWith("email/resend-verification/");
+        });
+    });
+
+    describe("social auth services", () => {
+        it("chama GET social/providers/", async () => {
+            getSpy.mockResolvedValueOnce({
+                data: {
+                    providers: [{ provider: "google", name: "Google", scopes: ["openid"] }],
+                },
+                status: 200,
+            } as any);
+
+            await socialProvidersService();
+
+            expect(getSpy).toHaveBeenCalledWith("social/providers/");
+        });
+
+        it("chama GET social/<provider>/authorize/ com query params", async () => {
+            getSpy.mockResolvedValueOnce({
+                data: { provider: "google", mode: "login", authorize_url: "https://accounts.google.com" },
+                status: 200,
+            } as any);
+
+            await socialAuthorizeService("google", {
+                mode: "login",
+                frontend_redirect_uri: "https://frontend.app/internal/financial",
+            });
+
+            expect(getSpy).toHaveBeenCalledWith("social/google/authorize/", {
+                params: {
+                    mode: "login",
+                    frontend_redirect_uri: "https://frontend.app/internal/financial",
+                },
+            });
+        });
+
+        it("chama GET social/accounts/", async () => {
+            getSpy.mockResolvedValueOnce({
+                data: {
+                    accounts: [],
+                },
+                status: 200,
+            } as any);
+
+            await socialAccountsService();
+
+            expect(getSpy).toHaveBeenCalledWith("social/accounts/");
+        });
+
+        it("chama POST social/accounts/<provider>/unlink/", async () => {
+            postSpy.mockResolvedValueOnce({
+                data: { msg: "Conta social desvinculada." },
+                status: 200,
+            } as any);
+
+            await unlinkSocialAccountService("google");
+
+            expect(postSpy).toHaveBeenCalledWith("social/accounts/google/unlink/");
         });
     });
 });

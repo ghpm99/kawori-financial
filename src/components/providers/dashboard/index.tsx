@@ -61,17 +61,17 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
         isLoading: isLoadingMetrics,
     } = useQuery({
         queryKey: ["metrics_get_total"],
-        queryFn: fetchFinancialMetricsService,
+        queryFn: () => fetchFinancialMetricsService(),
     });
 
     const { data: paymentData } = useQuery({
         queryKey: ["paymentReport"],
-        queryFn: fetchPaymentReportService,
+        queryFn: () => fetchPaymentReportService(),
     });
 
     const { data: invoiceByTagQuery } = useQuery({
         queryKey: ["invoiceByTag"],
-        queryFn: fetchAmountInvoiceByTagReportService,
+        queryFn: () => fetchAmountInvoiceByTagReportService(),
     });
 
     const { data: budgetsData = [], isLoading: isLoadingBudgetsData } = useQuery({

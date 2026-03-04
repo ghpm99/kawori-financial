@@ -163,7 +163,7 @@ export default function AuditPage() {
         report.by_user.length > 0 ||
         report.interactions_by_day.length > 0;
 
-    const filterTags = Object.entries(activeFilters).filter(([_, value]) => value !== undefined && value !== "");
+    const filterTags = Object.entries(activeFilters).filter(([, value]) => value !== undefined && value !== "");
 
     const applyFilters = (values: AuditReportFilters) => {
         const nextFilters = normalizeFilters(values);

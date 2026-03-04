@@ -65,3 +65,58 @@
 .status-text {
     margin-left: 6px;
 }
+
+.socialAuthSection {
+    margin-top: 8px;
+}
+
+.socialAuthTitle {
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.socialAccountsList {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.socialAccountItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+}
+
+.socialAccountInfo {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.socialAccountsFeedback {
+    margin-top: 4px;
+    margin-bottom: 0;
+}
+
+.passwordSection {
+    margin-top: 8px;
+}
+
+.passwordTitle {
+    display: inline-block;
+    margin-bottom: 8px;
+}
+
+.passwordDescription {
+    margin-bottom: 12px;
+}
+
+.passwordFeedback {
+    margin-top: 10px;
+    margin-bottom: 0;
+}
