@@ -62,6 +62,11 @@ jest.mock("@/components/resetPassword/successStep", () => ({
     default: () => <div>success-step</div>,
 }));
 
+jest.mock("@/components/socialAuthButtons", () => ({
+    __esModule: true,
+    default: () => <div data-testid="social-auth-buttons" />,
+}));
+
 jest.mock("@vercel/analytics/react", () => ({
     Analytics: () => <div data-testid="analytics" />,
 }));

@@ -163,3 +163,52 @@ export const verifyEmailService = (args: IEmailVerificationArgs) =>
     apiAuth.post<{ msg: string }>("email/verify/", args);
 
 export const resendEmailVerificationService = () => apiAuth.post<{ msg: string }>("email/resend-verification/");
+
+export type SocialProvider = "google" | "discord" | "github" | "facebook" | "microsoft";
+
+export interface ISocialProviderResponseItem {
+    provider: SocialProvider;
+    name: string;
+    scopes: string[];
+}
+
+export interface ISocialProvidersResponse {
+    providers: ISocialProviderResponseItem[];
+}
+
+export interface ISocialAuthorizeArgs {
+    mode?: "login" | "link";
+    frontend_redirect_uri?: string;
+}
+
+export interface ISocialAuthorizeResponse {
+    provider: SocialProvider;
+    mode: "login" | "link";
+    authorize_url: string;
+}
+
+export interface ISocialAccount {
+    provider: SocialProvider;
+    email: string;
+    is_email_verified: boolean;
+    full_name: string;
+    avatar_url?: string;
+    linked_at: string;
+    last_login_at?: string;
+}
+
+export interface ISocialAccountsResponse {
+    accounts: ISocialAccount[];
+}
+
+export const socialProvidersService = () => apiAuth.get<ISocialProvidersResponse>("social/providers/");
+
+export const socialAuthorizeService = (provider: SocialProvider, args?: ISocialAuthorizeArgs) =>
+    apiAuth.get<ISocialAuthorizeResponse>(`social/${provider}/authorize/`, {
+        params: args,
+    });
+
+export const socialAccountsService = () => apiAuth.get<ISocialAccountsResponse>("social/accounts/");
+
+export const unlinkSocialAccountService = (provider: SocialProvider) =>
+    apiAuth.post<{ msg: string }>(`social/accounts/${provider}/unlink/`);

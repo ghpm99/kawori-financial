@@ -2,12 +2,13 @@
 
 import { useEffect } from "react";
 
-import { Alert, Button, Card, ConfigProvider, Form, Input } from "antd";
+import { Alert, Button, Card, ConfigProvider, Divider, Form, Input } from "antd";
 import { createStyles } from "antd-style";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/components/providers/auth";
+import SocialAuthButtons from "@/components/socialAuthButtons";
 
 import styles from "./signup.module.scss";
 
@@ -94,6 +95,9 @@ const SignupPage = () => {
                         <Form.Item style={{ textAlign: "center", marginBottom: 0 }}>
                             <Link href="/reset-password">Esqueceu sua senha?</Link>
                         </Form.Item>
+
+                        <Divider plain>ou</Divider>
+                        <SocialAuthButtons mode="login" title="Cadastre-se com" className={styles.socialButtons} />
                     </Form>
                 </Card>
             </div>

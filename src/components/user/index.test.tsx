@@ -3,6 +3,21 @@ import dayjs from "dayjs";
 import UserDrawer, { IUserDrawerProps } from ".";
 import { IUserData } from "../providers/user";
 
+const requestPasswordResetServiceMock = jest.fn();
+const socialAccountsServiceMock = jest.fn();
+const unlinkSocialAccountServiceMock = jest.fn();
+
+jest.mock("@/services/auth", () => ({
+    requestPasswordResetService: (...args: unknown[]) => requestPasswordResetServiceMock(...args),
+    socialAccountsService: (...args: unknown[]) => socialAccountsServiceMock(...args),
+    unlinkSocialAccountService: (...args: unknown[]) => unlinkSocialAccountServiceMock(...args),
+}));
+
+jest.mock("../socialAuthButtons", () => ({
+    __esModule: true,
+    default: () => <div data-testid="social-auth-buttons" />,
+}));
+
 jest.mock("antd", () => {
     const antd = jest.requireActual("antd");
     return {
@@ -41,6 +56,13 @@ const defaultProps: IUserDrawerProps = {
 describe("UserDrawer Component", () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        requestPasswordResetServiceMock.mockResolvedValue({
+            data: { msg: "Se o e-mail estiver cadastrado, voce recebera as instrucoes em breve." },
+        });
+        socialAccountsServiceMock.mockImplementation(() => new Promise(() => {}));
+        unlinkSocialAccountServiceMock.mockResolvedValue({
+            data: { msg: "Conta social desvinculada." },
+        });
     });
 
     test("renderiza o drawer com título correto", () => {
@@ -100,5 +122,18 @@ describe("UserDrawer Component", () => {
         fireEvent.click(closeBtn);
 
         expect(defaultProps.onClose).toHaveBeenCalledTimes(1);
+    });
+
+    test("renderiza secao para alteracao de senha", () => {
+        render(<UserDrawer {...defaultProps} />);
+
+        expect(screen.getByText("Alterar senha")).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "Enviar link para alterar senha" })).toBeInTheDocument();
+    });
+
+    test("carrega contas sociais ao abrir drawer", () => {
+        render(<UserDrawer {...defaultProps} />);
+
+        expect(socialAccountsServiceMock).toHaveBeenCalledTimes(1);
     });
 });
