@@ -1,6 +1,12 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-import { FileTextOutlined, HomeOutlined, LineChartOutlined, SnippetsOutlined } from "@ant-design/icons";
+import {
+    FileSearchOutlined,
+    FileTextOutlined,
+    HomeOutlined,
+    LineChartOutlined,
+    SnippetsOutlined,
+} from "@ant-design/icons";
 import {
     faCalendarDays,
     faChartPie,
@@ -120,6 +126,14 @@ const menuItems: MenuItem[] = [
         label: "Analytics",
         path: "/admin/analytics",
         icon: <FontAwesomeIcon icon={faChartPie} />,
+        securePath: true,
+        userGroup: "admin",
+    },
+    {
+        key: "audit",
+        label: "Auditoria",
+        path: "/admin/audit",
+        icon: <FileSearchOutlined />,
         securePath: true,
         userGroup: "admin",
     },
