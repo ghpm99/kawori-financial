@@ -21,7 +21,7 @@ jest.mock("antd", () => ({
     },
 }));
 
-const { PaymentsProvider, usePayments } = require("./index");
+import { PaymentsProvider, usePayments } from "./index";
 
 const PaymentsConsumer = () => {
     const value = usePayments();

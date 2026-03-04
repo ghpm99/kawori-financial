@@ -32,7 +32,7 @@ jest.mock("./auth", () => ({
     AuthProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="auth-provider">{children}</div>,
 }));
 
-const AppProviders = require("./index").default;
+import AppProviders from "./index";
 
 describe("AppProviders", () => {
     beforeEach(() => {

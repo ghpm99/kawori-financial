@@ -1,5 +1,5 @@
 import React from "react";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen } from "-library/react";
 import { renderHook } from "@testing-library/react";
 
 const useMutationMock = jest.fn();
@@ -46,7 +46,7 @@ jest.mock("@/components/payments/modalPayoff", () => ({
     ),
 }));
 
-const { PayoffProvider, usePayoff } = require("./index");
+import { PayoffProvider, usePayoff } from "./index";
 
 const PayoffConsumer = () => {
     const value = usePayoff();

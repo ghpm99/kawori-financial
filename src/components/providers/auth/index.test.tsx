@@ -15,7 +15,7 @@ jest.mock("next/navigation", () => ({
     useRouter: () => ({ push: jest.fn() }),
 }));
 
-const { AuthProvider, useAuth } = require("./index");
+import { AuthProvider, useAuth } from "./index";
 
 const AuthConsumer = () => {
     const auth = useAuth();
