@@ -1,4 +1,13 @@
-import { apiAuth, signinService, signupService, verifyTokenService, signoutService, refreshTokenService } from ".";
+import {
+    apiAuth,
+    refreshTokenService,
+    resendEmailVerificationService,
+    signinService,
+    signoutService,
+    signupService,
+    verifyEmailService,
+    verifyTokenService,
+} from ".";
 
 describe("authService", () => {
     let postSpy: jest.SpyInstance;
@@ -20,7 +29,7 @@ describe("authService", () => {
 
             await signinService(args);
 
-            expect(postSpy).toHaveBeenCalledWith("token/", args);
+            expect(postSpy).toHaveBeenCalledWith("token/", { username: "user", password: "pass" });
         });
     });
 
@@ -37,7 +46,7 @@ describe("authService", () => {
 
     describe("verifyTokenService", () => {
         it("chama POST token/verify/", async () => {
-            postSpy.mockResolvedValueOnce({ data: { msg: "Token válido" } });
+            postSpy.mockResolvedValueOnce({ data: { msg: "Token valido" } });
 
             await verifyTokenService();
 
@@ -70,6 +79,24 @@ describe("authService", () => {
             postSpy.mockRejectedValueOnce(err);
 
             await expect(refreshTokenService()).rejects.toThrow("Refresh failed");
+        });
+    });
+
+    describe("email verification services", () => {
+        it("chama POST email/verify/ com token", async () => {
+            postSpy.mockResolvedValueOnce({ data: { msg: "ok" }, status: 200 } as any);
+
+            await verifyEmailService({ token: "abc123" });
+
+            expect(postSpy).toHaveBeenCalledWith("email/verify/", { token: "abc123" });
+        });
+
+        it("chama POST email/resend-verification/ sem payload", async () => {
+            postSpy.mockResolvedValueOnce({ data: { msg: "ok" }, status: 200 } as any);
+
+            await resendEmailVerificationService();
+
+            expect(postSpy).toHaveBeenCalledWith("email/resend-verification/");
         });
     });
 });

@@ -49,7 +49,7 @@ const errorInterceptor = async (error: AxiosError) => {
 apiAuth.interceptors.response.use(responseInterceptor, errorInterceptor);
 
 if (typeof window !== "undefined") {
-    apiAuth.get("/csrf/");
+    apiAuth.get("csrf/");
 }
 
 export const refreshTokenAsync = async () => {
@@ -106,7 +106,7 @@ export const signupService = (user: INewUser) => {
 export interface ISigninArgs {
     username: string;
     password: string;
-    remember: boolean;
+    remember?: boolean;
 }
 
 export interface ISigninResponse {
@@ -114,7 +114,11 @@ export interface ISigninResponse {
 }
 
 export const signinService = (args: ISigninArgs) => {
-    const response = apiAuth.post<ISigninResponse>("token/", args);
+    const payload = {
+        username: args.username,
+        password: args.password,
+    };
+    const response = apiAuth.post<ISigninResponse>("token/", payload);
     return response;
 };
 
@@ -150,3 +154,12 @@ export const validatePasswordResetTokenService = (token: string) =>
 
 export const confirmPasswordResetService = (args: IPasswordResetConfirmArgs) =>
     apiAuth.post<{ msg: string | string[] }>("password-reset/confirm/", args);
+
+export interface IEmailVerificationArgs {
+    token: string;
+}
+
+export const verifyEmailService = (args: IEmailVerificationArgs) =>
+    apiAuth.post<{ msg: string }>("email/verify/", args);
+
+export const resendEmailVerificationService = () => apiAuth.post<{ msg: string }>("email/resend-verification/");

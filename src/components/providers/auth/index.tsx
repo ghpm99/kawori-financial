@@ -48,7 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         retry: false,
     });
 
-    const isAuthenticated = verifyTokenData?.data?.msg === "Token válido";
+    const isAuthenticated = verifyTokenData?.status === 200;
     const authState: AuthState = isVerifying ? "unknown" : isAuthenticated ? "authenticated" : "unauthenticated";
 
     const {
