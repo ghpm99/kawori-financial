@@ -25,7 +25,7 @@ jest.mock("../providers/csvImport", () => ({
     useCsvImportProvider: () => useCsvImportProviderMock(),
 }));
 
-const CsvImportModal = require("./CsvImportModal").default;
+import CsvImportModal from "./CsvImportModal";
 
 describe("CsvImportModal", () => {
     beforeEach(() => {

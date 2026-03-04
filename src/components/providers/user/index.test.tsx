@@ -18,7 +18,7 @@ jest.mock("@/services/user", () => ({
     userGroupsService: jest.fn(async () => ({ data: { data: [] } })),
 }));
 
-const { default: UserProvider, useUser } = require("./index");
+import UserProvider, { useUser } from "./index";
 
 const UserConsumer = () => {
     const value = useUser();

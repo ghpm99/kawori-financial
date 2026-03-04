@@ -39,7 +39,7 @@ jest.mock("@/util", () => {
     };
 });
 
-const { InvoicesProvider, useInvoices } = require("./index");
+import { InvoicesProvider, useInvoices } from "./index";
 
 const InvoicesConsumer = () => {
     const value = useInvoices();

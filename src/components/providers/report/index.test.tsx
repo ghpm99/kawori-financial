@@ -27,7 +27,7 @@ jest.mock("@/util", () => {
     };
 });
 
-const { ReportProvider, useReport } = require("./index");
+import { ReportProvider, useReport } from "./index";
 
 const ReportConsumer = () => {
     const value = useReport();

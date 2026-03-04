@@ -64,7 +64,7 @@ jest.mock("antd", () => {
     };
 });
 
-const PaymentsTable = require("./index").default;
+import PaymentsTable from "./index";
 
 describe("PaymentsTable", () => {
     test("renderiza modo completo com filtros, seleção e summary", () => {

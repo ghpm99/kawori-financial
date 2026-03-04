@@ -8,7 +8,7 @@ import * as Sentry from "@sentry/nextjs";
 
 describe("instrumentation-client", () => {
     test("inicializa Sentry e exporta callback de transição", async () => {
-        const module = await import("./instrumentation-client");
+        const instrumentationModule = await import("./instrumentation-client");
 
         expect(Sentry.replayIntegration).toHaveBeenCalled();
         expect(Sentry.init).toHaveBeenCalledWith(
@@ -21,6 +21,6 @@ describe("instrumentation-client", () => {
                 sendDefaultPii: true,
             }),
         );
-        expect(module.onRouterTransitionStart).toBe((Sentry as any).captureRouterTransitionStart);
+        expect(instrumentationModule.onRouterTransitionStart).toBe((Sentry as any).captureRouterTransitionStart);
     });
 });

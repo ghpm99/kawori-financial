@@ -36,7 +36,7 @@ jest.mock("@/services", () => ({
     },
 }));
 
-const { CsvImportProvider, useCsvImportProvider } = require("./index");
+import { CsvImportProvider, useCsvImportProvider } from "./index";
 
 describe("CsvImportProvider", () => {
     beforeEach(() => {
@@ -45,10 +45,10 @@ describe("CsvImportProvider", () => {
     });
 
     test("executa fluxo principal de importação com reconciliação e confirmação", async () => {
-        const mutations: Array<{ mutate: (payload: any) => void; isPending: boolean }> = [];
+        const mutations: Array<{ mutate: () => void; isPending: boolean }> = [];
 
         useMutationMock.mockImplementation((options: any) => {
-            const mutate = (payload: any) => {
+            const mutate = () => {
                 if (options?.onSuccess) {
                     if (options.mutationFn?.toString?.().includes("csv-mapping")) {
                         options.onSuccess({ data: [{ csv_column: "Valor", system_field: "value" }] });

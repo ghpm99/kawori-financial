@@ -97,12 +97,12 @@ jest.mock("../utils/csv", () => ({
     parseCSVText: () => ({ headers: ["Valor"], data: [{ Valor: "100" }] }),
 }));
 
-const SelectTypeStep = require("./SelectTypeStep").default;
-const UploadStep = require("./UploadStep").default;
-const MappingStep = require("./MappingStep").default;
-const PreviewStep = require("./PreviewStep").default;
-const ReconciliationStep = require("./ReconciliationStep").default;
-const ConfirmStep = require("./ConfirmStep").default;
+import SelectTypeStep from "./SelectTypeStep";
+import UploadStep from "./UploadStep";
+import MappingStep from "./MappingStep";
+import PreviewStep from "./PreviewStep";
+import ReconciliationStep from "./ReconciliationStep";
+import ConfirmStep from "./ConfirmStep";
 
 describe("csvImport steps", () => {
     beforeEach(() => {

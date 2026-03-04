@@ -26,7 +26,7 @@ jest.mock("antd", () => ({
     ),
 }));
 
-const ModalPayoff = require("./index").default;
+import ModalPayoff from "./index";
 
 describe("ModalPayoff", () => {
     test("renderiza modo processamento com botoes Voltar/Processar", () => {

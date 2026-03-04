@@ -49,7 +49,7 @@ jest.mock("../payments", () => ({
     InvoicePayments: ({ invoiceData }: { invoiceData: { id: number } }) => <div>invoice-payments-{invoiceData.id}</div>,
 }));
 
-const InvoicesTable = require("./index").default;
+import InvoicesTable from "./index";
 
 describe("InvoicesTable", () => {
     test("renderiza tabela completa com summary e expansao", () => {

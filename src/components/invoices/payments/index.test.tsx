@@ -28,7 +28,7 @@ jest.mock("@/components/payments/paymentsDrawer", () => ({
     default: (props: Record<string, unknown>) => <div data-testid="payments-drawer">{JSON.stringify(props)}</div>,
 }));
 
-const { InvoicePayments } = require("./index");
+import { InvoicePayments } from "./index";
 
 describe("InvoicePayments", () => {
     beforeEach(() => {
