@@ -23,6 +23,7 @@ jobs:
               with:
                   ref: main
                   fetch-depth: 0
+                  fetch-tags: true
 
             - name: Use Node.js
               uses: actions/setup-node@v4
