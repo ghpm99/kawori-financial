@@ -1,0 +1,60 @@
+name: Release PR
+
+on:
+    push:
+        branches:
+            - develop
+    workflow_dispatch:
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+permissions:
+    contents: write
+    pull-requests: write
+
+jobs:
+    prepare-release-pr:
+        name: Prepare release PR
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Use Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20.x"
+
+            - name: Prepare release files
+              run: >
+                  node scripts/prepare-release.mjs --write
+                  --manifest .release-manifest.json
+                  --notes .release-pr-body.md
+
+            - name: Read release manifest
+              id: manifest
+              shell: pwsh
+              run: |
+                  $manifest = Get-Content .release-manifest.json | ConvertFrom-Json
+                  "has_changes=$($manifest.hasChanges.ToString().ToLower())" >> $env:GITHUB_OUTPUT
+                  "next_version=$($manifest.nextVersion)" >> $env:GITHUB_OUTPUT
+                  "next_tag=$($manifest.nextTag)" >> $env:GITHUB_OUTPUT
+
+            - name: Create or update release PR
+              if: steps.manifest.outputs.has_changes == 'true'
+              uses: peter-evans/create-pull-request@v7
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  branch: release/main
+                  base: main
+                  title: "release: ${{ steps.manifest.outputs.next_tag }}"
+                  commit-message: "build(release): prepare ${{ steps.manifest.outputs.next_tag }}"
+                  body-path: .release-pr-body.md
+                  labels: release
+                  delete-branch: true
+                  add-paths: |
+                      package.json
+                      CHANGELOG.md
