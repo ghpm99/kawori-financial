@@ -8,6 +8,23 @@
     min-height: 100vh;
 }
 
+.skip-link {
+    position: absolute;
+    top: -100%;
+    left: 0;
+    z-index: 1000;
+    padding: 8px 16px;
+    background: #ffd700;
+    color: #333;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 0 0 4px 0;
+
+    &:focus {
+        top: 0;
+    }
+}
+
 .body {
     position: relative;
     padding: 8px;
@@ -22,6 +39,24 @@
 
 .footer {
     text-align: center;
-    padding: 16px;
+    padding: 24px 16px;
     color: rgba(255, 255, 255, 0.85);
+
+    nav {
+        margin-bottom: 8px;
+
+        a {
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+                color: #fff;
+            }
+        }
+    }
+
+    p {
+        margin: 0;
+    }
 }
