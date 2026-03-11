@@ -21,6 +21,7 @@ jobs:
             - uses: actions/checkout@v4
               with:
                   fetch-depth: 0
+                  fetch-tags: true
 
             - name: Use Node.js
               uses: actions/setup-node@v4
@@ -35,12 +36,34 @@ jobs:
                   "version=$($package.version)" >> $env:GITHUB_OUTPUT
                   "tag=v$($package.version)" >> $env:GITHUB_OUTPUT
 
+            - name: Check if release should publish
+              id: publish_check
+              shell: pwsh
+              run: |
+                  $tag = "${{ steps.release.outputs.tag }}"
+                  $version = "${{ steps.release.outputs.version }}"
+                  $existingTag = git tag --list $tag
+                  $hasChangelogSection = Select-String -Path CHANGELOG.md -Pattern "^## \[$version\] - " -Quiet
+
+                  if ($existingTag) {
+                      "should_publish=false" >> $env:GITHUB_OUTPUT
+                      "reason=tag-already-exists" >> $env:GITHUB_OUTPUT
+                  } elseif (-not $hasChangelogSection) {
+                      "should_publish=false" >> $env:GITHUB_OUTPUT
+                      "reason=missing-changelog-section" >> $env:GITHUB_OUTPUT
+                  } else {
+                      "should_publish=true" >> $env:GITHUB_OUTPUT
+                      "reason=ready" >> $env:GITHUB_OUTPUT
+                  }
+
             - name: Extract release notes
+              if: steps.publish_check.outputs.should_publish == 'true'
               run: >
                   node scripts/extract-release-notes.mjs --current
                   --output .release-notes.md
 
             - name: Create tag if missing
+              if: steps.publish_check.outputs.should_publish == 'true'
               shell: pwsh
               run: |
                   $tag = "${{ steps.release.outputs.tag }}"
@@ -53,8 +76,13 @@ jobs:
                   }
 
             - name: Create or update GitHub Release
+              if: steps.publish_check.outputs.should_publish == 'true'
               uses: softprops/action-gh-release@v2
               with:
                   tag_name: ${{ steps.release.outputs.tag }}
                   name: ${{ steps.release.outputs.tag }}
                   body_path: .release-notes.md
+
+            - name: Skip publish
+              if: steps.publish_check.outputs.should_publish != 'true'
+              run: echo "Skipping publish because ${{ steps.publish_check.outputs.reason }}"
