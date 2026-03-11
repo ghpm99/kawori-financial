@@ -21,7 +21,7 @@ jobs:
         steps:
             - uses: actions/checkout@v4
               with:
-                  ref: main
+                  ref: develop
                   fetch-depth: 0
                   fetch-tags: true
 
@@ -30,8 +30,10 @@ jobs:
               with:
                   node-version: "20.x"
 
-            - name: Fetch develop branch
-              run: git fetch origin develop:refs/remotes/origin/develop
+            - name: Fetch release branches
+              run: |
+                  git fetch origin main:refs/remotes/origin/main
+                  git fetch origin develop:refs/remotes/origin/develop
 
             - name: Prepare release files
               run: >
