@@ -32,6 +32,7 @@ const write = args.includes("--write");
 const strict = args.includes("--strict");
 const manifestPath = getArgValue("--manifest");
 const notesPath = getArgValue("--notes");
+const rangeArg = getArgValue("--range");
 
 function getArgValue(flag) {
     const index = args.indexOf(flag);
@@ -75,6 +76,10 @@ function getLatestTag() {
 }
 
 function getCommitRange(latestTag) {
+    if (rangeArg) {
+        return rangeArg;
+    }
+
     if (latestTag) {
         return `${latestTag}..HEAD`;
     }
