@@ -38,6 +38,7 @@ Use Yarn (project standard, lockfile is `yarn.lock`).
 
 ## Commit & Pull Request Guidelines
 - Follow conventional commit style used in history: `feat(scope): ...`, `fix(scope): ...`, `test: ...`, `docs: ...`.
+- Always commit repository changes made for the task before finishing, using a semantic/conventional commit message that matches the change.
 - Keep commits focused and descriptive; reference affected area (for example, `financial`, `landing`, `auth`).
 - PRs should include:
   - concise summary of behavior changes,

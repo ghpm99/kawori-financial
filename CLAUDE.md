@@ -135,3 +135,9 @@ Auth service tests use `jest.spyOn(apiAuth, 'method')` instead of `jest.mock` be
 ### CI
 
 GitHub Actions (`.github/workflows/main.yml`) runs on push to `main`, `dev`, `feature/*` and on PRs to `main`. It runs: `yarn format`, `yarn lint`, `yarn coverage`.
+
+### Commits
+
+- Always commit repository changes made for the task before finishing.
+- Use Conventional Commits / semantic commits such as `feat(scope): ...`, `fix(scope): ...`, `docs: ...`, `build(ci): ...`.
+- Keep commits focused on the change being delivered.
