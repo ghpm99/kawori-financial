@@ -75,7 +75,19 @@ describe("ReportProvider", () => {
             }
             if (key === "month") {
                 return {
-                    data: { data: [{ id: 1, date: "2026-03-01", name: "03/2026", credit: 1000, debit: 500, difference: 500, accumulated: 500 }] },
+                    data: {
+                        data: [
+                            {
+                                id: 1,
+                                date: "2026-03-01",
+                                name: "03/2026",
+                                credit: 1000,
+                                debit: 500,
+                                difference: 500,
+                                accumulated: 500,
+                            },
+                        ],
+                    },
                     isLoading: false,
                     isFetching: false,
                 };

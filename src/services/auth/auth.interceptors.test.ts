@@ -10,8 +10,11 @@ import {
 } from ".";
 
 const getRejectedInterceptor = () =>
-    (apiAuth.interceptors.response as unknown as { handlers: Array<{ rejected: (error: AxiosError) => Promise<unknown> }> })
-        .handlers[0].rejected;
+    (
+        apiAuth.interceptors.response as unknown as {
+            handlers: Array<{ rejected: (error: AxiosError) => Promise<unknown> }>;
+        }
+    ).handlers[0].rejected;
 
 const makeAxiosError = (status?: number, config: Record<string, unknown> = { url: "/secure" }) => {
     const error = new AxiosError("request failed");

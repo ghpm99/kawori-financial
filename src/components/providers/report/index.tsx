@@ -349,68 +349,65 @@ export function ReportProvider({ children }: { children: ReactNode }) {
         [profit, openShare, forecast, forecastAccuracy, forecastGap],
     );
 
-    const priorityInsights = useMemo<PriorityInsight[]>(
-        () => {
-            const items: PriorityInsight[] = [
-                {
-                    id: "profit-health",
-                    title: "Saude do resultado",
-                    severity: profit < 0 ? "critical" : "good",
-                    metric: formatMoney(profit),
-                    context:
-                        profit < 0
-                            ? "O periodo fechou com resultado negativo."
-                            : "O periodo fechou com resultado positivo.",
-                    action:
-                        profit < 0
-                            ? "Reduzir despesas recorrentes e renegociar compromissos fixos imediatamente."
-                            : "Direcionar parte do saldo para reserva e amortizacao de custos futuros.",
-                },
-                {
-                    id: "open-balance",
-                    title: "Risco de pendencias",
-                    severity: openShare >= 40 ? "critical" : openShare >= 25 ? "attention" : "good",
-                    metric: `${openShare.toFixed(1)}% em aberto`,
-                    context:
-                        openShare >= 40
-                            ? "Percentual em aberto elevado para o volume movimentado."
-                            : openShare >= 25
-                              ? "Existem pendencias relevantes no periodo."
-                              : "Volume em aberto em faixa controlada.",
-                    action:
-                        openShare >= 40
-                            ? "Priorizar liquidacao das maiores pendencias nesta semana."
-                            : openShare >= 25
-                              ? "Criar um plano quinzenal para reduzir pendencias gradualmente."
-                              : "Manter rotina de acompanhamento para preservar liquidez.",
-                },
-                {
-                    id: "forecast-track",
-                    title: "Aderencia ao planejamento",
-                    severity:
-                        forecast <= 0
+    const priorityInsights = useMemo<PriorityInsight[]>(() => {
+        const items: PriorityInsight[] = [
+            {
+                id: "profit-health",
+                title: "Saude do resultado",
+                severity: profit < 0 ? "critical" : "good",
+                metric: formatMoney(profit),
+                context:
+                    profit < 0
+                        ? "O periodo fechou com resultado negativo."
+                        : "O periodo fechou com resultado positivo.",
+                action:
+                    profit < 0
+                        ? "Reduzir despesas recorrentes e renegociar compromissos fixos imediatamente."
+                        : "Direcionar parte do saldo para reserva e amortizacao de custos futuros.",
+            },
+            {
+                id: "open-balance",
+                title: "Risco de pendencias",
+                severity: openShare >= 40 ? "critical" : openShare >= 25 ? "attention" : "good",
+                metric: `${openShare.toFixed(1)}% em aberto`,
+                context:
+                    openShare >= 40
+                        ? "Percentual em aberto elevado para o volume movimentado."
+                        : openShare >= 25
+                          ? "Existem pendencias relevantes no periodo."
+                          : "Volume em aberto em faixa controlada.",
+                action:
+                    openShare >= 40
+                        ? "Priorizar liquidacao das maiores pendencias nesta semana."
+                        : openShare >= 25
+                          ? "Criar um plano quinzenal para reduzir pendencias gradualmente."
+                          : "Manter rotina de acompanhamento para preservar liquidez.",
+            },
+            {
+                id: "forecast-track",
+                title: "Aderencia ao planejamento",
+                severity:
+                    forecast <= 0
+                        ? "attention"
+                        : forecastAccuracy < 85
+                          ? "attention"
+                          : forecastAccuracy > 110
                             ? "attention"
-                            : forecastAccuracy < 85
-                              ? "attention"
-                              : forecastAccuracy > 110
-                                ? "attention"
-                                : "good",
-                    metric: forecast > 0 ? `${forecastAccuracy.toFixed(1)}%` : "Sem previsao",
-                    context:
-                        forecast <= 0
-                            ? "Nao existe valor previsto para comparar com o realizado."
-                            : `Diferenca entre previsto e realizado de ${formatMoney(forecastGap)}.`,
-                    action:
-                        forecast <= 0
-                            ? "Definir meta financeira para habilitar controle de desvio."
-                            : "Ajustar o planejamento do proximo ciclo usando o desvio atual.",
-                },
-            ];
+                            : "good",
+                metric: forecast > 0 ? `${forecastAccuracy.toFixed(1)}%` : "Sem previsao",
+                context:
+                    forecast <= 0
+                        ? "Nao existe valor previsto para comparar com o realizado."
+                        : `Diferenca entre previsto e realizado de ${formatMoney(forecastGap)}.`,
+                action:
+                    forecast <= 0
+                        ? "Definir meta financeira para habilitar controle de desvio."
+                        : "Ajustar o planejamento do proximo ciclo usando o desvio atual.",
+            },
+        ];
 
-            return items.sort((a, b) => severityOrder[b.severity] - severityOrder[a.severity]);
-        },
-        [profit, openShare, forecast, forecastAccuracy, forecastGap],
-    );
+        return items.sort((a, b) => severityOrder[b.severity] - severityOrder[a.severity]);
+    }, [profit, openShare, forecast, forecastAccuracy, forecastGap]);
 
     const executiveCards = useMemo<ExecutiveCard[]>(
         () => [
@@ -433,7 +430,9 @@ export function ReportProvider({ children }: { children: ReactNode }) {
                 title: "Aderencia ao planejamento",
                 value: forecast > 0 ? `${forecastAccuracy.toFixed(1)}%` : "Sem previsao",
                 caption:
-                    forecast > 0 ? `Gap: ${formatMoney(forecastGap)}` : "Cadastre meta para comparar previsto x realizado",
+                    forecast > 0
+                        ? `Gap: ${formatMoney(forecastGap)}`
+                        : "Cadastre meta para comparar previsto x realizado",
                 status: forecast <= 0 ? "neutral" : forecastAccuracy < 85 ? "attention" : "positive",
             },
         ],

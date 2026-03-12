@@ -7,7 +7,9 @@ const usePayoffMock = jest.fn();
 
 jest.mock("@/components/providers/payments", () => ({
     usePayments: () => usePaymentsMock(),
-    PaymentsProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="payments-provider">{children}</div>,
+    PaymentsProvider: ({ children }: { children: React.ReactNode }) => (
+        <div data-testid="payments-provider">{children}</div>
+    ),
 }));
 
 jest.mock("@/components/providers/selectPayments", () => ({

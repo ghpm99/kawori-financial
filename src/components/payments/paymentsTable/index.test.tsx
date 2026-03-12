@@ -19,11 +19,19 @@ jest.mock("@/components/filterDropdown/Index", () => ({
         onChange(null, ["01/03/2026", "10/03/2026"]);
         return <div>date-filter</div>;
     },
-    makeFilterDropdownInput: (name: string, value: string, onChange: (e: { target: { name: string; value: string } }) => void) => {
+    makeFilterDropdownInput: (
+        name: string,
+        value: string,
+        onChange: (e: { target: { name: string; value: string } }) => void,
+    ) => {
         onChange({ target: { name, value: value || "abc" } });
         return <div>input-filter</div>;
     },
-    makeFilterDropdownSelect: (value: string, options: Array<{ value: string | number }>, onChange: (val: string | number) => void) => {
+    makeFilterDropdownSelect: (
+        value: string,
+        options: Array<{ value: string | number }>,
+        onChange: (val: string | number) => void,
+    ) => {
         onChange(options[0]?.value ?? value);
         return <div>select-filter</div>;
     },
@@ -89,7 +97,18 @@ describe("PaymentsTable", () => {
                             value: 100,
                             invoice_id: 10,
                             invoice_name: "Inv 10",
-                            tags: [{ id: 1, name: "Casa", color: "#fff", is_budget: false, total_closed: 0, total_open: 0, total_payments: 0, total_value: 0 }],
+                            tags: [
+                                {
+                                    id: 1,
+                                    name: "Casa",
+                                    color: "#fff",
+                                    is_budget: false,
+                                    total_closed: 0,
+                                    total_open: 0,
+                                    total_payments: 0,
+                                    total_value: 0,
+                                },
+                            ],
                         },
                     ],
                 }}

@@ -175,9 +175,11 @@ describe("PaymentsTableProvider", () => {
             isLoading: false,
             refetch: jest.fn(),
         });
-        useMutationMock.mockImplementation((options: { onError?: (error: { response?: { data?: { msg?: string } } }) => void }) => ({
-            mutate: () => options.onError?.({ response: { data: { msg: "erro update" } } }),
-        }));
+        useMutationMock.mockImplementation(
+            (options: { onError?: (error: { response?: { data?: { msg?: string } } }) => void }) => ({
+                mutate: () => options.onError?.({ response: { data: { msg: "erro update" } } }),
+            }),
+        );
 
         render(
             <PaymentsTableProvider invoice={invoice}>

@@ -74,7 +74,18 @@ describe("InvoicesTable", () => {
                             value_closed: 70,
                             date: "2026-03-01",
                             next_payment: "2026-03-10",
-                            tags: [{ id: 1, name: "Casa", color: "#fff", is_budget: false, total_closed: 0, total_open: 0, total_payments: 0, total_value: 0 }],
+                            tags: [
+                                {
+                                    id: 1,
+                                    name: "Casa",
+                                    color: "#fff",
+                                    is_budget: false,
+                                    total_closed: 0,
+                                    total_open: 0,
+                                    total_payments: 0,
+                                    total_value: 0,
+                                },
+                            ],
                         },
                     ],
                 }}

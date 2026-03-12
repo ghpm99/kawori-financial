@@ -15,7 +15,9 @@ jest.mock("@ant-design/nextjs-registry", () => ({
 }));
 
 jest.mock("./layout", () => ({
-    LayoutProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="layout-provider">{children}</div>,
+    LayoutProvider: ({ children }: { children: React.ReactNode }) => (
+        <div data-testid="layout-provider">{children}</div>
+    ),
 }));
 
 jest.mock("./user", () => ({

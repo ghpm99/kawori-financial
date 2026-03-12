@@ -56,7 +56,9 @@ const SocialAuthButtons = ({ mode, className, compact = false, title }: ISocialA
             try {
                 const response = await socialProvidersService();
                 const availableProviders = response.data?.providers?.map((item) => item.provider) ?? [];
-                const sortedProviders = SOCIAL_PROVIDER_ORDER.filter((provider) => availableProviders.includes(provider));
+                const sortedProviders = SOCIAL_PROVIDER_ORDER.filter((provider) =>
+                    availableProviders.includes(provider),
+                );
 
                 if (isMounted) {
                     setProviders(sortedProviders);

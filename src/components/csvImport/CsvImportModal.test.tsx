@@ -6,7 +6,15 @@ const useCsvImportProviderMock = jest.fn();
 jest.mock("antd", () => ({
     Modal: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
     Steps: ({ items }: { items: Array<{ title: string }> }) => <div>{items.map((i) => i.title).join(",")}</div>,
-    Button: ({ children, onClick, disabled }: { children: React.ReactNode; onClick?: () => void; disabled?: boolean }) => (
+    Button: ({
+        children,
+        onClick,
+        disabled,
+    }: {
+        children: React.ReactNode;
+        onClick?: () => void;
+        disabled?: boolean;
+    }) => (
         <button onClick={onClick} disabled={disabled}>
             {children}
         </button>
