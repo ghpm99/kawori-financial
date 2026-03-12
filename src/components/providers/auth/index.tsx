@@ -127,12 +127,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             logout();
         };
 
+        const handleTokenRefreshSucceeded = () => {
+            refetchAuth();
+        };
+
         window.addEventListener("tokenRefreshFailed", handleTokenRefreshFailed);
+        window.addEventListener("tokenRefreshSucceeded", handleTokenRefreshSucceeded);
 
         return () => {
             window.removeEventListener("tokenRefreshFailed", handleTokenRefreshFailed);
+            window.removeEventListener("tokenRefreshSucceeded", handleTokenRefreshSucceeded);
         };
-    }, [logout, router]);
+    }, [logout, router, refetchAuth]);
 
     const value: AuthContextType = useMemo(
         () => ({
