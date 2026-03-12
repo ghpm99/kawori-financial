@@ -4,7 +4,7 @@ import { createContext, ReactNode, useCallback, useContext, useMemo } from "reac
 
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { Dayjs } from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
@@ -225,7 +225,18 @@ export function ReportProvider({ children }: { children: ReactNode }) {
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
-    const activeFilters = useMemo(() => getFiltersFromSearchParams(searchParams), [searchParams]);
+    const activeFilters = useMemo(() => {
+        const urlFilters = getFiltersFromSearchParams(searchParams);
+
+        if (!urlFilters.date_from && !urlFilters.date_to) {
+            return {
+                date_from: dayjs().subtract(2, "month").startOf("month").format("YYYY-MM-DD"),
+                date_to: dayjs().add(1, "month").endOf("month").format("YYYY-MM-DD"),
+            };
+        }
+
+        return urlFilters;
+    }, [searchParams]);
 
     const paymentsQuery = useQuery({
         queryKey: ["financial-report", "payments", activeFilters],
@@ -516,7 +527,10 @@ export function ReportProvider({ children }: { children: ReactNode }) {
     );
 
     const clearFilters = useCallback(() => {
-        updateSearchParams(router, pathname, {});
+        updateSearchParams(router, pathname, {
+            date_from: dayjs().subtract(2, "month").startOf("month").format("YYYY-MM-DD"),
+            date_to: dayjs().add(1, "month").endOf("month").format("YYYY-MM-DD"),
+        });
     }, [router, pathname]);
 
     const value = useMemo<ReportContextData>(
