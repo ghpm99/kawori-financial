@@ -40,6 +40,7 @@ Use Yarn (project standard, lockfile is `yarn.lock`).
 - Follow conventional commit style used in history: `feat(scope): ...`, `fix(scope): ...`, `test: ...`, `docs: ...`.
 - Always commit repository changes made for the task before finishing, using a semantic/conventional commit message that matches the change.
 - Keep commits focused and descriptive; reference affected area (for example, `financial`, `landing`, `auth`).
+- A mensagem de commit deve conter **somente** a mensagem semântica. É **proibido** adicionar `Co-Authored-By`, referências a contas externas, trailers, ou qualquer metadado/informação extra de qualquer natureza. Isso polui a geração de releases e changelogs.
 - PRs should include:
   - concise summary of behavior changes,
   - linked issue/ticket (when applicable),
