@@ -1,45 +1,138 @@
 .breadcrumb {
-    margin: 16px;
-}
-
-.container {
-    min-height: 100vh;
+    margin: 16px 8px;
 }
 
 .header {
-    padding: 0;
+    margin: 0 8px 16px 8px;
 }
 
 .title {
-    margin: 8px;
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin: 0 0 4px 0;
 }
 
-.form {
-    margin: 4px;
-    padding: 4px;
+.subtitle {
+    font-size: 0.875rem;
+    color: #8c8c8c;
+    margin: 0;
 }
 
-.header_command {
-    margin: 2px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+.filtersCard {
+    margin-bottom: 16px;
 }
 
-.form_label:first-child {
-    width: 140px;
+.summaryRow {
+    margin-bottom: 16px;
 }
 
-.charts-container {
-    display: flex;
-    flex-wrap: wrap;
-    max-width: 1024px;
+.summaryCard {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    position: relative;
+
+    :global(.ant-card-body) {
+        padding: 20px;
+    }
+
+    :global(.ant-statistic-title) {
+        font-size: 13px;
+        color: #8c8c8c;
+        margin-bottom: 6px;
+    }
+
+    :global(.ant-statistic-content) {
+        font-size: 22px;
+        font-weight: 600;
+    }
+
+    &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+    }
+
+    &.openingBalance::before {
+        background: linear-gradient(135deg, #1677ff 0%, #69b1ff 100%);
+    }
+
+    &.credits::before {
+        background: linear-gradient(135deg, #52c41a 0%, #95de64 100%);
+    }
+
+    &.debits::before {
+        background: linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%);
+    }
+
+    &.closingBalance::before {
+        background: linear-gradient(135deg, #722ed1 0%, #b37feb 100%);
+    }
 }
 
-.table {
-    width: 100%;
-    max-width: 1024px !important;
-    :global(.ant-table-content) {
-        overflow-x: auto;
+.tableCard {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    :global(.ant-card-body) {
+        padding: 0;
+    }
+}
+
+.creditValue {
+    color: #52c41a;
+}
+
+.debitValue {
+    color: #ff4d4f;
+}
+
+.balancePositive {
+    color: #52c41a;
+    font-weight: 600;
+}
+
+.balanceNegative {
+    color: #ff4d4f;
+    font-weight: 600;
+}
+
+.invoiceName {
+    font-size: 12px;
+    color: #8c8c8c;
+    display: block;
+}
+
+.emptyCard {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 48px 0;
+}
+
+@media (max-width: 768px) {
+    .breadcrumb,
+    .header {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .title {
+        font-size: 1.25rem;
+    }
+
+    .summaryCard {
+        :global(.ant-card-body) {
+            padding: 16px;
+        }
+
+        :global(.ant-statistic-content) {
+            font-size: 18px;
+        }
     }
 }
