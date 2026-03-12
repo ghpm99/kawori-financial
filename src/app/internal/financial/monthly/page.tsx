@@ -1,174 +1,242 @@
 "use client";
 
-import { Breadcrumb, Flex, Layout, Table, Tag, Typography } from "antd";
-import {
-    ArcElement,
-    BarElement,
-    CategoryScale,
-    Chart as ChartJS,
-    Legend,
-    LineElement,
-    LinearScale,
-    PointElement,
-    Title,
-    Tooltip,
-} from "chart.js";
+import { useState } from "react";
+import { Alert, Breadcrumb, Card, Col, DatePicker, Empty, Row, Space, Statistic, Table, Tag, Typography } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+import { useQuery } from "@tanstack/react-query";
+import dayjs, { Dayjs } from "dayjs";
+import { ColumnType } from "antd/lib/table/interface";
 
 import { formatMoney, formatterDate } from "@/util/index";
+import { fetchStatementService, StatementFilters, StatementTransaction } from "@/services/financial/statement";
 
-import { IPaymentMonth } from "@/components/providers/report";
-import { fetchMonthPayments } from "@/services/financial/report";
-import { useQuery } from "@tanstack/react-query";
-import { ColumnType } from "antd/lib/table/interface";
 import styles from "./monthly.module.scss";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, ArcElement, Title, Tooltip, Legend);
+const { RangePicker } = DatePicker;
+const { Title: AntTitle, Text } = Typography;
 
-const headerTableFinancial: ColumnType<IPaymentMonth>[] = [
+const rangePresets: { label: string; value: [Dayjs, Dayjs] }[] = [
+    { label: "Este mês", value: [dayjs().startOf("month"), dayjs().endOf("month")] },
     {
-        title: "Nome",
-        dataIndex: "name",
-        key: "name",
+        label: "Mês anterior",
+        value: [dayjs().subtract(1, "month").startOf("month"), dayjs().subtract(1, "month").endOf("month")],
     },
-    {
-        title: "Dia",
-        dataIndex: "date",
-        key: "date",
-        render: (date: string) => formatterDate(date),
-    },
-    {
-        title: "Entrada",
-        dataIndex: "total_value_credit",
-        key: "total_value_credit",
-        render: (value: number) => <Tag color="green">+{formatMoney(value ?? 0)}</Tag>,
-    },
-    {
-        title: "Saída",
-        dataIndex: "total_value_debit",
-        key: "total_value_debit",
-        render: (value: number) => <Tag color="volcano">-{formatMoney(value ?? 0)}</Tag>,
-    },
-    {
-        title: "Total",
-        dataIndex: "total",
-        key: "total",
-        render: (total: number) => (
-            <>
-                {total >= 0 ? (
-                    <Tag color="green">+{formatMoney(total)}</Tag>
-                ) : (
-                    <Tag color="volcano">{formatMoney(total)}</Tag>
-                )}
-            </>
-        ),
-    },
+    { label: "Últimos 3 meses", value: [dayjs().subtract(2, "month").startOf("month"), dayjs().endOf("month")] },
+    { label: "Este ano", value: [dayjs().startOf("year"), dayjs().endOf("month")] },
 ];
-function ReportPage() {
-    const { data: monthData, isLoading: isLoadingMonth } = useQuery({
-        queryKey: ["month"],
-        queryFn: async () => {
-            try {
-                const response = await fetchMonthPayments();
 
-                if (!response?.data || response.data.length === 0) {
-                    return { data: [] };
-                }
+function StatementPage() {
+    const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().startOf("month"), dayjs().endOf("month")]);
 
-                const data = response.data
-                    // primeiro ordena na ordem correta para o acumulado
-                    .slice()
-                    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-                    // depois calcula o total acumulado
-                    .reduce<{ total: number; items: IPaymentMonth[] }>(
-                        (acc, item) => {
-                            const net = item.total_value_credit - item.total_value_debit;
+    const filters: StatementFilters = {
+        date_from: dateRange[0].format("YYYY-MM-DD"),
+        date_to: dateRange[1].format("YYYY-MM-DD"),
+    };
 
-                            const total = acc.total + net;
-
-                            acc.items.push({
-                                ...item,
-                                total,
-                                dateTimestamp: new Date(item.date).getTime(),
-                            });
-
-                            acc.total = total;
-                            return acc;
-                        },
-                        { total: 0, items: [] },
-                    )
-                    .items // por fim, ordena como quiser exibir
-                    .sort((a, b) => {
-                        if (b.dateTimestamp !== a.dateTimestamp) {
-                            return b.dateTimestamp - a.dateTimestamp;
-                        }
-                        return b.id - a.id;
-                    });
-
-                return { data };
-            } catch (error) {
-                console.error("Erro ao buscar pagamentos:", error);
-                return { data: [] };
-            }
-        },
+    const { data, isLoading, isError, error } = useQuery({
+        queryKey: ["financial-statement", filters],
+        queryFn: () => fetchStatementService(filters),
     });
+
+    const columns: ColumnType<StatementTransaction>[] = [
+        {
+            title: "Data",
+            dataIndex: "payment_date",
+            key: "payment_date",
+            width: 120,
+            render: (date: string) => formatterDate(date),
+        },
+        {
+            title: "Descrição",
+            dataIndex: "name",
+            key: "name",
+            render: (_: string, record: StatementTransaction) => (
+                <>
+                    <span>{record.name}</span>
+                    {record.invoice_name && <span className={styles.invoiceName}>{record.invoice_name}</span>}
+                    {record.tags.length > 0 && (
+                        <div>
+                            {record.tags.map((tag) => (
+                                <Tag key={tag.id} color={tag.color} style={{ marginTop: 4 }}>
+                                    {tag.name}
+                                </Tag>
+                            ))}
+                        </div>
+                    )}
+                </>
+            ),
+        },
+        {
+            title: "Valor",
+            dataIndex: "value",
+            key: "value",
+            width: 160,
+            align: "right",
+            render: (value: number, record: StatementTransaction) =>
+                record.type === 0 ? (
+                    <Tag color="green">+{formatMoney(value)}</Tag>
+                ) : (
+                    <Tag color="volcano">-{formatMoney(value)}</Tag>
+                ),
+        },
+        {
+            title: "Saldo",
+            dataIndex: "running_balance",
+            key: "running_balance",
+            width: 160,
+            align: "right",
+            render: (balance: number) => (
+                <span className={balance >= 0 ? styles.balancePositive : styles.balanceNegative}>
+                    {formatMoney(balance)}
+                </span>
+            ),
+        },
+    ];
+
+    const apiErrorMessage = error instanceof Error ? error.message : "Erro ao carregar extrato. Tente novamente.";
+
+    const is400Error =
+        error &&
+        "response" in (error as object) &&
+        (error as { response?: { status?: number } }).response?.status === 400;
 
     return (
         <>
             <Breadcrumb
                 className={styles.breadcrumb}
-                items={[{ title: "Kawori" }, { title: "Financeiro" }, { title: "Overview" }]}
+                items={[{ title: "Kawori" }, { title: "Financeiro" }, { title: "Extrato Bancário" }]}
             />
-            <Layout>
-                <Flex align="center" vertical gap={"8px"}>
-                    <Table
-                        className={styles["table"]}
-                        columns={headerTableFinancial}
-                        dataSource={monthData?.data}
-                        loading={isLoadingMonth}
-                        summary={(paymentData) => <TableSummary paymentData={paymentData} />}
-                        pagination={false}
-                        style={{
-                            borderRadius: "20px",
+
+            <div className={styles.header}>
+                <AntTitle level={3} className={styles.title}>
+                    Extrato Bancário
+                </AntTitle>
+                <p className={styles.subtitle}>
+                    Visualize suas transações baixadas em ordem cronológica com saldo acumulado.
+                </p>
+            </div>
+
+            <Card className={styles.filtersCard} size="small">
+                <Space wrap>
+                    <RangePicker
+                        value={dateRange}
+                        onChange={(dates) => {
+                            if (dates && dates[0] && dates[1]) {
+                                setDateRange([dates[0], dates[1]]);
+                            }
                         }}
-                        bordered
+                        presets={rangePresets}
+                        format="DD/MM/YYYY"
+                        allowClear={false}
+                        suffixIcon={<SearchOutlined />}
                     />
-                </Flex>
-            </Layout>
+                </Space>
+            </Card>
+
+            {isError && (
+                <Alert
+                    type="error"
+                    showIcon
+                    style={{ marginBottom: 16 }}
+                    message={is400Error ? "Parâmetros de data inválidos." : apiErrorMessage}
+                />
+            )}
+
+            <Row gutter={[16, 16]} className={styles.summaryRow}>
+                <Col xs={12} sm={6}>
+                    <Card className={`${styles.summaryCard} ${styles.openingBalance}`} loading={isLoading}>
+                        <Statistic
+                            title="Saldo Inicial"
+                            value={data?.summary.opening_balance ?? 0}
+                            prefix="R$"
+                            precision={2}
+                        />
+                    </Card>
+                </Col>
+                <Col xs={12} sm={6}>
+                    <Card className={`${styles.summaryCard} ${styles.credits}`} loading={isLoading}>
+                        <Statistic
+                            title="Entradas"
+                            value={data?.summary.total_credits ?? 0}
+                            prefix="R$"
+                            precision={2}
+                            valueStyle={{ color: "#52c41a" }}
+                        />
+                    </Card>
+                </Col>
+                <Col xs={12} sm={6}>
+                    <Card className={`${styles.summaryCard} ${styles.debits}`} loading={isLoading}>
+                        <Statistic
+                            title="Saídas"
+                            value={data?.summary.total_debits ?? 0}
+                            prefix="R$"
+                            precision={2}
+                            valueStyle={{ color: "#ff4d4f" }}
+                        />
+                    </Card>
+                </Col>
+                <Col xs={12} sm={6}>
+                    <Card className={`${styles.summaryCard} ${styles.closingBalance}`} loading={isLoading}>
+                        <Statistic
+                            title="Saldo Final"
+                            value={data?.summary.closing_balance ?? 0}
+                            prefix="R$"
+                            precision={2}
+                            valueStyle={{
+                                color: (data?.summary.closing_balance ?? 0) >= 0 ? "#52c41a" : "#ff4d4f",
+                            }}
+                        />
+                    </Card>
+                </Col>
+            </Row>
+
+            {!isLoading && !isError && data?.transactions.length === 0 ? (
+                <Card className={styles.emptyCard}>
+                    <Empty description="Nenhuma transação baixada no período selecionado." />
+                </Card>
+            ) : (
+                <Card className={styles.tableCard}>
+                    <Table
+                        columns={columns}
+                        dataSource={data?.transactions}
+                        loading={isLoading}
+                        rowKey="id"
+                        pagination={false}
+                        summary={(pageData) => <TableSummary transactions={pageData} />}
+                        scroll={{ x: 600 }}
+                    />
+                </Card>
+            )}
         </>
     );
 }
 
-function TableSummary({ paymentData }: { paymentData: readonly IPaymentMonth[] }) {
-    const { Text } = Typography;
+function TableSummary({ transactions }: { transactions: readonly StatementTransaction[] }) {
+    let totalCredits = 0;
+    let totalDebits = 0;
 
-    let totalCredit = 0;
-    let totalDebit = 0;
-    let totalClosed = 0;
-    let totalOpen = 0;
-    let totalPayments = 0;
-    paymentData.forEach((payment) => {
-        totalCredit = totalCredit + payment.total_value_credit;
-        totalDebit = totalDebit + payment.total_value_debit;
-        totalOpen = totalOpen + payment.total_value_open;
-        totalClosed = totalClosed + payment.total_value_closed;
-        totalPayments = totalPayments + payment.total_payments;
+    transactions.forEach((t) => {
+        if (t.type === 0) {
+            totalCredits += t.value;
+        } else {
+            totalDebits += t.value;
+        }
     });
 
     return (
-        <>
-            <Table.Summary.Row>
-                <Table.Summary.Cell index={1} colSpan={2}>
-                    <Text strong>Totais:</Text>
-                </Table.Summary.Cell>
-                <Table.Summary.Cell index={3}>
-                    <Tag color="green">+{formatMoney(totalCredit)}</Tag>
-                </Table.Summary.Cell>
-                <Table.Summary.Cell index={4}>
-                    <Tag color="volcano">-{formatMoney(totalDebit)}</Tag>
-                </Table.Summary.Cell>
-            </Table.Summary.Row>
-        </>
+        <Table.Summary.Row>
+            <Table.Summary.Cell index={0} colSpan={2}>
+                <Text strong>Totais:</Text>
+            </Table.Summary.Cell>
+            <Table.Summary.Cell index={2} align="right">
+                <Tag color="green">+{formatMoney(totalCredits)}</Tag>
+                <Tag color="volcano">-{formatMoney(totalDebits)}</Tag>
+            </Table.Summary.Cell>
+            <Table.Summary.Cell index={3} align="right">
+                <Text strong>{formatMoney(totalCredits - totalDebits)}</Text>
+            </Table.Summary.Cell>
+        </Table.Summary.Row>
     );
 }
 
-export default ReportPage;
+export default StatementPage;
