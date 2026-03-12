@@ -126,7 +126,7 @@ describe("ReportProvider", () => {
         expect(updateSearchParamsMock).toHaveBeenCalled();
     });
 
-    test("expõe fallback sem dados e com erro de endpoint", () => {
+    test("expõe fallback sem dados e com erro de endpoint, aplicando filtro default (M-2 a M+1)", () => {
         useSearchParamsMock.mockReturnValue(new URLSearchParams());
         useQueryMock.mockImplementation((options: { queryKey?: unknown[] }) => {
             if (options?.queryKey?.[1] === "payments") {
@@ -146,7 +146,9 @@ describe("ReportProvider", () => {
             </ReportProvider>,
         );
 
-        expect(screen.getByTestId("period-label")).toHaveTextContent("Todo o historico disponivel");
+        const expectedFrom = dayjs().subtract(2, "month").startOf("month").format("DD/MM/YYYY");
+        const expectedTo = dayjs().add(1, "month").endOf("month").format("DD/MM/YYYY");
+        expect(screen.getByTestId("period-label")).toHaveTextContent(`${expectedFrom} ate ${expectedTo}`);
         expect(screen.getByTestId("has-data")).toHaveTextContent("false");
         expect(screen.getByTestId("trend-size")).toHaveTextContent("0");
         expect(screen.getByTestId("table-size")).toHaveTextContent("0");

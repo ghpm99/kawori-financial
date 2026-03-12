@@ -141,3 +141,5 @@ GitHub Actions (`.github/workflows/main.yml`) runs on push to `main`, `dev`, `fe
 - Always commit repository changes made for the task before finishing.
 - Use Conventional Commits / semantic commits such as `feat(scope): ...`, `fix(scope): ...`, `docs: ...`, `build(ci): ...`.
 - Keep commits focused on the change being delivered.
+
+IMPORTANT: Read and follow all instructions in AGENTS.md before starting any task.

@@ -1,5 +1,6 @@
 import { fetchAllBudgetService } from "@/services/financial/budget";
 import {
+    FinancialReportFilters,
     fetchAmountInvoiceByTagReportService,
     fetchFinancialMetricsService,
     fetchPaymentReportService,
@@ -8,7 +9,7 @@ import { formatterMonthYearDate } from "@/util";
 import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
-import { createContext, ReactNode, useContext } from "react";
+import { createContext, ReactNode, useContext, useMemo } from "react";
 import { IBudget } from "../budget";
 
 type CardStatus = "positive" | "negative" | "neutral";
@@ -51,6 +52,14 @@ type DashboardContextData = {
 const DashboardContext = createContext({} as DashboardContextData);
 
 export const DashboardProvider = ({ children }: { children: ReactNode }) => {
+    const currentMonthFilters = useMemo<FinancialReportFilters>(
+        () => ({
+            date_from: dayjs().startOf("month").format("YYYY-MM-DD"),
+            date_to: dayjs().endOf("month").format("YYYY-MM-DD"),
+        }),
+        [],
+    );
+
     const {
         data: metricsData = {
             revenues: { value: 0, metric_value: 1 },
@@ -60,18 +69,18 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
         },
         isLoading: isLoadingMetrics,
     } = useQuery({
-        queryKey: ["metrics_get_total"],
-        queryFn: () => fetchFinancialMetricsService(),
+        queryKey: ["metrics_get_total", currentMonthFilters],
+        queryFn: () => fetchFinancialMetricsService(currentMonthFilters),
     });
 
     const { data: paymentData } = useQuery({
-        queryKey: ["paymentReport"],
-        queryFn: () => fetchPaymentReportService(),
+        queryKey: ["paymentReport", currentMonthFilters],
+        queryFn: () => fetchPaymentReportService(currentMonthFilters),
     });
 
     const { data: invoiceByTagQuery } = useQuery({
-        queryKey: ["invoiceByTag"],
-        queryFn: () => fetchAmountInvoiceByTagReportService(),
+        queryKey: ["invoiceByTag", currentMonthFilters],
+        queryFn: () => fetchAmountInvoiceByTagReportService(currentMonthFilters),
     });
 
     const { data: budgetsData = [], isLoading: isLoadingBudgetsData } = useQuery({
