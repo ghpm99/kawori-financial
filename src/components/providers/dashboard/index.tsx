@@ -60,6 +60,14 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
         [],
     );
 
+    const paymentsChartFilters = useMemo<FinancialReportFilters>(
+        () => ({
+            date_from: dayjs().subtract(2, "month").startOf("month").format("YYYY-MM-DD"),
+            date_to: dayjs().add(1, "month").endOf("month").format("YYYY-MM-DD"),
+        }),
+        [],
+    );
+
     const {
         data: metricsData = {
             revenues: { value: 0, metric_value: 1 },
@@ -74,8 +82,8 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
     });
 
     const { data: paymentData } = useQuery({
-        queryKey: ["paymentReport", currentMonthFilters],
-        queryFn: () => fetchPaymentReportService(currentMonthFilters),
+        queryKey: ["paymentReport", paymentsChartFilters],
+        queryFn: () => fetchPaymentReportService(paymentsChartFilters),
     });
 
     const { data: invoiceByTagQuery } = useQuery({
