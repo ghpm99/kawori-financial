@@ -91,7 +91,18 @@ const InvoicesConsumer = () => {
                         value_closed: 80,
                         date: "2026-03-01",
                         next_payment: "2026-03-10",
-                        tags: [{ id: 1, name: "Casa", color: "#fff", is_budget: false, total_closed: 0, total_open: 0, total_payments: 0, total_value: 0 }],
+                        tags: [
+                            {
+                                id: 1,
+                                name: "Casa",
+                                color: "#fff",
+                                is_budget: false,
+                                total_closed: 0,
+                                total_open: 0,
+                                total_payments: 0,
+                                total_value: 0,
+                            },
+                        ],
                         active: true,
                         fixed: false,
                     })
@@ -111,7 +122,18 @@ const InvoicesConsumer = () => {
                         value_closed: 0,
                         date: "2026-03-01",
                         next_payment: "2026-03-10",
-                        tags: [{ id: 2, name: "Mercado", color: "#000", is_budget: false, total_closed: 0, total_open: 0, total_payments: 0, total_value: 0 }],
+                        tags: [
+                            {
+                                id: 2,
+                                name: "Mercado",
+                                color: "#000",
+                                is_budget: false,
+                                total_closed: 0,
+                                total_open: 0,
+                                total_payments: 0,
+                                total_value: 0,
+                            },
+                        ],
                         active: true,
                         fixed: false,
                     })
@@ -200,13 +222,18 @@ describe("InvoicesProvider", () => {
             isLoading: false,
             refetch: jest.fn(),
         });
-        useMutationMock.mockImplementation((options: { onError?: (error: { response?: { data?: { msg?: string } } }) => void }) => {
-            const currentIndex = mutationCallIndex % 2;
-            mutationCallIndex += 1;
-            return {
-                mutate: () => options.onError?.({ response: { data: { msg: currentIndex === 0 ? "erro update" : "erro create" } } }),
-            };
-        });
+        useMutationMock.mockImplementation(
+            (options: { onError?: (error: { response?: { data?: { msg?: string } } }) => void }) => {
+                const currentIndex = mutationCallIndex % 2;
+                mutationCallIndex += 1;
+                return {
+                    mutate: () =>
+                        options.onError?.({
+                            response: { data: { msg: currentIndex === 0 ? "erro update" : "erro create" } },
+                        }),
+                };
+            },
+        );
 
         render(
             <InvoicesProvider enableUpdateSearchParams={false}>

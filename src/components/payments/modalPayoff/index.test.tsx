@@ -2,7 +2,15 @@ import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 
 jest.mock("antd", () => ({
-    Modal: ({ title, footer, children }: { title: React.ReactNode; footer: React.ReactNode; children: React.ReactNode }) => (
+    Modal: ({
+        title,
+        footer,
+        children,
+    }: {
+        title: React.ReactNode;
+        footer: React.ReactNode;
+        children: React.ReactNode;
+    }) => (
         <div>
             <div>{title}</div>
             <div data-testid="modal-footer">{footer}</div>
@@ -10,7 +18,13 @@ jest.mock("antd", () => ({
         </div>
     ),
     Progress: ({ percent }: { percent: number }) => <div data-testid="progress">{percent}</div>,
-    Table: ({ dataSource, columns }: { dataSource: Array<{ status: string; name: string; description: string }>; columns: Array<{ title: string; render?: (value: string) => React.ReactNode; dataIndex?: string }> }) => (
+    Table: ({
+        dataSource,
+        columns,
+    }: {
+        dataSource: Array<{ status: string; name: string; description: string }>;
+        columns: Array<{ title: string; render?: (value: string) => React.ReactNode; dataIndex?: string }>;
+    }) => (
         <div>
             {dataSource.map((row, idx) => (
                 <div key={idx}>

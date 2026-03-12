@@ -97,7 +97,9 @@ describe("CsvImportProvider", () => {
             return mutation;
         });
 
-        const wrapper = ({ children }: { children: React.ReactNode }) => <CsvImportProvider>{children}</CsvImportProvider>;
+        const wrapper = ({ children }: { children: React.ReactNode }) => (
+            <CsvImportProvider>{children}</CsvImportProvider>
+        );
         const { result } = renderHook(() => useCsvImportProvider(), { wrapper });
 
         act(() => {
@@ -150,7 +152,16 @@ describe("CsvImportProvider", () => {
 
         act(() => {
             result.current.handleChangeTags(1, [
-                { id: 100, name: "Budget", color: "#fff", is_budget: true, total_closed: 0, total_open: 0, total_payments: 0, total_value: 0 },
+                {
+                    id: 100,
+                    name: "Budget",
+                    color: "#fff",
+                    is_budget: true,
+                    total_closed: 0,
+                    total_open: 0,
+                    total_payments: 0,
+                    total_value: 0,
+                },
             ]);
             result.current.handleConfirmImport();
         });
@@ -177,7 +188,9 @@ describe("CsvImportProvider", () => {
             isPending: false,
         }));
 
-        const wrapper = ({ children }: { children: React.ReactNode }) => <CsvImportProvider>{children}</CsvImportProvider>;
+        const wrapper = ({ children }: { children: React.ReactNode }) => (
+            <CsvImportProvider>{children}</CsvImportProvider>
+        );
         const { result } = renderHook(() => useCsvImportProvider(), { wrapper });
 
         act(() => {

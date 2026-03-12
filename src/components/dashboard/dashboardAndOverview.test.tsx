@@ -64,7 +64,13 @@ describe("dashboard and overview components", () => {
     test("renderiza DashboardMetrics", () => {
         render(
             <DashboardMetrics
-                revenues={{ loading: false, value: 10, status: "positive", metricIcon: <span>+</span>, metric_value: 2 }}
+                revenues={{
+                    loading: false,
+                    value: 10,
+                    status: "positive",
+                    metricIcon: <span>+</span>,
+                    metric_value: 2,
+                }}
                 expenses={{ loading: false, value: 5, status: "negative", metricIcon: <span>-</span>, metric_value: 1 }}
                 profit={{ loading: false, value: 5, status: "positive", metricIcon: <span>+</span>, metric_value: 1 }}
                 growth={{ loading: false, value: 10, status: "positive", metricIcon: <span>+</span> }}

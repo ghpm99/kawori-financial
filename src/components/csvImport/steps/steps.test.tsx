@@ -31,7 +31,9 @@ jest.mock("antd", () => {
     };
 
     const Select = ({ onChange, options, children }: any) => (
-        <button onClick={() => onChange?.(options?.[0]?.value ?? children?.[0]?.props?.value ?? "value")}>select</button>
+        <button onClick={() => onChange?.(options?.[0]?.value ?? children?.[0]?.props?.value ?? "value")}>
+            select
+        </button>
     );
     Select.Option = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
 
@@ -216,10 +218,19 @@ describe("csvImport steps", () => {
                     selected: true,
                     is_valid: true,
                     merge_group: "g1",
-                    matched_payment: { id: 10, name: "M1", date: "2026-03-01", payment_date: "2026-03-10", value: 100, score: 95 },
+                    matched_payment: {
+                        id: 10,
+                        name: "M1",
+                        date: "2026-03-01",
+                        payment_date: "2026-03-10",
+                        value: 100,
+                        score: 95,
+                    },
                     match_score: 95,
                     isMatchedPaymentReadOnly: false,
-                    possibly_matched_payment_list: [{ id: 10, name: "M1", date: "2026-03-01", payment_date: "2026-03-10", value: 100, score: 95 }],
+                    possibly_matched_payment_list: [
+                        { id: 10, name: "M1", date: "2026-03-01", payment_date: "2026-03-10", value: 100, score: 95 },
+                    ],
                 },
                 {
                     id: "2",
@@ -229,7 +240,9 @@ describe("csvImport steps", () => {
                     merge_group: "g1",
                     matched_payment: undefined,
                     isMatchedPaymentReadOnly: false,
-                    possibly_matched_payment_list: [{ id: 11, name: "M2", date: "2026-03-02", payment_date: "2026-03-11", value: 200, score: 90 }],
+                    possibly_matched_payment_list: [
+                        { id: 11, name: "M2", date: "2026-03-02", payment_date: "2026-03-11", value: 200, score: 90 },
+                    ],
                 },
             ],
             showOnlyMatches: false,
@@ -257,7 +270,18 @@ describe("csvImport steps", () => {
         const handleCloseModal = jest.fn();
 
         useTagsMock.mockReturnValue({
-            data: [{ id: 1, name: "Budget", color: "#fff", is_budget: true, total_closed: 0, total_open: 0, total_payments: 0, total_value: 0 }],
+            data: [
+                {
+                    id: 1,
+                    name: "Budget",
+                    color: "#fff",
+                    is_budget: true,
+                    total_closed: 0,
+                    total_open: 0,
+                    total_payments: 0,
+                    total_value: 0,
+                },
+            ],
             loading: false,
         });
 

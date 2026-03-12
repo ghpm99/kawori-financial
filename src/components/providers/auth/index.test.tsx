@@ -19,7 +19,11 @@ import { AuthProvider, useAuth } from "./index";
 
 const AuthConsumer = () => {
     const auth = useAuth();
-    return <pre data-testid="auth-context">{JSON.stringify({ isAuthenticated: auth.isAuthenticated, authState: auth.authState })}</pre>;
+    return (
+        <pre data-testid="auth-context">
+            {JSON.stringify({ isAuthenticated: auth.isAuthenticated, authState: auth.authState })}
+        </pre>
+    );
 };
 
 describe("AuthProvider", () => {
