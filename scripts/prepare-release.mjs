@@ -191,6 +191,10 @@ function determineBump(parsedCommit, body) {
     return "none";
 }
 
+function isAutomationCommit(parsedCommit) {
+    return parsedCommit.rawType === "build" && ["release", "sync"].includes(parsedCommit.scope ?? "");
+}
+
 function bumpVersion(version, bump) {
     const [major, minor, patch] = version.split(".").map((part) => Number.parseInt(part, 10));
 
@@ -227,6 +231,11 @@ function buildReleaseData(currentVersion, previousTag, commits) {
 
         if (strict && !parsedCommit.conventional) {
             throw new Error(`Commit "${commit.subject}" does not follow Conventional Commits.`);
+        }
+
+        if (isAutomationCommit(parsedCommit)) {
+            ignoredCommits.push(commit.subject);
+            continue;
         }
 
         const bump = determineBump(parsedCommit, commit.body);
