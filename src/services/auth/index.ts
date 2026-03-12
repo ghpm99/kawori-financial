@@ -65,6 +65,9 @@ export const refreshTokenAsync = async () => {
             if (refreshResponse.status !== 200) {
                 reject(new Error("Falha ao atualizar o token"));
             } else {
+                if (typeof window !== "undefined") {
+                    window.dispatchEvent(new CustomEvent("tokenRefreshSucceeded"));
+                }
                 resolve(refreshResponse.data);
             }
         } catch (error: unknown) {
