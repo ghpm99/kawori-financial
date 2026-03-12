@@ -21,7 +21,7 @@ jobs:
         steps:
             - uses: actions/checkout@v4
               with:
-                  ref: develop
+                  ref: main
                   fetch-depth: 0
                   fetch-tags: true
 
@@ -34,6 +34,22 @@ jobs:
               run: |
                   git fetch origin main:refs/remotes/origin/main
                   git fetch origin develop:refs/remotes/origin/develop
+
+            - name: Create release branch from main
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+                  git checkout -B release/main origin/main
+
+                  git merge origin/develop --no-edit -X theirs || {
+                      git checkout --theirs .
+                      git add .
+                      git -c core.editor=true merge --continue
+                  }
+
+                  # Keep the full changelog history from main before prepending the next section.
+                  git show origin/main:CHANGELOG.md > CHANGELOG.md 2>/dev/null || true
 
             - name: Prepare release files
               run: >
@@ -51,17 +67,18 @@ jobs:
                   "next_version=$($manifest.nextVersion)" >> $env:GITHUB_OUTPUT
                   "next_tag=$($manifest.nextTag)" >> $env:GITHUB_OUTPUT
 
-            - name: Create release branch and PR
+            - name: Push release branch and create PR
               if: steps.manifest.outputs.has_changes == 'true'
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   NEXT_TAG: ${{ steps.manifest.outputs.next_tag }}
               run: |
-                  git config user.name "github-actions[bot]"
-                  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-                  git checkout -B release/main
                   git add package.json CHANGELOG.md
+                  if git diff --cached --quiet; then
+                      echo "No release file changes detected."
+                      exit 0
+                  fi
+
                   git commit -m "build(release): prepare ${NEXT_TAG}"
                   git push --force origin release/main
 

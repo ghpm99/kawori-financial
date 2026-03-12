@@ -55,6 +55,15 @@ describe("auth service interceptors", () => {
         await expect(refreshTokenAsync()).rejects.toThrow("Falha ao atualizar o token");
     });
 
+    test("refreshTokenAsync dispara tokenRefreshSucceeded quando refresh tem sucesso", async () => {
+        const dispatchSpy = jest.spyOn(window, "dispatchEvent");
+        jest.spyOn(apiAuth, "post").mockResolvedValue({ status: 200, data: { msg: "ok" } } as never);
+
+        await refreshTokenAsync();
+
+        expect(dispatchSpy).toHaveBeenCalledWith(expect.objectContaining({ type: "tokenRefreshSucceeded" }));
+    });
+
     test("refreshTokenAsync dispara evento em erro 403", async () => {
         const dispatchSpy = jest.spyOn(window, "dispatchEvent");
         const forbiddenError = makeAxiosError(HttpStatusCode.Forbidden);

@@ -58,8 +58,8 @@ const menuItems: MenuItem[] = [
         userGroup: "financial",
     },
     {
-        key: "mothly_overview",
-        label: "Visão Mensal",
+        key: "bank_statement",
+        label: "Extrato Bancário",
         path: "/internal/financial/monthly",
         icon: <FontAwesomeIcon icon={faChartPie} />,
         securePath: true,
