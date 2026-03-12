@@ -44,7 +44,7 @@ export default function MenuHeader({
     };
 
     return (
-        <div className={styles["menu-header"]}>
+        <nav className={styles["menu-header"]} aria-label="Menu principal">
             <div className={styles["logo-container"]}>
                 <Link href="/" className={styles["logo"]}>
                     Kawori
@@ -56,6 +56,6 @@ export default function MenuHeader({
                 </Link>
                 {renderMenu()}
             </div>
-        </div>
+        </nav>
     );
 }

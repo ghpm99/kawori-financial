@@ -9,6 +9,7 @@ import SignupPage from "./(landing)/signup/page";
 import ResetPasswordPage from "./(landing)/reset-password/page";
 import GlobalError from "./global-error";
 import sitemap from "./sitemap";
+import robots from "./robots";
 
 const pushMock = jest.fn();
 const useAuthMock = jest.fn();
@@ -213,5 +214,13 @@ describe("app core", () => {
         expect(items[0].url).toContain("financeiro.kawori.site/");
         expect(items[1].url).toContain("/signup");
         expect(items[2].url).toContain("/signin");
+    });
+
+    test("robots retorna regras de crawling e sitemap", () => {
+        const result = robots();
+
+        expect(result.rules).toBeDefined();
+        expect(Array.isArray(result.rules)).toBe(true);
+        expect(result.sitemap).toContain("financeiro.kawori.site");
     });
 });
