@@ -65,6 +65,8 @@ jobs:
                   git commit -m "build(release): prepare ${NEXT_TAG}"
                   git push --force origin release/main
 
+                  gh label create release --description "Release PR" --color "0E8A16" 2>/dev/null || true
+
                   EXISTING_PR=$(gh pr list --base main --head release/main --state open --json number --jq '.[0].number // empty')
 
                   if [ -n "$EXISTING_PR" ]; then
