@@ -18,6 +18,25 @@ Evaluate what can be reused from the backend release automation model in this Ne
   - tests with coverage
   - production build
 
+## Root cause of the recurring conflicts
+
+The release flow updates `package.json` and `CHANGELOG.md` in the release PR and merges those changes into `main`.
+
+If those release-only commits are not synchronized back into `develop`, the next release preparation starts from a stale integration branch. At that point, GitHub has to reconcile:
+
+- the version bump already present in `main`
+- the older version still present in `develop`
+- the changelog section already added in `main`
+- the new changelog section being generated again from `develop`
+
+That is why the first automated release can succeed and the following release PRs start showing conflicts repeatedly in the same files.
+
+The flow needs two protections:
+
+1. The release PR branch must be generated from `main`, then merge `develop`, so the automation resolves release-file drift before opening the PR.
+2. After a release PR is merged into `main`, the resulting release commit must be synchronized back into `develop` automatically, with a PR fallback if direct push is blocked.
+3. Automation-only commits such as `build(release)` and `build(sync)` must be ignored by the release preparation script so they never affect the next version bump or changelog.
+
 ## What can be reused directly
 
 The backend model is largely reusable at the process level.
@@ -194,6 +213,14 @@ That means the first adaptation is structural:
 4. Create GitHub Release using the matching changelog section.
 5. Allow hosting provider deployment to happen from `main`.
 
+### Phase 3.5: sync the release commit back to develop
+
+1. Create `.github/workflows/sync-develop.yml`.
+2. Trigger it after pushes to `main`.
+3. Merge `main` back into `develop` automatically.
+4. If direct push to `develop` is rejected, open a sync PR instead of failing silently.
+5. If the merge itself conflicts, open a PR so the conflict is resolved once and the release metadata returns to the integration branch.
+
 ### Phase 4: runtime and observability alignment
 
 Optional but useful for frontend operations:
@@ -233,6 +260,7 @@ Based on the current codebase, the most coherent approach is:
   - release scripts
   - release PR workflow
   - publish workflow
+  - sync from `main` back to `develop`
   - explicit frontend release documentation
 
 ## Conclusion
