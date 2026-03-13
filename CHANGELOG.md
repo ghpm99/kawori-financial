@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.3.0] - 2026-03-13
+
+- Release tag: `v1.3.0`
+- Previous tag: `v1.2.0`
+- Version bump: `minor`
+
+### Features
+
+- implements change settings
+
+
 ## [1.2.0] - 2026-03-12
 
 - Release tag: `v1.2.0`
