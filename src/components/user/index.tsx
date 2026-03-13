@@ -2,7 +2,20 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { Button, Col, DatePicker, Divider, Drawer, Form, Input, Popconfirm, Row, Space, Typography } from "antd";
+import {
+    Button,
+    Col,
+    DatePicker,
+    Divider,
+    Drawer,
+    Form,
+    Input,
+    Popconfirm,
+    Row,
+    Space,
+    Switch,
+    Typography,
+} from "antd";
 import axios from "axios";
 import dayjs from "dayjs";
 
@@ -13,6 +26,7 @@ import {
     SocialProvider,
     unlinkSocialAccountService,
 } from "@/services/auth";
+import { getEmailPreferencesService, IEmailPreferences, updateEmailPreferencesService } from "@/services/user";
 
 import SocialAuthButtons from "../socialAuthButtons";
 import { IUserData } from "../providers/user";
@@ -42,6 +56,74 @@ const UserDrawer = ({ user, open, onClose, onSignout }: IUserDrawerProps) => {
     const [isLoadingSocialAccounts, setIsLoadingSocialAccounts] = useState(false);
     const [socialAccountsMessage, setSocialAccountsMessage] = useState<string | undefined>();
     const [unlinkingProvider, setUnlinkingProvider] = useState<SocialProvider | null>(null);
+    const [emailPreferences, setEmailPreferences] = useState<IEmailPreferences>({
+        allow_all_emails: true,
+        allow_notification: true,
+        allow_promotional: true,
+    });
+    const [isLoadingEmailPreferences, setIsLoadingEmailPreferences] = useState(false);
+    const [isSavingEmailPreferences, setIsSavingEmailPreferences] = useState(false);
+    const [emailPreferencesMessage, setEmailPreferencesMessage] = useState<string | undefined>();
+
+    const loadEmailPreferences = useCallback(async () => {
+        setIsLoadingEmailPreferences(true);
+        setEmailPreferencesMessage(undefined);
+
+        try {
+            const response = await getEmailPreferencesService();
+            setEmailPreferences(response.data);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                setEmailPreferencesMessage(
+                    error.response?.data?.msg ?? "Nao foi possivel carregar preferencias de e-mail.",
+                );
+            } else {
+                setEmailPreferencesMessage("Nao foi possivel carregar preferencias de e-mail.");
+            }
+        } finally {
+            setIsLoadingEmailPreferences(false);
+        }
+    }, []);
+
+    const handleEmailPreferenceChange = async (field: keyof IEmailPreferences, value: boolean) => {
+        setIsSavingEmailPreferences(true);
+        setEmailPreferencesMessage(undefined);
+
+        let updatedPreferences: Partial<IEmailPreferences>;
+
+        if (field === "allow_all_emails") {
+            updatedPreferences = {
+                allow_all_emails: value,
+                allow_notification: value,
+                allow_promotional: value,
+            };
+        } else {
+            const newNotification = field === "allow_notification" ? value : emailPreferences.allow_notification;
+            const newPromotional = field === "allow_promotional" ? value : emailPreferences.allow_promotional;
+            const allEnabled = newNotification && newPromotional;
+
+            updatedPreferences = {
+                allow_notification: newNotification,
+                allow_promotional: newPromotional,
+                ...(allEnabled ? { allow_all_emails: true } : {}),
+            };
+        }
+
+        try {
+            const response = await updateEmailPreferencesService(updatedPreferences);
+            setEmailPreferences(response.data);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                setEmailPreferencesMessage(
+                    error.response?.data?.msg ?? "Nao foi possivel atualizar preferencias de e-mail.",
+                );
+            } else {
+                setEmailPreferencesMessage("Nao foi possivel atualizar preferencias de e-mail.");
+            }
+        } finally {
+            setIsSavingEmailPreferences(false);
+        }
+    };
 
     const handleSignoutClick = () => {
         if (confirmSignout) {
@@ -117,8 +199,9 @@ const UserDrawer = ({ user, open, onClose, onSignout }: IUserDrawerProps) => {
     useEffect(() => {
         if (open) {
             loadSocialAccounts();
+            loadEmailPreferences();
         }
-    }, [open, loadSocialAccounts]);
+    }, [open, loadSocialAccounts, loadEmailPreferences]);
 
     return (
         <Drawer
@@ -283,6 +366,68 @@ const UserDrawer = ({ user, open, onClose, onSignout }: IUserDrawerProps) => {
                     {passwordResetMessage && (
                         <Typography.Paragraph className={styles.passwordFeedback}>
                             {passwordResetMessage}
+                        </Typography.Paragraph>
+                    )}
+                </div>
+                <Divider />
+                <div className={styles.emailPreferencesSection}>
+                    <Typography.Text className={styles.emailPreferencesTitle} type="secondary">
+                        Preferencias de e-mail
+                    </Typography.Text>
+                    <Typography.Paragraph className={styles.emailPreferencesDescription}>
+                        Gerencie quais tipos de e-mail voce deseja receber. E-mails transacionais sao sempre enviados.
+                    </Typography.Paragraph>
+                    {isLoadingEmailPreferences ? (
+                        <Typography.Text type="secondary">Carregando preferencias...</Typography.Text>
+                    ) : (
+                        <div className={styles.emailPreferencesList}>
+                            <div className={styles.emailPreferenceItem}>
+                                <div className={styles.emailPreferenceInfo}>
+                                    <Typography.Text strong>Permitir todos os e-mails</Typography.Text>
+                                    <Typography.Text type="secondary">
+                                        Ativa o recebimento de todos os tipos de e-mail
+                                    </Typography.Text>
+                                </div>
+                                <Switch
+                                    data-testid="switch-allow-all"
+                                    checked={emailPreferences.allow_all_emails}
+                                    onChange={(checked) => handleEmailPreferenceChange("allow_all_emails", checked)}
+                                    disabled={isSavingEmailPreferences}
+                                />
+                            </div>
+                            <div className={styles.emailPreferenceItem}>
+                                <div className={styles.emailPreferenceInfo}>
+                                    <Typography.Text strong>Notificacoes</Typography.Text>
+                                    <Typography.Text type="secondary">
+                                        E-mails sobre vencimentos e alertas da sua conta
+                                    </Typography.Text>
+                                </div>
+                                <Switch
+                                    data-testid="switch-notification"
+                                    checked={emailPreferences.allow_notification}
+                                    onChange={(checked) => handleEmailPreferenceChange("allow_notification", checked)}
+                                    disabled={isSavingEmailPreferences || emailPreferences.allow_all_emails}
+                                />
+                            </div>
+                            <div className={styles.emailPreferenceItem}>
+                                <div className={styles.emailPreferenceInfo}>
+                                    <Typography.Text strong>Promocionais</Typography.Text>
+                                    <Typography.Text type="secondary">
+                                        Novidades, ofertas e comunicacoes de marketing
+                                    </Typography.Text>
+                                </div>
+                                <Switch
+                                    data-testid="switch-promotional"
+                                    checked={emailPreferences.allow_promotional}
+                                    onChange={(checked) => handleEmailPreferenceChange("allow_promotional", checked)}
+                                    disabled={isSavingEmailPreferences || emailPreferences.allow_all_emails}
+                                />
+                            </div>
+                        </div>
+                    )}
+                    {emailPreferencesMessage && (
+                        <Typography.Paragraph className={styles.emailPreferencesFeedback}>
+                            {emailPreferencesMessage}
                         </Typography.Paragraph>
                     )}
                 </div>

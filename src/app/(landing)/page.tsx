@@ -126,10 +126,7 @@ export default function Home() {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrganization) }}
             />
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebSite) }}
-            />
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebSite) }} />
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSoftwareApp) }}
@@ -189,32 +186,44 @@ export default function Home() {
 
                     <div className={styles.featuresGrid}>
                         <div className={styles.featureCard}>
-                            <div className={styles.featureIcon} aria-hidden="true">▦</div>
+                            <div className={styles.featureIcon} aria-hidden="true">
+                                ▦
+                            </div>
                             <h3>Dashboard financeiro</h3>
                             <p>Métricas, gráficos e uma visão geral do seu mês para decidir com confiança.</p>
                         </div>
                         <div className={styles.featureCard}>
-                            <div className={styles.featureIcon} aria-hidden="true">≋</div>
+                            <div className={styles.featureIcon} aria-hidden="true">
+                                ≋
+                            </div>
                             <h3>Visão mensal</h3>
                             <p>Resumo de entradas, saídas e saldo acumulado para acompanhar sua evolução.</p>
                         </div>
                         <div className={styles.featureCard}>
-                            <div className={styles.featureIcon} aria-hidden="true">◎</div>
+                            <div className={styles.featureIcon} aria-hidden="true">
+                                ◎
+                            </div>
                             <h3>Orçamento e metas</h3>
                             <p>Planeje seu orçamento doméstico e acompanhe o progresso das suas metas.</p>
                         </div>
                         <div className={styles.featureCard}>
-                            <div className={styles.featureIcon} aria-hidden="true">#</div>
+                            <div className={styles.featureIcon} aria-hidden="true">
+                                #
+                            </div>
                             <h3>Tags e categorias</h3>
                             <p>Organize seus gastos por categoria e entenda para onde seu dinheiro está indo.</p>
                         </div>
                         <div className={styles.featureCard}>
-                            <div className={styles.featureIcon} aria-hidden="true">⇅</div>
+                            <div className={styles.featureIcon} aria-hidden="true">
+                                ⇅
+                            </div>
                             <h3>Importação por CSV</h3>
                             <p>Importe transações e acelere sua organização financeira sem cadastrar tudo na mão.</p>
                         </div>
                         <div className={styles.featureCard}>
-                            <div className={styles.featureIcon} aria-hidden="true">✓</div>
+                            <div className={styles.featureIcon} aria-hidden="true">
+                                ✓
+                            </div>
                             <h3>Notas e pagamentos</h3>
                             <p>
                                 Controle valores, vencimentos, itens em aberto e ações em lote para agilizar o dia a
@@ -230,17 +239,23 @@ export default function Home() {
                     <h2 className={styles.featuresTitle}>Como funciona</h2>
                     <div className={styles.howGrid}>
                         <div className={styles.howCard}>
-                            <div className={styles.howStep} aria-hidden="true">1</div>
+                            <div className={styles.howStep} aria-hidden="true">
+                                1
+                            </div>
                             <h3>Crie sua conta</h3>
                             <p>Em poucos segundos você já pode acessar o painel e começar a organizar suas finanças.</p>
                         </div>
                         <div className={styles.howCard}>
-                            <div className={styles.howStep} aria-hidden="true">2</div>
+                            <div className={styles.howStep} aria-hidden="true">
+                                2
+                            </div>
                             <h3>Registre ou importe</h3>
                             <p>Cadastre movimentações ou use o CSV para importar dados e começar com histórico.</p>
                         </div>
                         <div className={styles.howCard}>
-                            <div className={styles.howStep} aria-hidden="true">3</div>
+                            <div className={styles.howStep} aria-hidden="true">
+                                3
+                            </div>
                             <h3>Acompanhe e ajuste</h3>
                             <p>
                                 Use relatórios, tags e orçamento para ajustar hábitos e atingir metas com mais clareza.

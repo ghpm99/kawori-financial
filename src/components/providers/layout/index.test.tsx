@@ -56,10 +56,10 @@ describe("LayoutProvider", () => {
             </LayoutProvider>,
         );
 
-        expect(screen.getByTestId("selected-menu")).toHaveTextContent("mothly_overview");
-        expect(screen.getByTestId("menu-keys")).toHaveTextContent("mothly_overview");
+        expect(screen.getByTestId("selected-menu")).toHaveTextContent("bank_statement");
+        expect(screen.getByTestId("menu-keys")).toHaveTextContent("bank_statement");
         expect(screen.getByTestId("menu-keys")).not.toHaveTextContent("audit");
-        expect(document.title).toContain("Kawori Visão Mensal");
+        expect(document.title).toContain("Kawori Extrato Bancário");
 
         fireEvent.click(screen.getByText("toggle"));
         expect(screen.getByTestId("menu-collapsed")).toHaveTextContent("true");
