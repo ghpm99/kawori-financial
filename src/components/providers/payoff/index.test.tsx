@@ -1,5 +1,5 @@
 import React from "react";
-import { fireEvent, render, screen } from "-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { renderHook } from "@testing-library/react";
 
 const useMutationMock = jest.fn();

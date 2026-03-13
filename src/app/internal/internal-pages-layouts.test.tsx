@@ -246,20 +246,30 @@ jest.mock("@/util/index", () => {
 jest.mock("@tanstack/react-query", () => ({
     useQuery: () => ({
         data: {
-            data: [
+            summary: {
+                opening_balance: 1000,
+                total_credits: 500,
+                total_debits: 200,
+                closing_balance: 1300,
+            },
+            transactions: [
                 {
                     id: 1,
-                    name: "Jan",
-                    date: "2024-01-01",
-                    total_value_credit: 100,
-                    total_value_debit: 50,
-                    total_value_open: 10,
-                    total_value_closed: 40,
-                    total_payments: 2,
+                    name: "Pagamento teste",
+                    description: "",
+                    payment_date: "2024-01-15",
+                    date: "2024-01-15",
+                    type: 0,
+                    value: 500,
+                    running_balance: 1500,
+                    invoice_name: null,
+                    tags: [],
                 },
             ],
         },
         isLoading: false,
+        isError: false,
+        error: null,
     }),
 }));
 

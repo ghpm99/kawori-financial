@@ -138,7 +138,6 @@ GitHub Actions (`.github/workflows/main.yml`) runs on push to `main`, `dev`, `fe
 
 ### Commits
 
-- Always commit repository changes made for the task before finishing.
 - Use Conventional Commits / semantic commits such as `feat(scope): ...`, `fix(scope): ...`, `docs: ...`, `build(ci): ...`.
 - Keep commits focused on the change being delivered.
 - A mensagem de commit deve conter **somente** a mensagem semântica. É **proibido** adicionar `Co-Authored-By`, referências a contas externas, trailers, ou qualquer metadado/informação extra de qualquer natureza. Isso polui a geração de releases e changelogs.

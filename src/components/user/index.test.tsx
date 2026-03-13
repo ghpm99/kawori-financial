@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import dayjs from "dayjs";
 import UserDrawer, { IUserDrawerProps } from ".";
 import { IUserData } from "../providers/user";
@@ -6,11 +6,18 @@ import { IUserData } from "../providers/user";
 const requestPasswordResetServiceMock = jest.fn();
 const socialAccountsServiceMock = jest.fn();
 const unlinkSocialAccountServiceMock = jest.fn();
+const getEmailPreferencesServiceMock = jest.fn();
+const updateEmailPreferencesServiceMock = jest.fn();
 
 jest.mock("@/services/auth", () => ({
     requestPasswordResetService: (...args: unknown[]) => requestPasswordResetServiceMock(...args),
     socialAccountsService: (...args: unknown[]) => socialAccountsServiceMock(...args),
     unlinkSocialAccountService: (...args: unknown[]) => unlinkSocialAccountServiceMock(...args),
+}));
+
+jest.mock("@/services/user", () => ({
+    getEmailPreferencesService: (...args: unknown[]) => getEmailPreferencesServiceMock(...args),
+    updateEmailPreferencesService: (...args: unknown[]) => updateEmailPreferencesServiceMock(...args),
 }));
 
 jest.mock("../socialAuthButtons", () => ({
@@ -27,6 +34,15 @@ jest.mock("antd", () => {
                 data-testid={props["data-testid"] ?? "datepicker"}
                 value={props.value ? props.value.format("DD/MM/YYYY hh:mm:ss") : ""}
                 readOnly
+            />
+        ),
+        Switch: ({ checked, disabled, onChange, "data-testid": testId }: any) => (
+            <button
+                role="switch"
+                aria-checked={checked}
+                disabled={disabled}
+                onClick={() => onChange?.(!checked)}
+                data-testid={testId}
             />
         ),
     };
@@ -62,6 +78,12 @@ describe("UserDrawer Component", () => {
         socialAccountsServiceMock.mockImplementation(() => new Promise(() => {}));
         unlinkSocialAccountServiceMock.mockResolvedValue({
             data: { msg: "Conta social desvinculada." },
+        });
+        getEmailPreferencesServiceMock.mockResolvedValue({
+            data: { allow_all_emails: true, allow_notification: true, allow_promotional: true },
+        });
+        updateEmailPreferencesServiceMock.mockResolvedValue({
+            data: { allow_all_emails: false, allow_notification: false, allow_promotional: false },
         });
     });
 
@@ -135,5 +157,119 @@ describe("UserDrawer Component", () => {
         render(<UserDrawer {...defaultProps} />);
 
         expect(socialAccountsServiceMock).toHaveBeenCalledTimes(1);
+    });
+
+    test("carrega preferencias de e-mail ao abrir drawer", () => {
+        render(<UserDrawer {...defaultProps} />);
+
+        expect(getEmailPreferencesServiceMock).toHaveBeenCalledTimes(1);
+    });
+
+    test("renderiza secao de preferencias de e-mail", async () => {
+        await act(async () => {
+            render(<UserDrawer {...defaultProps} />);
+        });
+
+        expect(screen.getByText("Preferencias de e-mail")).toBeInTheDocument();
+        expect(screen.getByText("Permitir todos os e-mails")).toBeInTheDocument();
+        expect(screen.getByText("Notificacoes")).toBeInTheDocument();
+        expect(screen.getByText("Promocionais")).toBeInTheDocument();
+    });
+
+    test("switches de notificacao e promocional ficam disabled quando allow_all_emails esta ativo", async () => {
+        getEmailPreferencesServiceMock.mockResolvedValue({
+            data: { allow_all_emails: true, allow_notification: true, allow_promotional: true },
+        });
+
+        await act(async () => {
+            render(<UserDrawer {...defaultProps} />);
+        });
+
+        expect(screen.getByTestId("switch-allow-all")).not.toBeDisabled();
+        expect(screen.getByTestId("switch-notification")).toBeDisabled();
+        expect(screen.getByTestId("switch-promotional")).toBeDisabled();
+    });
+
+    test("switches de notificacao e promocional ficam enabled quando allow_all_emails esta desativado", async () => {
+        getEmailPreferencesServiceMock.mockResolvedValue({
+            data: { allow_all_emails: false, allow_notification: false, allow_promotional: false },
+        });
+
+        await act(async () => {
+            render(<UserDrawer {...defaultProps} />);
+        });
+
+        expect(screen.getByTestId("switch-notification")).not.toBeDisabled();
+        expect(screen.getByTestId("switch-promotional")).not.toBeDisabled();
+    });
+
+    test("ao desativar allow_all_emails, envia PUT com todos os campos false", async () => {
+        updateEmailPreferencesServiceMock.mockResolvedValue({
+            data: { allow_all_emails: false, allow_notification: false, allow_promotional: false },
+        });
+
+        await act(async () => {
+            render(<UserDrawer {...defaultProps} />);
+        });
+
+        await act(async () => {
+            fireEvent.click(screen.getByTestId("switch-allow-all"));
+        });
+
+        expect(updateEmailPreferencesServiceMock).toHaveBeenCalledWith({
+            allow_all_emails: false,
+            allow_notification: false,
+            allow_promotional: false,
+        });
+    });
+
+    test("ao ativar ambos notificacao e promocional, ativa allow_all_emails automaticamente", async () => {
+        getEmailPreferencesServiceMock.mockResolvedValue({
+            data: { allow_all_emails: false, allow_notification: true, allow_promotional: false },
+        });
+        updateEmailPreferencesServiceMock.mockResolvedValue({
+            data: { allow_all_emails: true, allow_notification: true, allow_promotional: true },
+        });
+
+        await act(async () => {
+            render(<UserDrawer {...defaultProps} />);
+        });
+
+        await act(async () => {
+            fireEvent.click(screen.getByTestId("switch-promotional"));
+        });
+
+        expect(updateEmailPreferencesServiceMock).toHaveBeenCalledWith({
+            allow_notification: true,
+            allow_promotional: true,
+            allow_all_emails: true,
+        });
+    });
+
+    test("exibe mensagem de erro ao falhar carregamento de preferencias", async () => {
+        getEmailPreferencesServiceMock.mockRejectedValue(new Error("Network error"));
+
+        await act(async () => {
+            render(<UserDrawer {...defaultProps} />);
+        });
+
+        expect(screen.getByText("Nao foi possivel carregar preferencias de e-mail.")).toBeInTheDocument();
+    });
+
+    test("exibe mensagem de erro ao falhar atualizacao de preferencias", async () => {
+        getEmailPreferencesServiceMock.mockResolvedValue({
+            data: { allow_all_emails: true, allow_notification: true, allow_promotional: true },
+        });
+        updateEmailPreferencesServiceMock.mockRejectedValue(new Error("Network error"));
+
+        await act(async () => {
+            render(<UserDrawer {...defaultProps} />);
+        });
+
+        await act(async () => {
+            fireEvent.click(screen.getByTestId("switch-allow-all"));
+        });
+
+        expect(screen.getByText("Nao foi possivel atualizar preferencias de e-mail.")).toBeInTheDocument();
     });
 });
